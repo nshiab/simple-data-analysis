@@ -525,6 +525,11 @@ The resulting table would be:
 | Kyoto     | Japan       | Asia      | null  |
 | Auckland  | New Zealand | Oceania   | null  |
 
+Use `processResponse` to transform or validate each parsed response batch before
+storing it. Return the resulting array (or a promise of it), preserving its row
+count and order and the requested columns. Throwing an error follows `retry` and
+`retryCheck`; the callback also runs when a response comes from cache.
+
 #### Create embeddings
 
 Embeddings represent text as lists of numbers that capture aspects of its
@@ -2136,12 +2141,6 @@ Configuration options for the AI request.
 
 The number of rows to process in each batch. Defaults to `1`.
 
-###### clean?
-
-(`response`) => `unknown`
-
-A function to transform the parsed response before validation and caching. Defaults to `undefined`.
-
 ###### concurrency?
 
 `number`
@@ -2193,6 +2192,12 @@ An object to track cumulative metrics across multiple AI requests. Pass an objec
 ###### metrics.totalRequests
 
 `number`
+
+###### processResponse?
+
+(`response`) => `unknown`
+
+Transforms or validates the parsed response for a batch. Return the resulting array, or a promise of it; throwing or rejecting follows `retry` and `retryCheck`. Runs on cached responses too. The result must preserve row count and order and include every requested column. Defaults to `undefined`.
 
 ###### rateLimitPerMinute?
 
@@ -2309,6 +2314,26 @@ const names = await sdb
   .loadArray([{ name: "Marie" }, { name: "John" }])
   .aiRowByRow("name", "description", "Describe this name.", {
     generation: { provider: "ollama", model: "gemma3:4b" },
+  })
+  .log();
+```
+
+```ts
+await sdb
+  .newTable("country_names")
+  .loadArray([{ city: "Paris" }])
+  .aiRowByRow("city", "country", "Return the country name.", {
+    processResponse: (response) => {
+      if (!Array.isArray(response)) throw new Error("Expected an array.");
+      return response.map((row: unknown) => {
+        if (
+          typeof row !== "object" || row === null ||
+          !("country" in row) || typeof row.country !== "string"
+        ) throw new Error("Expected a country name.");
+        return { country: row.country.trim() };
+      });
+    },
+    retry: 2,
   })
   .log();
 ```

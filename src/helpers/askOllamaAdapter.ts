@@ -116,7 +116,7 @@ export default function askOllamaAdapter(
           ? z.record(z.string(), z.unknown()).parse(options.schemaJson)
           : undefined;
 
-  // SDA row cleaners must run before validation. Keep the original schema on
+  // SDA response processors must run before validation. Keep the original schema on
   // the request while letting SDA parse and process the response in that path.
   // Other requests use journalism-ai's schema validation and cache handling.
   const requestPrompt = deferValidation

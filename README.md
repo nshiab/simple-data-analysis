@@ -521,6 +521,11 @@ The resulting table would be:
 | Kyoto     | Japan       | Asia      | null  |
 | Auckland  | New Zealand | Oceania   | null  |
 
+Use `processResponse` to transform or validate each parsed response batch before
+storing it. Return the resulting array (or a promise of it), preserving its row
+count and order and the requested columns. Throwing an error follows `retry` and
+`retryCheck`; the callback also runs when a response comes from cache.
+
 #### Create embeddings
 
 Embeddings represent text as lists of numbers that capture aspects of its

@@ -126,11 +126,13 @@ export default async function askAI<TResponse = unknown>(
       ? parsedResponse
       : fromJSONSchema(schemaJson as Parameters<typeof fromJSONSchema>[0]).parse(parsedResponse);
 
+  // Preserve the provider response even when the callback modifies its input.
+  const responseForCache = processedCacheFile ? structuredClone(validatedResponse) : undefined;
   const processedResponse = options.processResponse
     ? await options.processResponse(validatedResponse)
     : (validatedResponse as TResponse);
   if (processedCacheFile) {
-    writeAIResponseCache(processedCacheFile, validatedResponse);
+    writeAIResponseCache(processedCacheFile, responseForCache);
   }
   return processedResponse;
 }

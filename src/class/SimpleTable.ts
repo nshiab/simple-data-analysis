@@ -180,6 +180,27 @@ export default class SimpleTable extends SimpleTableCore {
    *   .log();
    * ```
    *
+   * @example
+   * ```ts
+   * await sdb
+   *   .newTable("country_names")
+   *   .loadArray([{ city: "Paris" }])
+   *   .aiRowByRow("city", "country", "Return the country name.", {
+   *     processResponse: (response) => {
+   *       if (!Array.isArray(response)) throw new Error("Expected an array.");
+   *       return response.map((row: unknown) => {
+   *         if (
+   *           typeof row !== "object" || row === null ||
+   *           !("country" in row) || typeof row.country !== "string"
+   *         ) throw new Error("Expected a country name.");
+   *         return { country: row.country.trim() };
+   *       });
+   *     },
+   *     retry: 2,
+   *   })
+   *   .log();
+   * ```
+   *
    * @param column - The name of the column to be used as input for the AI prompt.
    * @param newColumn - The name of the new column (or an array of column names) where the AI's response will be stored.
    * @param prompt - The input string to guide the AI's response.
@@ -194,7 +215,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.retryCheck - A function that receives an error and returns whether it should be retried. Defaults to `undefined`.
    * @param options.rateLimitPerMinute - The maximum number of provider requests started per minute. Request starts are spaced across the worker pool; cached responses bypass the limit. Defaults to `undefined` (no limit).
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
-   * @param options.clean - A function to transform the parsed response before validation and caching. Defaults to `undefined`.
+   * @param options.processResponse - Transforms or validates the parsed response for a batch. Return the resulting array, or a promise of it; throwing or rejecting follows `retry` and `retryCheck`. Runs on cached responses too. The result must preserve row count and order and include every requested column. Defaults to `undefined`.
    * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
    * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
    * @returns The table, so methods can be chained.
@@ -293,7 +314,7 @@ export default class SimpleTable extends SimpleTableCore {
       retryCheck?: (error: unknown) => Promise<boolean> | boolean;
       verbose?: boolean;
       rateLimitPerMinute?: number;
-      clean?: (response: unknown) => unknown;
+      processResponse?: (response: unknown) => unknown;
       extraInstructions?: string;
       metrics?: {
         totalCost: number;

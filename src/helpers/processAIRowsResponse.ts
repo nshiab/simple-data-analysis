@@ -1,16 +1,18 @@
 type AIRow = { [key: string]: unknown };
 
-/** Cleans and validates a batched AI response before it is cached or stored. */
-export default function processAIRowsResponse(
+/** Processes and validates a batched AI response before it is cached or stored. */
+export default async function processAIRowsResponse(
   rawResponse: unknown,
   batchLength: number,
   newColumns: string[],
   options: {
-    clean?: (response: unknown) => unknown;
+    processResponse?: (response: unknown) => unknown;
     test?: (result: AIRow) => void;
   },
-): AIRow[] {
-  const response = options.clean ? options.clean(rawResponse) : rawResponse;
+): Promise<AIRow[]> {
+  const response = options.processResponse
+    ? await options.processResponse(rawResponse)
+    : rawResponse;
   if (!Array.isArray(response)) {
     throw new Error(`The AI returned a non-array value: ${JSON.stringify(response)}`);
   }

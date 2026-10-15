@@ -246,6 +246,90 @@ function registerRowProcessingContract(
     }
   });
 
+  test(`aiRowByRow processes async responses and revalidates cache (${provider})`, async () => {
+    const fixture = createFixture();
+    await fixture.run(async () => {
+      const sdb = new SimpleDB();
+      let callbacks = 0;
+      let rejectCached = true;
+      const rawCountries: string[] = [];
+      try {
+        for (const suffix of ["first", "second", "recovered"]) {
+          const table = sdb.newTable(`processed_${suffix}`);
+          await table
+            .loadArray([{ city: "Marrakech" }])
+            .aiRowByRow("city", "country", "Return the country for response processing.", {
+              generation: fixture.generation,
+              retry: 1,
+              retryCheck: (error) => error instanceof Error && error.message === "Retry processing",
+              processResponse: async (response) => {
+                await Promise.resolve();
+                callbacks++;
+                const rows = z.array(z.object({ country: z.string() })).parse(response);
+                rawCountries.push(...rows.map((row) => row.country));
+                if (suffix === "recovered" && rejectCached) {
+                  rejectCached = false;
+                  throw new Error("Retry processing");
+                }
+                if (!Array.isArray(response)) throw new Error("Expected an array.");
+                const responseRows: unknown[] = response;
+                responseRows.forEach((row) => {
+                  if (
+                    typeof row !== "object" ||
+                    row === null ||
+                    !("country" in row) ||
+                    typeof row.country !== "string"
+                  ) {
+                    throw new Error("Expected a country.");
+                  }
+                  row.country = `${row.country}:${suffix}`;
+                });
+                return responseRows;
+              },
+            })
+            .run();
+          expect(await table.getValues("country")).toEqual([`Morocco:${suffix}`]);
+          expect(fixture.requestCount()).toBe(suffix === "recovered" ? 2 : 1);
+        }
+        expect(callbacks).toBe(4);
+        expect(rawCountries).toEqual(Array(4).fill("Morocco"));
+      } finally {
+        await sdb.close();
+      }
+    });
+  });
+
+  test(`aiRowByRow stores async processing failures after retries (${provider})`, async () => {
+    const fixture = createFixture();
+    await fixture.run(async () => {
+      const sdb = new SimpleDB();
+      let callbacks = 0;
+      try {
+        const table = sdb.newTable("processing_errors");
+        await table
+          .loadArray([{ city: "Kyoto" }])
+          .aiRowByRow("city", "country", "Return the country for rejected processing.", {
+            generation: fixture.generation,
+            retry: 1,
+            errorColumn: "error",
+            processResponse: async () => {
+              await Promise.resolve();
+              callbacks++;
+              throw new Error("Rejected response");
+            },
+          })
+          .run();
+        expect(callbacks).toBe(2);
+        expect(fixture.requestCount()).toBe(2);
+        expect(await table.getData()).toEqual([
+          { city: "Kyoto", country: null, error: "Rejected response" },
+        ]);
+      } finally {
+        await sdb.close();
+      }
+    });
+  });
+
   test(`aiRowByRow shared multiple-column contract (${provider})`, async () => {
     const fixture = createFixture();
     await fixture.run(async () => {
@@ -511,7 +595,7 @@ test("aiRowByRow preserves SQL values and queued order across transfer batches",
           ollama: client,
           cache: false,
         },
-        clean: (response) =>
+        processResponse: (response) =>
           (response as { label: string }[]).map((row) => ({
             ...row,
             extra: "must not be stored",
@@ -564,7 +648,7 @@ for (const failure of ["generation", "staging"]) {
                 cache: false,
               },
               batchSize: 500,
-              clean: (response) =>
+              processResponse: (response) =>
                 requests > 2 && failure === "staging"
                   ? (response as unknown[]).map(() => ({ text: 42 }))
                   : response,
