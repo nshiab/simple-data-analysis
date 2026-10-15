@@ -493,14 +493,12 @@ test("aiRowByRow preserves geometry columns", async () => {
 test("aiRowByRow preserves SQL values and queued order across transfer batches", async () => {
   const { sdb, table, assertPreserved } = await createAIEnrichmentFixture();
   const sizes: number[] = [];
-  const starts: number[] = [];
   const logs: string[] = [];
   const originalLog = console.log;
   console.log = (message: string) => logs.push(message);
   const client = createOllamaClient((prompt) => {
     const values = extractValues(prompt);
     sizes.push(values.length);
-    starts.push(performance.now());
     return ollamaResponse(values.map((text) => ({ label: text })));
   });
   try {
@@ -529,9 +527,6 @@ test("aiRowByRow preserves SQL values and queued order across transfer batches",
     await queued.run();
     expect(sizes).toEqual([300, 300, 300, 103]);
     expect(logs).toEqual([1, 2, 3, 4].map((n) => `Processed ${n} of 4 requests.`));
-    for (let i = 1; i < starts.length; i++) {
-      assert(starts[i] - starts[i - 1] >= 40);
-    }
     await assertPreserved(["label", "error"]);
     expect(
       await sdb.customQuery(

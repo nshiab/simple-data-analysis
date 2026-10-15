@@ -81,6 +81,31 @@ test("spaces provider request starts across concurrent workers", async () => {
   assert(starts[2] - starts[1] >= 20);
 });
 
+test("does not release overdue requests together after the event loop stalls", async () => {
+  vi.useFakeTimers({ now: 0, toFake: ["Date", "setTimeout", "clearTimeout"] });
+  const starts: number[] = [];
+  const pending = runAIRequestPool(
+    Array.from({ length: 3 }, (_, index) => async (beforeRequest) => {
+      await beforeRequest();
+      starts.push(Date.now());
+      if (index === 0) {
+        // Expire timers without yielding to their promise continuations, as a
+        // synchronous provider operation or an overloaded event loop would.
+        vi.advanceTimersByTime(120);
+      }
+      return index;
+    }),
+    2,
+    { minRequestIntervalMs: 50 },
+  );
+  await vi.runAllTimersAsync();
+  await pending;
+  expect(starts).toHaveLength(3);
+  for (let i = 1; i < starts.length; i++) {
+    expect(starts[i] - starts[i - 1]).toBeGreaterThanOrEqual(50);
+  }
+});
+
 test("does not wait after the final provider request", async () => {
   const start = performance.now();
   await runAIRequestPool(

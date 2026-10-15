@@ -42,12 +42,14 @@ export default async function runAIRequestPool<T>(
   };
 
   const beforeRequest = async () => {
-    throwIfStopped();
-    const now = Date.now();
-    const requestStart = Math.max(now, state.nextRequestStart);
-    state.nextRequestStart = requestStart + interval;
-    const wait = requestStart - now;
-    if (wait > 0) {
+    while (true) {
+      throwIfStopped();
+      const now = Date.now();
+      const wait = state.nextRequestStart - now;
+      if (wait <= 0) {
+        state.nextRequestStart = now + interval;
+        return;
+      }
       await new Promise<void>((resolve) => {
         const finish = () => {
           clearTimeout(timer);
@@ -57,9 +59,8 @@ export default async function runAIRequestPool<T>(
         const timer = setTimeout(finish, wait);
         pendingWaits.add(finish);
       });
+      // Recheck after waking: delayed timers must not release a burst of requests.
     }
-    // A terminal failure cancels pacing waits before they can dispatch.
-    throwIfStopped();
   };
 
   const worker = async () => {
