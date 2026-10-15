@@ -487,7 +487,19 @@ AI_EMBEDDINGS_MODEL=nomic-embed-text
 SDA's AI capabilities come from
 [`journalism-ai`](https://www.npmjs.com/package/@nshiab/journalism-ai). By default, LLM
 responses and embeddings are cached in the hidden `.journalism-cache` folder,
-avoiding repeated model calls for the same request.
+avoiding repeated model calls for the same request. This caches model responses
+before user processing, not the output of your callbacks. `processResponse`
+(including `generation.processResponse`) runs on fresh and cached responses and
+can be async. Changing it reuses the model response and applies your new
+processing without another model call. Mutating its input does not change the
+stored response.
+
+Fresh model responses are saved only after response processing succeeds. If
+processing rejects a cached response, that entry is removed; a retry can then
+request a fresh response. Set `generation.cache: false` to disable generation
+caching, or delete `.journalism-cache` to clear the request cache. Add this folder
+to `.gitignore`. This request cache is separate from the table-level `cache()`
+method, which caches the result of a computation in `.sda-cache`.
 
 #### Enrich rows with AI
 
@@ -528,7 +540,10 @@ The resulting table would be:
 Use `processResponse` to transform or validate each parsed response batch before
 storing it. Return the resulting array (or a promise of it), preserving its row
 count and order and the requested columns. Throwing an error follows `retry` and
-`retryCheck`; the callback also runs when a response comes from cache.
+`retryCheck`. On both fresh and cached responses, `generation.processResponse`
+runs first (if provided), then `processResponse`, then SDA checks the rows and
+runs your optional `test` callback. The original model response is cached only
+if all these steps succeed.
 
 #### Create embeddings
 
@@ -1735,7 +1750,7 @@ Environment variables are named configuration values supplied to the running pro
 
 Ollama temperature defaults to 0, while Gemini uses the provider's default. Provider-specific controls live under `generation`.
 
-The generated query is cached locally in `.journalism-cache` by default. Set `generation.cache` to `false` to disable caching, and remember to add `.journalism-cache` to your `.gitignore`.
+The model response containing the generated query is cached locally in `.journalism-cache` by default, before user processing. `generation.processResponse` runs on fresh and cached responses; its output is never cached and changing it reuses the model response. A cache hit still processes and executes the query against the current table. Fresh responses are saved only after processing succeeds; rejected cached responses are removed and the error is propagated. Set `generation.cache` to `false` to disable caching, or remove `.journalism-cache` to clear it. Add that folder to your `.gitignore`.
 The work is queued and runs in chain order at the next awaited observer or `run()` call.
 
 ###### Parameters
@@ -1836,7 +1851,7 @@ Performs Retrieval-Augmented Generation (RAG) by combining semantic vector searc
 
 Internally, this method uses the `hybridSearch` method to retrieve relevant rows. If you want to perform hybrid search without the LLM step (i.e., to get the table of results directly), use `hybridSearch` instead.
 
-When vector search is enabled, retrieval caches embedding responses in `.journalism-cache` and the table with its generated embedding column in `.sda-cache`. The final generated answer is also cached in `.journalism-cache`. Set `embeddings.cache` or `generation.cache` to `false` to disable the corresponding caches.
+When vector search is enabled, retrieval caches embedding responses in `.journalism-cache` and the table with its generated embedding column in `.sda-cache`. The model response for the answer is also cached in `.journalism-cache`, before user processing. `generation.processResponse` runs on fresh and cached responses; its output is never cached and changing it reuses the model response. Fresh responses are saved only after processing succeeds; rejected cached responses are removed and the error is propagated. Set `embeddings.cache` or `generation.cache` to `false` to disable the corresponding caches.
 
 Remove `.journalism-cache` and `.sda-cache` to clear existing cache entries. Remember to add both directories to your `.gitignore`.
 
@@ -2101,7 +2116,9 @@ Environment variables are named configuration values supplied to the running pro
 
 To manage rate limits, use `batchSize` to process multiple rows per request and `rateLimitPerMinute` to pace requests across the worker pool. The `concurrency` option controls how many requests may run in parallel.
 
-Results are cached locally in `.journalism-cache` by default. Set `generation.cache` to `false` to disable caching, and remember to add `.journalism-cache` to your `.gitignore`.
+Model responses are cached locally in `.journalism-cache` by default, before user processing. On both fresh responses and cache hits, SDA awaits `generation.processResponse` (if provided), then `processResponse`, then checks the rows and runs `test`. Callback outputs are never cached, so changing a callback reuses the original model response without another model call. Mutating the callback input does not change the stored response.
+
+A fresh model response is saved only after processing and row checks succeed. If processing or validation rejects a cached response, SDA removes that entry; retries can then request a fresh response. Set `generation.cache` to `false` to disable caching, or remove `.journalism-cache` to clear it. Add that folder to your `.gitignore`.
 
 If the AI returns fewer items than expected in a batch, or if a custom `test` function fails, the `retry` option will reattempt the request. The `retryCheck` function can restrict which errors are retried.
 
@@ -2197,7 +2214,7 @@ An object to track cumulative metrics across multiple AI requests. Pass an objec
 
 (`response`) => `unknown`
 
-Transforms or validates the parsed response for a batch. Return the resulting array, or a promise of it; throwing or rejecting follows `retry` and `retryCheck`. Runs on cached responses too. The result must preserve row count and order and include every requested column. Defaults to `undefined`.
+Transforms or validates the parsed response for a batch. Return the resulting array, or a promise of it; throwing or rejecting follows `retry` and `retryCheck`. Runs on cached responses too; its output is never cached and changing it does not invalidate the model-response cache. The result must preserve row count and order and include every requested column. Defaults to `undefined`.
 
 ###### rateLimitPerMinute?
 

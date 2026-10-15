@@ -86,7 +86,9 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * To manage rate limits, use `batchSize` to process multiple rows per request and `rateLimitPerMinute` to pace requests across the worker pool. The `concurrency` option controls how many requests may run in parallel.
    *
-   * Results are cached locally in `.journalism-cache` by default. Set `generation.cache` to `false` to disable caching, and remember to add `.journalism-cache` to your `.gitignore`.
+   * Model responses are cached locally in `.journalism-cache` by default, before user processing. On both fresh responses and cache hits, SDA awaits `generation.processResponse` (if provided), then `processResponse`, then checks the rows and runs `test`. Callback outputs are never cached, so changing a callback reuses the original model response without another model call. Mutating the callback input does not change the stored response.
+   *
+   * A fresh model response is saved only after processing and row checks succeed. If processing or validation rejects a cached response, SDA removes that entry; retries can then request a fresh response. Set `generation.cache` to `false` to disable caching, or remove `.journalism-cache` to clear it. Add that folder to your `.gitignore`.
    *
    * If the AI returns fewer items than expected in a batch, or if a custom `test` function fails, the `retry` option will reattempt the request. The `retryCheck` function can restrict which errors are retried.
    *
@@ -215,7 +217,7 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.retryCheck - A function that receives an error and returns whether it should be retried. Defaults to `undefined`.
    * @param options.rateLimitPerMinute - The maximum number of provider requests started per minute. Request starts are spaced across the worker pool; cached responses bypass the limit. Defaults to `undefined` (no limit).
    * @param options.verbose - If `true`, logs additional debugging information, including the full prompt sent to the AI. Defaults to `false`.
-   * @param options.processResponse - Transforms or validates the parsed response for a batch. Return the resulting array, or a promise of it; throwing or rejecting follows `retry` and `retryCheck`. Runs on cached responses too. The result must preserve row count and order and include every requested column. Defaults to `undefined`.
+   * @param options.processResponse - Transforms or validates the parsed response for a batch. Return the resulting array, or a promise of it; throwing or rejecting follows `retry` and `retryCheck`. Runs on cached responses too; its output is never cached and changing it does not invalidate the model-response cache. The result must preserve row count and order and include every requested column. Defaults to `undefined`.
    * @param options.extraInstructions - Additional instructions to append to the prompt, providing more context or guidance for the AI.
    * @param options.metrics - An object to track cumulative metrics across multiple AI requests. Pass an object with totalCost, totalInputTokens, totalOutputTokens, and totalRequests properties (all initialized to 0). The function will update these values after each request. Note: totalCost is only calculated for Google GenAI models, not for Ollama.
    * @returns The table, so methods can be chained.
@@ -230,7 +232,9 @@ export default class SimpleTable extends SimpleTableCore {
         systemPrompt?: string;
         model?: string;
         schemaJson?: unknown;
+        /** Cache the model response before user processing. Defaults to true. */
         cache?: boolean;
+        /** Runs on fresh and cached model responses; its output is never cached. Changing it reuses the model response. */
         processResponse?: (response: unknown) => unknown;
         temperature?: number;
       } & (
@@ -861,7 +865,7 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * Internally, this method uses the `hybridSearch` method to retrieve relevant rows. If you want to perform hybrid search without the LLM step (i.e., to get the table of results directly), use `hybridSearch` instead.
    *
-   * When vector search is enabled, retrieval caches embedding responses in `.journalism-cache` and the table with its generated embedding column in `.sda-cache`. The final generated answer is also cached in `.journalism-cache`. Set `embeddings.cache` or `generation.cache` to `false` to disable the corresponding caches.
+   * When vector search is enabled, retrieval caches embedding responses in `.journalism-cache` and the table with its generated embedding column in `.sda-cache`. The model response for the answer is also cached in `.journalism-cache`, before user processing. `generation.processResponse` runs on fresh and cached responses; its output is never cached and changing it reuses the model response. Fresh responses are saved only after processing succeeds; rejected cached responses are removed and the error is propagated. Set `embeddings.cache` or `generation.cache` to `false` to disable the corresponding caches.
    *
    * Remove `.journalism-cache` and `.sda-cache` to clear existing cache entries. Remember to add both directories to your `.gitignore`.
    *
@@ -1061,7 +1065,9 @@ export default class SimpleTable extends SimpleTableCore {
       generation?: {
         systemPrompt?: string;
         model?: string;
+        /** Cache the model response before user processing. Defaults to true. */
         cache?: boolean;
+        /** Runs on fresh and cached model responses; its output is never cached. Changing it reuses the model response. */
         processResponse?: (response: unknown) => unknown;
         temperature?: number;
       } & (
@@ -1158,7 +1164,7 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * Ollama temperature defaults to 0, while Gemini uses the provider's default. Provider-specific controls live under `generation`.
    *
-   * The generated query is cached locally in `.journalism-cache` by default. Set `generation.cache` to `false` to disable caching, and remember to add `.journalism-cache` to your `.gitignore`.
+   * The model response containing the generated query is cached locally in `.journalism-cache` by default, before user processing. `generation.processResponse` runs on fresh and cached responses; its output is never cached and changing it reuses the model response. A cache hit still processes and executes the query against the current table. Fresh responses are saved only after processing succeeds; rejected cached responses are removed and the error is propagated. Set `generation.cache` to `false` to disable caching, or remove `.journalism-cache` to clear it. Add that folder to your `.gitignore`.
    * The work is queued and runs in chain order at the next awaited observer or `run()` call.
    *
    * @example
@@ -1221,7 +1227,9 @@ export default class SimpleTable extends SimpleTableCore {
       generation?: {
         systemPrompt?: string;
         model?: string;
+        /** Cache the model response before user processing. Defaults to true. */
         cache?: boolean;
+        /** Runs on fresh and cached model responses; its output is never cached. Changing it reuses the model response. */
         processResponse?: (response: unknown) => unknown;
         temperature?: number;
       } & (

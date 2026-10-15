@@ -287,7 +287,7 @@ for (const deferred of [false, true]) {
   });
 }
 
-test("processes parsed provider output before SDA cleaning and preserves the raw cache boundary", async () => {
+test("processes parsed provider output before SDA processing and preserves the raw cache boundary", async () => {
   const previousDirectory = process.cwd();
   const temporaryDirectory = mkdtempSync(tmpdir() + "/sda-adapter-cache-");
   process.chdir(temporaryDirectory);
@@ -314,7 +314,7 @@ test("processes parsed provider output before SDA cleaning and preserves the raw
       generation,
       schemaJson,
       processResponse: (response) => {
-        events.push("first cleaner");
+        events.push("first processor");
         return object({ wrapped: schema }).parse(response).wrapped;
       },
     });
@@ -322,7 +322,7 @@ test("processes parsed provider output before SDA cleaning and preserves the raw
       generation,
       schemaJson,
       processResponse: (response) => {
-        events.push("second cleaner");
+        events.push("second processor");
         const parsed = object({ wrapped: schema }).parse(response).wrapped;
         return { value: `${parsed.value}-updated` };
       },
@@ -330,7 +330,7 @@ test("processes parsed provider output before SDA cleaning and preserves the raw
 
     expect(first).toEqual({ value: "one" });
     expect(second).toEqual({ value: "one-updated" });
-    expect(events).toEqual(["provider", "first cleaner", "second cleaner"]);
+    expect(events).toEqual(["provider", "first processor", "provider", "second processor"]);
     expect(chat).toHaveBeenCalledTimes(1);
     expect(chat.mock.calls[0][0].format).toEqual(schemaJson);
   } finally {

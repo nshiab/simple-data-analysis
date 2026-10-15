@@ -44,7 +44,7 @@ export default async function askAI<TResponse = unknown>(
     provider === "ollama" && schemaJson
       ? `${prompt}\n\nReturn JSON matching this schema exactly:\n${JSON.stringify(schemaJson)}`
       : prompt;
-  const processedCacheFile =
+  const modelCacheFile =
     generationOptions.cache !== false && options.processResponse
       ? getAIResponseCacheFile({
           provider,
@@ -71,13 +71,26 @@ export default async function askAI<TResponse = unknown>(
           schemaJson,
         })
       : undefined;
-  if (processedCacheFile) {
-    const cachedResponse = readAIResponseCache(processedCacheFile);
+  // SDA owns both callbacks when it owns the cache, so neither output is stored.
+  const providerGeneration = options.processResponse
+    ? { ...generationOptions, processResponse: undefined }
+    : generationOptions;
+  const processModelResponse = async (response: unknown): Promise<TResponse> => {
+    const generated =
+      options.processResponse && generationOptions.processResponse
+        ? await generationOptions.processResponse(response)
+        : response;
+    return options.processResponse
+      ? await options.processResponse(generated)
+      : (generated as TResponse);
+  };
+  if (modelCacheFile) {
+    const cachedResponse = readAIResponseCache(modelCacheFile);
     if (cachedResponse !== undefined) {
       try {
-        return await options.processResponse!(cachedResponse);
+        return await processModelResponse(cachedResponse);
       } catch (error) {
-        removeAIResponseCache(processedCacheFile);
+        removeAIResponseCache(modelCacheFile);
         throw error;
       }
     }
@@ -88,17 +101,17 @@ export default async function askAI<TResponse = unknown>(
   const result =
     provider === "ollama"
       ? await askOllamaAdapter(prompt, {
-          generation: generationOptions as AskOllamaOptions,
+          generation: providerGeneration as AskOllamaOptions,
           systemPrompt,
           schemaJson,
-          disableCache: Boolean(processedCacheFile),
+          disableCache: Boolean(modelCacheFile),
           deferValidation: options.processResponse !== undefined,
         })
       : await askGeminiAdapter(prompt, {
-          generation: generationOptions as AskGeminiOptions,
+          generation: providerGeneration as AskGeminiOptions,
           systemPrompt,
           schemaJson,
-          disableCache: Boolean(processedCacheFile),
+          disableCache: Boolean(modelCacheFile),
         });
 
   if (options.metrics) {
@@ -127,12 +140,10 @@ export default async function askAI<TResponse = unknown>(
       : fromJSONSchema(schemaJson as Parameters<typeof fromJSONSchema>[0]).parse(parsedResponse);
 
   // Preserve the provider response even when the callback modifies its input.
-  const responseForCache = processedCacheFile ? structuredClone(validatedResponse) : undefined;
-  const processedResponse = options.processResponse
-    ? await options.processResponse(validatedResponse)
-    : (validatedResponse as TResponse);
-  if (processedCacheFile) {
-    writeAIResponseCache(processedCacheFile, responseForCache);
+  const responseForCache = modelCacheFile ? structuredClone(validatedResponse) : undefined;
+  const processedResponse = await processModelResponse(validatedResponse);
+  if (modelCacheFile) {
+    writeAIResponseCache(modelCacheFile, responseForCache);
   }
   return processedResponse;
 }
