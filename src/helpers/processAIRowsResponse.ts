@@ -1,36 +1,41 @@
 type AIRow = { [key: string]: unknown };
 
-/** Processes and validates a batched AI response before it is cached or stored. */
+function isRow(value: unknown): value is AIRow {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/** Processes each response row in order and validates the resulting objects. */
 export default async function processAIRowsResponse(
   rawResponse: unknown,
   batchLength: number,
   newColumns: string[],
   options: {
-    processResponse?: (response: unknown) => unknown;
+    processResponse?: (response: AIRow) => unknown;
   },
 ): Promise<AIRow[]> {
-  const response = options.processResponse
-    ? await options.processResponse(rawResponse)
-    : rawResponse;
-  if (!Array.isArray(response)) {
-    throw new Error(`The AI returned a non-array value: ${JSON.stringify(response)}`);
+  if (!Array.isArray(rawResponse)) {
+    throw new Error(`The AI returned a non-array value: ${JSON.stringify(rawResponse)}`);
   }
-  if (response.length !== batchLength) {
+  if (rawResponse.length !== batchLength) {
     throw new Error(
-      `The AI returned ${response.length} values, but the batch size is ${batchLength}.`,
+      `The AI returned ${rawResponse.length} values, but the batch size is ${batchLength}.`,
     );
   }
-  for (const item of response) {
-    if (typeof item !== "object" || item === null) {
+  const rows: AIRow[] = [];
+  for (const item of rawResponse) {
+    if (!isRow(item)) {
       throw new Error(`The AI did not return an object: ${JSON.stringify(item)}`);
     }
+    const row = options.processResponse ? await options.processResponse(item) : item;
+    if (!isRow(row)) {
+      throw new Error(`processResponse must return an object: ${JSON.stringify(row)}`);
+    }
     for (const column of newColumns) {
-      if (!(column in item)) {
-        throw new Error(
-          `The AI's response is missing the key '${column}': ${JSON.stringify(item)}`,
-        );
+      if (!(column in row)) {
+        throw new Error(`The AI's response is missing the key '${column}': ${JSON.stringify(row)}`);
       }
     }
+    rows.push(row);
   }
-  return response as AIRow[];
+  return rows;
 }

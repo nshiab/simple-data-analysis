@@ -257,42 +257,34 @@ function registerRowProcessingContract(
         for (const suffix of ["first", "second", "recovered"]) {
           const table = sdb.newTable(`processed_${suffix}`);
           await table
-            .loadArray([{ city: "Marrakech" }])
+            .loadArray([{ city: "Marrakech" }, { city: "Kyoto" }])
             .aiRowByRow("city", "country", "Return the country for response processing.", {
               generation: fixture.generation,
+              batchSize: 2,
               retry: 1,
               retryCheck: (error) => error instanceof Error && error.message === "Retry processing",
               processResponse: async (response) => {
                 await Promise.resolve();
                 callbacks++;
-                const rows = z.array(z.object({ country: z.string() })).parse(response);
-                rawCountries.push(...rows.map((row) => row.country));
-                if (suffix === "recovered" && rejectCached) {
+                const row = z.object({ country: z.string() }).parse(response);
+                rawCountries.push(row.country);
+                if (suffix === "recovered" && rejectCached && row.country === "Japan") {
                   rejectCached = false;
                   throw new Error("Retry processing");
                 }
-                if (!Array.isArray(response)) throw new Error("Expected an array.");
-                const responseRows: unknown[] = response;
-                responseRows.forEach((row) => {
-                  if (
-                    typeof row !== "object" ||
-                    row === null ||
-                    !("country" in row) ||
-                    typeof row.country !== "string"
-                  ) {
-                    throw new Error("Expected a country.");
-                  }
-                  row.country = `${row.country}:${suffix}`;
-                });
-                return responseRows;
+                response.country = `${row.country}:${suffix}`;
+                return response;
               },
             })
             .run();
-          expect(await table.getValues("country")).toEqual([`Morocco:${suffix}`]);
+          expect(await table.getValues("country")).toEqual([
+            `Morocco:${suffix}`,
+            `Japan:${suffix}`,
+          ]);
           expect(fixture.requestCount()).toBe(suffix === "recovered" ? 2 : 1);
         }
-        expect(callbacks).toBe(4);
-        expect(rawCountries).toEqual(Array(4).fill("Morocco"));
+        expect(callbacks).toBe(8);
+        expect(rawCountries).toEqual(Array(4).fill(["Morocco", "Japan"]).flat());
       } finally {
         await sdb.close();
       }
@@ -595,11 +587,7 @@ test("aiRowByRow preserves SQL values and queued order across transfer batches",
           ollama: client,
           cache: false,
         },
-        processResponse: (response) =>
-          (response as { label: string }[]).map((row) => ({
-            ...row,
-            extra: "must not be stored",
-          })),
+        processResponse: (row) => ({ ...row, extra: "must not be stored" }),
         batchSize: 300,
         concurrency: 2,
         errorColumn: "error",
@@ -649,9 +637,7 @@ for (const failure of ["generation", "staging"]) {
               },
               batchSize: 500,
               processResponse: (response) =>
-                requests > 2 && failure === "staging"
-                  ? (response as unknown[]).map(() => ({ text: 42 }))
-                  : response,
+                requests > 2 && failure === "staging" ? { text: 42 } : response,
             })
             .run(),
         Error,

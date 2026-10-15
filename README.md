@@ -524,10 +524,10 @@ The resulting table would be:
 | Kyoto     | Japan       | Asia      | null  |
 | Auckland  | New Zealand | Oceania   | null  |
 
-Use `processResponse` to transform or validate each parsed response batch before
-storing it. Return the resulting array (or a promise of it), preserving its row
-count and order and the requested columns. Throwing an error follows `retry` and
-`retryCheck`. The callback reruns on cache hits, and its output is never cached.
+Use `processResponse` to transform or validate one generated row object at a
+time, even when batching. Return an object with the requested columns, or a
+promise of it. Throwing or rejecting follows `retry` and `retryCheck` for the
+whole batch. The callback reruns on cache hits, and its output is never cached.
 
 #### Create embeddings
 

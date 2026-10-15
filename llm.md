@@ -528,10 +528,10 @@ The resulting table would be:
 | Kyoto     | Japan       | Asia      | null  |
 | Auckland  | New Zealand | Oceania   | null  |
 
-Use `processResponse` to transform or validate each parsed response batch before
-storing it. Return the resulting array (or a promise of it), preserving its row
-count and order and the requested columns. Throwing an error follows `retry` and
-`retryCheck`. The callback reruns on cache hits, and its output is never cached.
+Use `processResponse` to transform or validate one generated row object at a
+time, even when batching. Return an object with the requested columns, or a
+promise of it. Throwing or rejecting follows `retry` and `retryCheck` for the
+whole batch. The callback reruns on cache hits, and its output is never cached.
 
 #### Create embeddings
 
@@ -1567,6 +1567,7 @@ By default, a terminal request failure stops new tasks and settles active work b
 Set `logProgress` to log completed request tasks, including failures and cache hits; retries do not increment completion counts. The `verbose` option retains detailed row-processing and index-creation logging.
 
 Individual embedding responses are cached in `.journalism-cache` by default. Set `embeddings.cache` to `false` to disable this request cache, and remember to add `.journalism-cache` to your `.gitignore`.
+To cache the resulting table and skip the entire operation, including processing, wrap it in [cache()](#cache). This stores the table in `.sda-cache`.
 
 Every call generates embeddings from the current text and replaces the output column if it already exists. Unchanged text can reuse cached embedding responses. Call this method again after changing the source text to refresh its embeddings.
 
@@ -1739,6 +1740,7 @@ Environment variables are named configuration values supplied to the running pro
 Ollama temperature defaults to 0, while Gemini uses the provider's default. Provider-specific controls live under `generation`.
 
 **Caching**: model calls can be slow and costly, so Journalism AI caches generated SQL responses in `.journalism-cache` by default. The SQL query still executes against the current table on every call; query results are not cached. Set `generation.cache: false` to disable caching.
+To cache the resulting table and skip the entire operation, including processing, wrap it in [cache()](#cache). This stores the table in `.sda-cache`.
 The work is queued and runs in chain order at the next awaited observer or `run()` call.
 
 ###### Parameters
@@ -2107,8 +2109,9 @@ Environment variables are named configuration values supplied to the running pro
 To manage rate limits, use `batchSize` to process multiple rows per request and `rateLimitPerMinute` to pace requests across the worker pool. The `concurrency` option controls how many requests may run in parallel.
 
 **Caching**: model calls can be slow and costly, so original responses are cached in Journalism AI's `.journalism-cache` folder by default. `processResponse` reruns on every call, including cache hits, and its output is never cached. Keep processing lightweight and optimize heavier work, especially for large tables. Set `generation.cache: false` to disable caching.
+To cache the resulting table and skip the entire operation, including processing, wrap it in [cache()](#cache). This stores the table in `.sda-cache`.
 
-`processResponse` can transform the response or validate it by throwing an error. The `retry` option controls retries after request or processing failures, and `retryCheck` selects which errors to retry. Rejected responses are not retained in the model cache, so retries can request fresh responses.
+`processResponse` receives one generated row object at a time, even when batching. Return an object with the requested columns, or a promise of it. Throwing or rejecting follows `retry` and `retryCheck` for the whole batch; its model cache entry is discarded.
 
 By default, a failed batch throws. Set `errorColumn` to store the error on every row in the failed batch, set its output columns to `NULL`, and continue processing other batches. Successful rows contain `NULL` in the error column.
 
@@ -2200,9 +2203,9 @@ An object to track cumulative metrics across multiple AI requests. Pass an objec
 
 ###### processResponse?
 
-(`response`) => `unknown`
+(`response`) => \{\[`key`: `string`\]: `unknown`; \} \| `Promise`\<\{\[`key`: `string`\]: `unknown`; \}\>
 
-Transforms or validates the parsed response for a batch. Return the resulting array, or a promise of it; throwing or rejecting follows `retry` and `retryCheck`. Runs on cached responses too; its output is never cached and changing it does not invalidate the model-response cache. The result must preserve row count and order and include every requested column. Defaults to `undefined`.
+Transforms or validates one generated row object. Return an object containing every requested column, or a promise of it. Runs on cache hits too. Throwing or rejecting follows the batch retry policy.
 
 ###### rateLimitPerMinute?
 
@@ -2256,16 +2259,11 @@ const people = await sdb
       batchSize: 10, // Process 10 rows at once
       concurrency: 5, // Process up to 5 requests concurrently
       errorColumn: "error", // Store failed rows instead of throwing
-      processResponse: (response) => { // Validate the response batch
-        if (!Array.isArray(response)) throw new Error("Expected an array.");
-        for (const row of response) {
-          if (
-            typeof row !== "object" || row === null ||
-            !("gender" in row) || typeof row.gender !== "string" ||
-            !["Man", "Woman", "Neutral"].includes(row.gender)
-          ) throw new Error("Invalid gender response.");
+      processResponse: (row) => {
+        if (typeof row.gender !== "string" || !["Man", "Woman", "Neutral"].includes(row.gender)) {
+          throw new Error("Invalid gender response.");
         }
-        return response;
+        return row;
       },
       retry: 3, // Retry up to 3 times on failure
       rateLimitPerMinute: 15, // Limit requests to 15 per minute
@@ -2325,15 +2323,9 @@ await sdb
   .newTable("country_names")
   .loadArray([{ city: "Paris" }])
   .aiRowByRow("city", "country", "Return the country name.", {
-    processResponse: (response) => {
-      if (!Array.isArray(response)) throw new Error("Expected an array.");
-      return response.map((row: unknown) => {
-        if (
-          typeof row !== "object" || row === null ||
-          !("country" in row) || typeof row.country !== "string"
-        ) throw new Error("Expected a country name.");
-        return { country: row.country.trim() };
-      });
+    processResponse: (row) => {
+      if (typeof row.country !== "string") throw new Error("Expected a country name.");
+      return { country: row.country.trim() };
     },
     retry: 2,
   })
@@ -2352,6 +2344,7 @@ Environment variables are named configuration values supplied to the running pro
 Gemini, Vertex AI, and Ollama are supported. The selected provider and model must match those used to create the stored embedding column so the vectors share the same dimensions and embedding space.
 
 The query embedding is cached in `.journalism-cache` by default. Set `embeddings.cache` to `false` to disable this request cache, and remember to add `.journalism-cache` to your `.gitignore`.
+To cache the resulting table and skip the entire operation, including processing, wrap it in [cache()](#cache). This stores the table in `.sda-cache`.
 
 If `createIndex` is `true`, an HNSW index will be created on the embeddings column using the [duckdb-vss extension](https://github.com/duckdb/duckdb-vss) to speed up processing. If the index already exists, it will not be recreated unless `overwriteIndex` is `true`.
 The work is queued and runs in chain order at the next awaited observer or `run()` call.
@@ -2503,6 +2496,7 @@ This method:
 4. Returns the top results ordered by relevance, replacing the current table unless `outputTable` is specified
 
 When vector search is enabled, embedding responses are cached in `.journalism-cache`, and the table with its generated embedding column is cached in `.sda-cache`. Set `embeddings.cache` to `false` to disable both caches.
+To cache the resulting table and skip the entire operation, including processing, wrap it in [cache()](#cache). This stores the table in `.sda-cache`.
 
 The method stores document embeddings in `{textColumn}_embeddings`. SDA saves the embedding settings alongside the table in DuckDB so it can check whether existing vectors are compatible, including after reopening the database. Missing, incompatible, or untracked embeddings are generated automatically. Managed vector indexes are dropped before replacing existing embeddings.
 

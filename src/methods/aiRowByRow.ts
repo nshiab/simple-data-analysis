@@ -39,8 +39,8 @@ export type AIRowByRowOptions = {
   verbose?: boolean;
   /** Maximum number of provider requests started per minute. Cached responses bypass this limit. */
   rateLimitPerMinute?: number;
-  /** Transforms or validates a parsed batch, synchronously or asynchronously. Failures follow the retry policy. */
-  processResponse?: (response: unknown) => unknown;
+  /** Transforms or validates one generated row, synchronously or asynchronously. Failures follow the batch retry policy. */
+  processResponse?: NonNullable<Parameters<SimpleTable["aiRowByRow"]>[3]>["processResponse"];
   /** Additional instructions appended to the row-processing prompt. */
   extraInstructions?: string;
   /** Mutable aggregate request metrics updated after each provider response. */
