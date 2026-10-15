@@ -16,9 +16,7 @@ export default async function withTemporaryDirectory<T>(
   operation: (directory: string) => Promise<T>,
 ): Promise<T> {
   const directory = mkdtempSync(join(tmpdir(), prefix));
-  let outcome:
-    | { success: true; value: T }
-    | { success: false; error: unknown };
+  let outcome: { success: true; value: T } | { success: false; error: unknown };
 
   try {
     outcome = { success: true, value: await operation(directory) };

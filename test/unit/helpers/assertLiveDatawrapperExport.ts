@@ -1,10 +1,6 @@
-import { assertEquals } from "@std/assert";
-import {
-  getDataDW,
-  getInfoDW,
-  updateDataDW,
-  updateInfoDW,
-} from "@nshiab/journalism-dataviz";
+import { expect } from "vite-plus/test";
+
+import { getDataDW, getInfoDW, updateDataDW, updateInfoDW } from "@nshiab/journalism-dataviz";
 
 type ChartText = { title: string; description: string; note: string };
 
@@ -22,13 +18,8 @@ async function readText(chartId: string): Promise<ChartText> {
   const title = info.title;
   const description = record(metadata.describe).intro;
   const note = record(metadata.annotate).notes;
-  if (
-    typeof title !== "string" || typeof description !== "string" ||
-    typeof note !== "string"
-  ) {
-    throw new Error(
-      "Expected string title, description, and notes before modifying test chart",
-    );
+  if (typeof title !== "string" || typeof description !== "string" || typeof note !== "string") {
+    throw new Error("Expected string title, description, and notes before modifying test chart");
   }
   return { title, description, note };
 }
@@ -51,7 +42,7 @@ export default async function assertLiveDatawrapperExport(
   };
   try {
     await exportTable(updated);
-    assertEquals(await readText(chartId), updated);
+    expect(await readText(chartId)).toEqual(updated);
     const actualData = await getDataDW(chartId);
     if (typeof actualData !== "string") {
       throw new Error("Expected raw chart data");
@@ -60,14 +51,14 @@ export default async function assertLiveDatawrapperExport(
       // Datawrapper adds its own fields, such as locator-map markers.
       const actualGeoData = record(JSON.parse(actualData));
       const expectedGeoData = record(JSON.parse(expectedData));
-      assertEquals(actualGeoData.type, expectedGeoData.type);
-      assertEquals(actualGeoData.features, expectedGeoData.features);
+      expect(actualGeoData.type).toEqual(expectedGeoData.type);
+      expect(actualGeoData.features).toEqual(expectedGeoData.features);
     } else {
-      assertEquals(actualData.trimEnd(), expectedData.trimEnd());
+      expect(actualData.trimEnd()).toEqual(expectedData.trimEnd());
     }
 
     await exportTable({ title: `Partial update ${marker}` });
-    assertEquals(await readText(chartId), {
+    expect(await readText(chartId)).toEqual({
       ...updated,
       title: `Partial update ${marker}`,
     });
@@ -78,13 +69,13 @@ export default async function assertLiveDatawrapperExport(
       title: `Partial update ${marker}`,
       note: "",
     };
-    assertEquals(await readText(chartId), partiallyCleared);
+    expect(await readText(chartId)).toEqual(partiallyCleared);
 
     await exportTable({});
-    assertEquals(await readText(chartId), partiallyCleared);
+    expect(await readText(chartId)).toEqual(partiallyCleared);
 
     await exportTable({ title: "", description: "" });
-    assertEquals(await readText(chartId), {
+    expect(await readText(chartId)).toEqual({
       title: "",
       description: "",
       note: "",
@@ -93,10 +84,10 @@ export default async function assertLiveDatawrapperExport(
     // Attempt both restorations even if restoring the data fails. Never publish.
     try {
       await updateDataDW(chartId, originalData);
-      assertEquals(await getDataDW(chartId), originalData);
+      expect(await getDataDW(chartId)).toEqual(originalData);
     } finally {
       await updateInfoDW(chartId, originalText);
-      assertEquals(await readText(chartId), originalText);
+      expect(await readText(chartId)).toEqual(originalText);
     }
   }
 }

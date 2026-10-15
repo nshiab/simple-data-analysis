@@ -1,4 +1,5 @@
-import { assertEquals, assertThrows } from "@std/assert";
+import { test, expect } from "vite-plus/test";
+import { assertThrows } from "../../helpers/assertions.ts";
 import {
   aggregateObservations,
   assertEquivalentResults,
@@ -10,49 +11,33 @@ import {
   rotateValues,
 } from "../../../benchmarks/helpers.ts";
 
-Deno.test("benchmark helpers parse macOS peak resident memory", () => {
+test("benchmark helpers parse macOS peak resident memory", () => {
   const stderr = `        1.23 real         1.00 user         0.20 sys
           134217728  maximum resident set size
                    0  average shared memory size`;
-  assertEquals(parsePeakMemoryMB(stderr), 128);
-  assertEquals(parsePeakMemoryMB("1.23 real"), null);
+  expect(parsePeakMemoryMB(stderr)).toEqual(128);
+  expect(parsePeakMemoryMB("1.23 real")).toEqual(null);
 });
 
-Deno.test("benchmark helpers parse quoted CSV fields", () => {
-  assertEquals(
-    parseCSV('name,value\n"Montréal, Québec","a ""quote"""\n'),
-    [["name", "value"], ["Montréal, Québec", 'a "quote"']],
-  );
+test("benchmark helpers parse quoted CSV fields", () => {
+  expect(parseCSV('name,value\n"Montréal, Québec","a ""quote"""\n')).toEqual([
+    ["name", "value"],
+    ["Montréal, Québec", 'a "quote"'],
+  ]);
   assertThrows(() => parseCSV('name\n"unfinished'));
 });
 
-Deno.test("benchmark helpers rotate values without mutating the input", () => {
+test("benchmark helpers rotate values without mutating the input", () => {
   const values = ["sda", "pandas", "tidyverse", "duckdb"];
-  assertEquals(rotateValues(values, 1), [
-    "pandas",
-    "tidyverse",
-    "duckdb",
-    "sda",
-  ]);
-  assertEquals(rotateValues(values, 5), [
-    "pandas",
-    "tidyverse",
-    "duckdb",
-    "sda",
-  ]);
-  assertEquals(rotateValues(values, -1), [
-    "duckdb",
-    "sda",
-    "pandas",
-    "tidyverse",
-  ]);
-  assertEquals(values, ["sda", "pandas", "tidyverse", "duckdb"]);
-  assertEquals(rotateValues([], 3), []);
+  expect(rotateValues(values, 1)).toEqual(["pandas", "tidyverse", "duckdb", "sda"]);
+  expect(rotateValues(values, 5)).toEqual(["pandas", "tidyverse", "duckdb", "sda"]);
+  expect(rotateValues(values, -1)).toEqual(["duckdb", "sda", "pandas", "tidyverse"]);
+  expect(values).toEqual(["sda", "pandas", "tidyverse", "duckdb"]);
+  expect(rotateValues([], 3)).toEqual([]);
 });
 
-Deno.test("benchmark helpers validate tabular results with numeric tolerance", () => {
-  const expected =
-    "station,station_name,decade,mean\n1,Montréal,1990,2.5\n2,Québec,2000,-1\n";
+test("benchmark helpers validate tabular results with numeric tolerance", () => {
+  const expected = "station,station_name,decade,mean\n1,Montréal,1990,2.5\n2,Québec,2000,-1\n";
   const equivalent =
     "station,station_name,decade,mean\n2,Québec,2000,-1\n1,Montréal,1990,2.50000000001\n";
   assertEquivalentResults(expected, equivalent, "tabular", "pandas");
@@ -69,22 +54,16 @@ Deno.test("benchmark helpers validate tabular results with numeric tolerance", (
   );
 });
 
-Deno.test("benchmark helpers validate spatial counts exactly", () => {
+test("benchmark helpers validate spatial counts exactly", () => {
   const expected = "nom_qr,count\nCentre-Sud,12\n";
   assertThrows(
-    () =>
-      assertEquivalentResults(
-        expected,
-        "nom_qr,count\nCentre-Sud,13\n",
-        "spatial",
-        "sf",
-      ),
+    () => assertEquivalentResults(expected, "nom_qr,count\nCentre-Sud,13\n", "spatial", "sf"),
     Error,
     "raw DuckDB produced 12",
   );
 });
 
-Deno.test("benchmark helpers round-trip and aggregate raw observations", () => {
+test("benchmark helpers round-trip and aggregate raw observations", () => {
   const rows: Observation[] = [
     {
       package: "simple-data-analysis",
@@ -115,8 +94,8 @@ Deno.test("benchmark helpers round-trip and aggregate raw observations", () => {
     },
   ];
   const csv = observationsToCSV(rows);
-  assertEquals(observationsFromCSV(csv), rows);
-  assertEquals(aggregateObservations(rows), [
+  expect(observationsFromCSV(csv)).toEqual(rows);
+  expect(aggregateObservations(rows)).toEqual([
     {
       benchmark: "tabular",
       implementation: "duckdb",
@@ -136,7 +115,7 @@ Deno.test("benchmark helpers round-trip and aggregate raw observations", () => {
   ]);
 });
 
-Deno.test("benchmark result parser rejects the wrong schema", () => {
+test("benchmark result parser rejects the wrong schema", () => {
   assertThrows(
     () => observationsFromCSV("wrong,schema\n"),
     Error,

@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { askGemini } from "@nshiab/journalism-ai";
 import type { AskGeminiOptions } from "./aiOptions.ts";
 
@@ -15,6 +16,10 @@ export default function askGeminiAdapter(
 ): ReturnType<typeof askGemini> {
   return askGemini(prompt, {
     ...options.generation,
+    geminiParameters:
+      options.generation.geminiParameters === undefined
+        ? undefined
+        : z.record(z.string(), z.unknown()).parse(options.generation.geminiParameters),
     systemPrompt: options.systemPrompt,
     schemaJson: options.schemaJson,
     cache: options.disableCache ? false : options.generation.cache,

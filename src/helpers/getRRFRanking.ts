@@ -4,10 +4,7 @@
  * @param k - The smoothing constant (default 60)
  * @returns A flat array of document IDs sorted by their fused rank.
  */
-export default function getRRFRanking(
-  results: string[][],
-  k: number = 60,
-): string[] {
+export default function getRRFRanking(results: string[][], k: number = 60): string[] {
   const scoreMap: Map<string, number> = new Map();
 
   results.forEach((resultSet) => {
@@ -16,7 +13,7 @@ export default function getRRFRanking(
       const currentScore = scoreMap.get(id) || 0;
 
       // Add the RRF score to the existing total for this ID
-      scoreMap.set(id, currentScore + (1 / (k + rank)));
+      scoreMap.set(id, currentScore + 1 / (k + rank));
     });
   });
 

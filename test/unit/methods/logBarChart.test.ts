@@ -1,9 +1,13 @@
-import { assertEquals } from "@std/assert";
+import { test, expect, vi, afterEach } from "vite-plus/test";
+
+afterEach(() => vi.restoreAllMocks());
+
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 
-Deno.test("should log a bar chart", async () => {
+test("should log a bar chart", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
+  const log = vi.spyOn(console, "log").mockImplementation(() => {});
 
   const data = [
     { category: "A", value: 10 },
@@ -12,14 +16,16 @@ Deno.test("should log a bar chart", async () => {
   table.loadArray(data);
   await table.logBarChart("category", "value");
 
-  // How to test?
-  assertEquals(true, true);
+  expect(log).toHaveBeenCalled();
+  expect(log.mock.calls.flat().map(String).join("\n").trim().length).toBeGreaterThan(0);
+  expect(await table.getRowCount()).toBeGreaterThan(0);
   await sdb.close();
 });
 
-Deno.test("should log a bar chart with options", async () => {
+test("should log a bar chart with options", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
+  const log = vi.spyOn(console, "log").mockImplementation(() => {});
 
   const data = [
     { category: "A", value: 10 },
@@ -31,7 +37,8 @@ Deno.test("should log a bar chart with options", async () => {
     formatValues: (value: unknown) => "$" + (value as number),
   });
 
-  // How to test?
-  assertEquals(true, true);
+  expect(log).toHaveBeenCalled();
+  expect(log.mock.calls.flat().map(String).join("\n").trim().length).toBeGreaterThan(0);
+  expect(await table.getRowCount()).toBeGreaterThan(0);
   await sdb.close();
 });

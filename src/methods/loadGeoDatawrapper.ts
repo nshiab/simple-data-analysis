@@ -17,9 +17,9 @@ export default function loadGeoDatawrapper(
     parameters: { chartId, options },
     execute: async () => {
       const { getDataDW } = await import("@nshiab/journalism-dataviz");
-      const jsonString = await getDataDW(chartId, {
+      const jsonString = (await getDataDW(chartId, {
         apiKey: options.apiKeyEnvVar,
-      }) as string;
+      })) as string;
       await loadGeoDataFromScratchFile(table, jsonString);
     },
   });

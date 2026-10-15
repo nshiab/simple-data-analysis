@@ -1,10 +1,14 @@
-import { assertEquals } from "@std/assert";
+import { test, expect, vi, afterEach } from "vite-plus/test";
+
+afterEach(() => vi.restoreAllMocks());
+
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { formatDate, formatNumber } from "@nshiab/journalism-format";
 
-Deno.test("should log a line chart", async () => {
+test("should log a line chart", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
+  const log = vi.spyOn(console, "log").mockImplementation(() => {});
 
   const data = [
     { date: new Date("2023-01-01"), value: 10 * 1000 },
@@ -15,13 +19,15 @@ Deno.test("should log a line chart", async () => {
   table.loadArray(data);
   await table.logLineChart("date", "value");
 
-  // How to test?
-  assertEquals(true, true);
+  expect(log).toHaveBeenCalled();
+  expect(log.mock.calls.flat().map(String).join("\n").trim().length).toBeGreaterThan(0);
+  expect(await table.getRowCount()).toBeGreaterThan(0);
   await sdb.close();
 });
-Deno.test("should log a line chart with formatting options", async () => {
+test("should log a line chart with formatting options", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
+  const log = vi.spyOn(console, "log").mockImplementation(() => {});
 
   const data = [
     { date: new Date("2023-01-01"), value: 10 * 1000 },
@@ -35,13 +41,15 @@ Deno.test("should log a line chart with formatting options", async () => {
     formatY: (d) => formatNumber(d as number, { abbreviation: true }),
   });
 
-  // How to test?
-  assertEquals(true, true);
+  expect(log).toHaveBeenCalled();
+  expect(log.mock.calls.flat().map(String).join("\n").trim().length).toBeGreaterThan(0);
+  expect(await table.getRowCount()).toBeGreaterThan(0);
   await sdb.close();
 });
-Deno.test("should log a line chart with small multiples", async () => {
+test("should log a line chart with small multiples", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
+  const log = vi.spyOn(console, "log").mockImplementation(() => {});
 
   const data = [
     { date: new Date("2023-01-01"), value: 10, category: "A" },
@@ -58,14 +66,16 @@ Deno.test("should log a line chart with small multiples", async () => {
     smallMultiples: "category",
   });
 
-  // How to test?
-  assertEquals(true, true);
+  expect(log).toHaveBeenCalled();
+  expect(log.mock.calls.flat().map(String).join("\n").trim().length).toBeGreaterThan(0);
+  expect(await table.getRowCount()).toBeGreaterThan(0);
   await sdb.close();
 });
 
-Deno.test("should log another line chart with small multiples", async () => {
+test("should log another line chart with small multiples", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
+  const log = vi.spyOn(console, "log").mockImplementation(() => {});
 
   table.loadData("test/data/files/aircraftByEvents.csv");
   await table.log();
@@ -73,7 +83,8 @@ Deno.test("should log another line chart with small multiples", async () => {
     smallMultiples: "aircraftEvent",
   });
 
-  // How to test?
-  assertEquals(true, true);
+  expect(log).toHaveBeenCalled();
+  expect(log.mock.calls.flat().map(String).join("\n").trim().length).toBeGreaterThan(0);
+  expect(await table.getRowCount()).toBeGreaterThan(0);
   await sdb.close();
 });

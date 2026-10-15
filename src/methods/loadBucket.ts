@@ -21,26 +21,21 @@ export default function loadBucket(
     method: "loadBucket()",
     parameters: { source, options },
     execute: async () => {
-      await withTemporaryDirectory(
-        "sda-bucket-download-",
-        async (directory) => {
-          const localFile = join(directory, basename(source));
-          const { downloadFromBucket } = await import(
-            "@nshiab/journalism-google"
-          );
-          await downloadFromBucket(source, localFile, {
-            project: options.project,
-            bucket: options.bucket,
-          });
+      await withTemporaryDirectory("sda-bucket-download-", async (directory) => {
+        const localFile = join(directory, basename(source));
+        const { downloadFromBucket } = await import("@nshiab/journalism-google");
+        await downloadFromBucket(source, localFile, {
+          project: options.project,
+          bucket: options.bucket,
+        });
 
-          if (file.kind === "data") {
-            table.loadData(localFile);
-          } else {
-            table.loadGeoData(localFile);
-          }
-          await table.run();
-        },
-      );
+        if (file.kind === "data") {
+          table.loadData(localFile);
+        } else {
+          table.loadGeoData(localFile);
+        }
+        await table.run();
+      });
     },
   });
   return table;

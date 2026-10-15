@@ -1,8 +1,5 @@
 import type { SimpleTable } from "../index.ts";
-import {
-  snapshotAIOptions,
-  type UnstructuredGenerationOptions,
-} from "../helpers/aiOptions.ts";
+import { snapshotAIOptions, type UnstructuredGenerationOptions } from "../helpers/aiOptions.ts";
 import { queueAsyncBarrier } from "@nshiab/simple-data-analysis-core/helpers";
 
 /**
@@ -35,9 +32,8 @@ export default function aiQuery(
   options: AIQueryOptions = {},
 ): SimpleTable {
   options = snapshotAIOptions(options);
-  const outputTable = options.outputTable === undefined
-    ? simpleTable
-    : simpleTable.sdb.newTable(options.outputTable);
+  const outputTable =
+    options.outputTable === undefined ? simpleTable : simpleTable.sdb.newTable(options.outputTable);
   queueAsyncBarrier(outputTable, {
     method: "aiQuery()",
     parameters: { prompt, outputTable: options.outputTable },
@@ -53,26 +49,26 @@ async function runAIQuery(
 ): Promise<void> {
   const tableName = options.outputTable ?? simpleTable.name;
 
-  const p =
-    `I have a SQL table named "${simpleTable.name}". The data is already in it with these columns:\n\n${
-      JSON.stringify(await simpleTable.getTypes(), null, 2)
-    }\n\nI want you to give me a SQL query to do this:\n- ${prompt}\nThe query must ${
-      options.outputTable
-        ? `create a new table named "${tableName}" with the results`
-        : `replace the existing "${simpleTable.name}" table`
-    }. This means the query must start with 'CREATE OR REPLACE TABLE "${tableName}"...'. Return a JSON object matching the provided schema, with the SQL query in the "query" property. Do not include markdown or any other text.${
-      options.extraInstructions ? `\n${options.extraInstructions}` : ""
-    }`;
+  const p = `I have a SQL table named "${simpleTable.name}". The data is already in it with these columns:\n\n${JSON.stringify(
+    await simpleTable.getTypes(),
+    null,
+    2,
+  )}\n\nI want you to give me a SQL query to do this:\n- ${prompt}\nThe query must ${
+    options.outputTable
+      ? `create a new table named "${tableName}" with the results`
+      : `replace the existing "${simpleTable.name}" table`
+  }. This means the query must start with 'CREATE OR REPLACE TABLE "${tableName}"...'. Return a JSON object matching the provided schema, with the SQL query in the "query" property. Do not include markdown or any other text.${
+    options.extraInstructions ? `\n${options.extraInstructions}` : ""
+  }`;
 
   if (options.verbose) {
     console.log("\naiQuery()");
   }
 
-  const [{ object, string, toJSONSchema }, { default: askAI }] = await Promise
-    .all([
-      import("zod"),
-      import("../helpers/askAI.ts"),
-    ]);
+  const [{ object, string, toJSONSchema }, { default: askAI }] = await Promise.all([
+    import("zod"),
+    import("../helpers/askAI.ts"),
+  ]);
   const schemaJson = toJSONSchema(
     object({
       query: string(),
@@ -80,12 +76,12 @@ async function runAIQuery(
   );
 
   // Types could be improved
-  const answer = await askAI(p, {
+  const answer = (await askAI(p, {
     generation: options.generation,
     verbose: options.verbose,
     includeThoughts: options.includeThoughts,
     schemaJson,
-  }) as { query: string };
+  })) as { query: string };
   const query = answer.query;
 
   await simpleTable.sdb.customQuery(query);

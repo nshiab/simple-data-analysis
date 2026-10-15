@@ -16,3 +16,9 @@ export function toJSONSchema(_schema: unknown) {
 export function fromJSONSchema(_schema: unknown) {
   return { parse: (value: unknown) => value };
 }
+
+export const z = {
+  string,
+  unknown: () => ({}),
+  record: () => ({ parse: (value: unknown) => value }),
+};

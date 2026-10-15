@@ -1,3 +1,6 @@
+import { readFile, writeFile, stat, mkdir, mkdtemp, rm } from "node:fs/promises";
+import pkg from "../package.json" with { type: "json" };
+import execute from "./execute.ts";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateBenchmarkReport } from "./report.ts";
@@ -11,11 +14,7 @@ import {
   parsePeakMemoryMB,
   rotateValues,
 } from "./helpers.ts";
-import {
-  type QueryProfile,
-  queryProfileEnvironment,
-  readQueryProfile,
-} from "./queryProfile.ts";
+import { type QueryProfile, queryProfileEnvironment, readQueryProfile } from "./queryProfile.ts";
 
 type CommandSpec = {
   command: string;
@@ -43,7 +42,6 @@ type ProfileRun = {
   profile: QueryProfile;
 };
 
-const decoder = new TextDecoder();
 const benchmarkDir = dirname(fileURLToPath(import.meta.url));
 const rootDir = resolve(benchmarkDir, "..");
 const workRoot = join(benchmarkDir, ".work");
@@ -59,7 +57,7 @@ function parseArguments(): {
   let dataDir = join(benchmarkDir, "data");
   let benchmarks: BenchmarkName[] = ["tabular", "spatial"];
   let profile = false;
-  for (const argument of Deno.args) {
+  for (const argument of process.argv.slice(2)) {
     if (argument.startsWith("--iterations=")) {
       iterations = Number(argument.slice("--iterations=".length));
     } else if (argument.startsWith("--data-dir=")) {
@@ -67,9 +65,7 @@ function parseArguments(): {
     } else if (argument.startsWith("--only=")) {
       const value = argument.slice("--only=".length);
       if (value !== "tabular" && value !== "spatial") {
-        throw new Error(
-          `--only must be tabular or spatial. Received ${value}.`,
-        );
+        throw new Error(`--only must be tabular or spatial. Received ${value}.`);
       }
       benchmarks = [value];
     } else if (argument === "--profile") {
@@ -85,27 +81,15 @@ function parseArguments(): {
 }
 
 async function commandText(spec: CommandSpec): Promise<string> {
-  const output = await new Deno.Command(spec.command, {
-    args: spec.args,
-    cwd: rootDir,
-    stdout: "piped",
-    stderr: "piped",
-  }).output();
+  const output = await execute(spec.command, spec.args, { cwd: rootDir });
   if (!output.success) {
-    throw new Error(
-      `${spec.command} ${spec.args.join(" ")} failed:\n${
-        decoder.decode(output.stderr)
-      }`,
-    );
+    throw new Error(`${spec.command} ${spec.args.join(" ")} failed:\n${output.stderr}`);
   }
-  return decoder.decode(output.stdout).trim();
+  return output.stdout.trim();
 }
 
 async function localVersion(): Promise<string> {
-  const config = JSON.parse(
-    await Deno.readTextFile(join(rootDir, "deno.json")),
-  ) as { version: string };
-  return `${config.version}/deno@${Deno.version.deno}`;
+  return `${pkg.version}/node@${process.versions.node}`;
 }
 
 async function pythonVersions(): Promise<{
@@ -142,28 +126,12 @@ async function rVersions(): Promise<{ tidyverse: string; sf: string }> {
 }
 
 async function rawDuckDBVersion(): Promise<string> {
-  const config = JSON.parse(
-    await Deno.readTextFile(join(rootDir, "deno.json")),
-  ) as { imports?: { [key: string]: string } };
-  const nodeAPISpecifier = config.imports?.["@duckdb/node-api"];
-  const nodeAPIVersion = nodeAPISpecifier?.match(
-    /^npm:@duckdb\/node-api@(.+)$/,
-  )?.[1];
-  if (nodeAPIVersion === undefined) {
-    throw new Error(
-      'deno.json must pin "@duckdb/node-api" as "npm:@duckdb/node-api@<version>".',
-    );
-  }
+  const nodeAPIVersion = pkg.devDependencies["@duckdb/node-api"];
   const version = await commandText({
-    command: "deno",
-    args: [
-      "run",
-      "-A",
-      `--config=${join(rootDir, "deno.json")}`,
-      join(benchmarkDir, "duckdbVersion.ts"),
-    ],
+    command: process.execPath,
+    args: [join(benchmarkDir, "duckdbVersion.ts")],
   });
-  return `@duckdb/node-api@${nodeAPIVersion}/duckdb@${version}/deno@${Deno.version.deno}`;
+  return `@duckdb/node-api@${nodeAPIVersion}/duckdb@${version}/node@${process.versions.node}`;
 }
 
 function localImplementation(version: string): Implementation {
@@ -171,13 +139,8 @@ function localImplementation(version: string): Implementation {
     name: "local",
     version,
     command: (benchmark) => ({
-      command: "deno",
-      args: [
-        "run",
-        "-A",
-        `--config=${join(rootDir, "deno.json")}`,
-        join(benchmarkDir, benchmark, "sda.ts"),
-      ],
+      command: process.execPath,
+      args: [join(benchmarkDir, benchmark, "sda.ts")],
     }),
   };
 }
@@ -187,22 +150,14 @@ function duckDBImplementation(version: string): Implementation {
     name: "duckdb",
     version,
     command: (benchmark) => ({
-      command: "deno",
-      args: [
-        "run",
-        "-A",
-        `--config=${join(rootDir, "deno.json")}`,
-        join(benchmarkDir, benchmark, "duckdb.ts"),
-      ],
+      command: process.execPath,
+      args: [join(benchmarkDir, benchmark, "duckdb.ts")],
     }),
   };
 }
 
 async function profiledImplementations(): Promise<Implementation[]> {
-  const [local, duckdb] = await Promise.all([
-    localVersion(),
-    rawDuckDBVersion(),
-  ]);
+  const [local, duckdb] = await Promise.all([localVersion(), rawDuckDBVersion()]);
   return [localImplementation(local), duckDBImplementation(duckdb)];
 }
 
@@ -251,13 +206,11 @@ async function implementations(): Promise<Implementation[]> {
   ];
 }
 
-function forBenchmark(
-  all: Implementation[],
-  benchmark: BenchmarkName,
-): Implementation[] {
-  const names = benchmark === "tabular"
-    ? ["local", "pandas", "tidyverse", "duckdb"]
-    : ["local", "geopandas", "sf", "duckdb"];
+function forBenchmark(all: Implementation[], benchmark: BenchmarkName): Implementation[] {
+  const names =
+    benchmark === "tabular"
+      ? ["local", "pandas", "tidyverse", "duckdb"]
+      : ["local", "geopandas", "sf", "duckdb"];
   return names.map((name) => {
     const implementation = all.find((candidate) => candidate.name === name);
     if (implementation === undefined) {
@@ -269,8 +222,8 @@ function forBenchmark(
 
 async function assertFile(path: string, description: string): Promise<void> {
   try {
-    const stat = await Deno.stat(path);
-    if (!stat.isFile) throw new Error("not a file");
+    const info = await stat(path);
+    if (!info.isFile()) throw new Error("not a file");
   } catch {
     throw new Error(
       `Missing ${description} at ${path}. See the Performance benchmarks section in README.md for data setup.`,
@@ -284,9 +237,9 @@ async function inputPaths(
 ): Promise<Record<BenchmarkName, { input: string; polygons?: string }>> {
   const tabular = join(dataDir, "ahccd.csv");
   const legacyTabular = join(rootDir, "test", "data", "files", "ahccd.csv");
-  const tabularInput = await Deno.stat(tabular).then(() => tabular).catch(() =>
-    legacyTabular
-  );
+  const tabularInput = await stat(tabular)
+    .then(() => tabular)
+    .catch(() => legacyTabular);
   const spatial = join(dataDir, "arbres-publics.csv");
   const polygons = join(dataDir, "quartierreferencehabitation.geojson");
   if (benchmarks.includes("tabular")) {
@@ -309,10 +262,7 @@ async function runImplementation(
   preserveArtifacts = false,
   profile = false,
 ): Promise<RunResult> {
-  const runDir = await Deno.makeTempDir({
-    dir: workRoot,
-    prefix: `${benchmark}-${implementation.name}-`,
-  });
+  const runDir = await mkdtemp(join(workRoot, `${benchmark}-${implementation.name}-`));
   const resultOutput = join(runDir, "result.csv");
   const cleanOutput = join(runDir, "clean.csv");
   const profileOutput = join(runDir, "query-profile.json");
@@ -328,20 +278,17 @@ async function runImplementation(
     environment[queryProfileEnvironment] = profileOutput;
   }
   const spec = implementation.command(benchmark);
-  const timed = Deno.build.os === "darwin";
+  const timed = process.platform === "darwin";
   const command = timed ? "/usr/bin/time" : spec.command;
   const args = timed ? ["-l", spec.command, ...spec.args] : spec.args;
   const start = performance.now();
-  const output = await new Deno.Command(command, {
-    args,
+  const output = await execute(command, args, {
     cwd: rootDir,
-    env: environment,
-    stdout: "piped",
-    stderr: "piped",
-  }).output();
+    env: { ...process.env, ...environment },
+  });
   const seconds = (performance.now() - start) / 1000;
-  const stdout = decoder.decode(output.stdout);
-  const stderr = decoder.decode(output.stderr);
+  const stdout = output.stdout;
+  const stderr = output.stderr;
   if (!output.success) {
     throw new Error(
       `${implementation.name} ${benchmark} failed. Artifacts are preserved in ${runDir}.\n${stdout}${stderr}`,
@@ -353,10 +300,10 @@ async function runImplementation(
       `Could not parse maximum resident set size for ${implementation.name}. Artifacts are preserved in ${runDir}.\n${stderr}`,
     );
   }
-  const resultCSV = await Deno.readTextFile(resultOutput);
+  const resultCSV = await readFile(resultOutput, "utf8");
   const queryProfile = profile ? await readQueryProfile(profileOutput) : null;
   if (!preserveArtifacts) {
-    await Deno.remove(runDir, { recursive: true });
+    await rm(runDir, { recursive: true });
   }
   return {
     resultCSV,
@@ -382,30 +329,27 @@ function profileRunsToCSV(runs: ProfileRun[]): string {
         query.table ?? "",
         query.milliseconds.toFixed(3),
         query.query,
-      ].map(csvEscape).join(",")
-    )
+      ]
+        .map(csvEscape)
+        .join(","),
+    ),
   );
   return `${header}\n${rows.join("\n")}\n`;
 }
 
 function printProfile(run: ProfileRun): void {
-  const queryMilliseconds = run.profile.queries.reduce(
-    (sum, query) => sum + query.milliseconds,
-    0,
-  );
-  const residualMilliseconds = run.profile.totalMilliseconds -
-    queryMilliseconds;
-  const startupMilliseconds = run.processMilliseconds -
-    run.profile.totalMilliseconds;
+  const queryMilliseconds = run.profile.queries.reduce((sum, query) => sum + query.milliseconds, 0);
+  const residualMilliseconds = run.profile.totalMilliseconds - queryMilliseconds;
+  const startupMilliseconds = run.processMilliseconds - run.profile.totalMilliseconds;
   console.log(`\n${run.benchmark} ${run.implementation}`);
   for (const query of run.profile.queries) {
     const sql = query.query.replaceAll(/\s+/g, " ").trim();
     const preview = sql.length > 100 ? `${sql.slice(0, 97)}...` : sql;
     const table = query.table === null ? "" : ` [${query.table}]`;
     console.log(
-      `  ${query.sequence}. ${
-        query.milliseconds.toFixed(1)
-      } ms  ${query.label}${table}  ${preview}`,
+      `  ${query.sequence}. ${query.milliseconds.toFixed(
+        1,
+      )} ms  ${query.label}${table}  ${preview}`,
     );
   }
   console.log(`  SQL total: ${queryMilliseconds.toFixed(1)} ms`);
@@ -421,21 +365,13 @@ async function runProfiles(
   const candidates = await profiledImplementations();
   const runs: ProfileRun[] = [];
   console.log(`Profile benchmarks: ${benchmarks.join(", ")}`);
-  console.log(
-    "One warm-up, then one profiled fresh process for SDA and raw DuckDB.",
-  );
-  console.log(
-    "Profile mode splits raw DuckDB statements and does not update README.",
-  );
+  console.log("One warm-up, then one profiled fresh process for SDA and raw DuckDB.");
+  console.log("Profile mode splits raw DuckDB statements and does not update README.");
 
   for (const benchmark of benchmarks) {
     for (const implementation of candidates) {
       console.log(`Warm-up profile ${benchmark}: ${implementation.name}`);
-      await runImplementation(
-        implementation,
-        benchmark,
-        paths[benchmark],
-      );
+      await runImplementation(implementation, benchmark, paths[benchmark]);
     }
     const results = new Map<string, RunResult>();
     for (const implementation of candidates) {
@@ -449,9 +385,7 @@ async function runProfiles(
       );
       results.set(implementation.name, result);
       if (result.profile === null) {
-        throw new Error(
-          `${implementation.name} ${benchmark} did not write a query profile.`,
-        );
+        throw new Error(`${implementation.name} ${benchmark} did not write a query profile.`);
       }
       runs.push({
         benchmark,
@@ -483,14 +417,14 @@ async function runProfiles(
     }
     for (const result of results.values()) {
       if (result.artifacts !== null) {
-        await Deno.remove(result.artifacts.directory, { recursive: true });
+        await rm(result.artifacts.directory, { recursive: true });
       }
     }
   }
 
   for (const run of runs) printProfile(run);
   const path = join(workRoot, "query-profile.csv");
-  await Deno.writeTextFile(path, profileRunsToCSV(runs));
+  await writeFile(path, profileRunsToCSV(runs));
   console.log(`\nWrote ${path}`);
 }
 
@@ -540,22 +474,15 @@ async function runBenchmarks(
       }
       for (const implementation of candidates) {
         if (implementation.name === "duckdb") continue;
-        const actualClean = warmups.get(implementation.name)?.artifacts
-          ?.cleanOutput;
+        const actualClean = warmups.get(implementation.name)?.artifacts?.cleanOutput;
         if (actualClean === undefined) {
-          throw new Error(
-            `${implementation.name} cleaned warm-up output is missing.`,
-          );
+          throw new Error(`${implementation.name} cleaned warm-up output is missing.`);
         }
-        await assertEquivalentCleanOutputs(
-          expectedClean,
-          actualClean,
-          implementation.name,
-        );
+        await assertEquivalentCleanOutputs(expectedClean, actualClean, implementation.name);
       }
       for (const result of warmups.values()) {
         if (result.artifacts !== null) {
-          await Deno.remove(result.artifacts.directory, { recursive: true });
+          await rm(result.artifacts.directory, { recursive: true });
         }
       }
       console.log("tabular cleaned warm-up outputs are equivalent.");
@@ -563,20 +490,9 @@ async function runBenchmarks(
 
     for (let iteration = 1; iteration <= iterations; iteration++) {
       for (const implementation of rotateValues(candidates, iteration)) {
-        console.log(
-          `Measure ${benchmark}: ${implementation.name} (${iteration}/${iterations})`,
-        );
-        const result = await runImplementation(
-          implementation,
-          benchmark,
-          paths[benchmark],
-        );
-        assertEquivalentResults(
-          expected,
-          result.resultCSV,
-          benchmark,
-          implementation.name,
-        );
+        console.log(`Measure ${benchmark}: ${implementation.name} (${iteration}/${iterations})`);
+        const result = await runImplementation(implementation, benchmark, paths[benchmark]);
+        assertEquivalentResults(expected, result.resultCSV, benchmark, implementation.name);
         observations.push({
           package: "simple-data-analysis",
           benchmark,
@@ -586,26 +502,23 @@ async function runBenchmarks(
           seconds: result.seconds,
           peakMemoryMB: result.peakMemoryMB,
         });
-        await Deno.writeTextFile(
-          observationsPath,
-          observationsToCSV(observations),
-        );
+        await writeFile(observationsPath, observationsToCSV(observations));
       }
     }
   }
 
   await generateBenchmarkReport(observationsPath);
-  await Deno.remove(observationsPath);
-  console.log(`Updated benchmark assets and ${join(rootDir, "README.md")}`);
+  console.log(`Raw observations: ${observationsPath}`);
+  console.log(`Updated ${join(rootDir, "README.md")}`);
 }
 
 const { iterations, dataDir, benchmarks, profile } = parseArguments();
-if (Deno.build.os !== "darwin") {
+if (process.platform !== "darwin") {
   throw new Error(
     "This benchmark currently requires macOS so /usr/bin/time -l can capture peak memory consistently.",
   );
 }
-await Deno.mkdir(workRoot, { recursive: true });
+await mkdir(workRoot, { recursive: true });
 const paths = await inputPaths(dataDir, benchmarks);
 if (profile) {
   await runProfiles(benchmarks, paths);

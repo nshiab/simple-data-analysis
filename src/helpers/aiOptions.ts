@@ -1,53 +1,41 @@
 import type {
   askGemini,
   askOllama,
-  GetEmbeddingOptions,
+  getEmbedding,
+  getEmbeddingIdentity,
 } from "@nshiab/journalism-ai";
 
-export type {
-  EmbeddingBackend,
-  EmbeddingCommonOptions,
-  EmbeddingEnvironment,
-  EmbeddingIdentity,
-  EmbeddingIdentityBase,
-  EmbeddingProvider,
-  EnvironmentEmbeddingOptions,
-  GeminiEmbeddingIdentity,
-  GeminiEmbeddingOptions,
-  GetEmbeddingOptions,
-  OllamaEmbeddingClient,
-  OllamaEmbeddingIdentity,
-  OllamaEmbeddingOptions,
-  VertexEmbeddingIdentity,
-  VertexEmbeddingOptions,
-} from "@nshiab/journalism-ai";
+/** Canonical embedding identity returned by the installed provider library. */
+export type EmbeddingIdentity = ReturnType<typeof getEmbeddingIdentity>;
 
 /**
- * Options accepted directly by `askGemini` from journalism-ai.
+ * Gemini options with SDA's untyped SDK parameter passthrough.
  *
  * @example
  * ```ts
  * const options: AskGeminiOptions = { thinkingLevel: "low" };
  * ```
  */
-export type AskGeminiOptions = NonNullable<
-  Parameters<typeof askGemini>[1]
->;
+export type AskGeminiOptions = Omit<
+  NonNullable<Parameters<typeof askGemini>[1]>,
+  "geminiParameters"
+> & { geminiParameters?: unknown };
 
 /**
- * Options accepted directly by `askOllama` from journalism-ai.
+ * Ollama options with SDA's untyped SDK parameter passthrough.
  *
  * @example
  * ```ts
  * const options: AskOllamaOptions = { thinkingLevel: true };
  * ```
  */
-export type AskOllamaOptions = NonNullable<
-  Parameters<typeof askOllama>[1]
->;
+export type AskOllamaOptions = Omit<
+  NonNullable<Parameters<typeof askOllama>[1]>,
+  "ollamaParameters"
+> & { ollamaParameters?: unknown };
 
 /**
- * Selects Gemini generation and exposes the exact `askGemini` options.
+ * Selects Gemini generation and exposes the corresponding `askGemini` options.
  *
  * @example
  * ```ts
@@ -64,7 +52,7 @@ export type GeminiGenerationOptions = AskGeminiOptions & {
 };
 
 /**
- * Selects Ollama generation and exposes the exact `askOllama` options.
+ * Selects Ollama generation and exposes the corresponding `askOllama` options.
  *
  * @example
  * ```ts
@@ -89,12 +77,10 @@ export type OllamaGenerationOptions = AskOllamaOptions & {
  * const generation: EnvironmentGenerationOptions = { cache: false };
  * ```
  */
-export type EnvironmentGenerationOptions =
-  & (AskGeminiOptions | AskOllamaOptions)
-  & {
-    /** Uses `AI_PROVIDER` to select the generation provider. */
-    provider?: undefined;
-  };
+export type EnvironmentGenerationOptions = (AskGeminiOptions | AskOllamaOptions) & {
+  /** Uses `AI_PROVIDER` to select the generation provider. */
+  provider?: undefined;
+};
 
 /**
  * Provider-specific or environment-selected generation options.
@@ -112,8 +98,7 @@ export type GenerationOptions =
   | OllamaGenerationOptions
   | EnvironmentGenerationOptions;
 
-type WithoutSchemaJson<T> = T extends GenerationOptions ? Omit<T, "schemaJson">
-  : never;
+type WithoutSchemaJson<T> = T extends GenerationOptions ? Omit<T, "schemaJson"> : never;
 
 /**
  * Generation options for methods whose output shape is owned by SDA.
@@ -126,9 +111,7 @@ type WithoutSchemaJson<T> = T extends GenerationOptions ? Omit<T, "schemaJson">
  * };
  * ```
  */
-export type UnstructuredGenerationOptions = WithoutSchemaJson<
-  GenerationOptions
->;
+export type UnstructuredGenerationOptions = WithoutSchemaJson<GenerationOptions>;
 
 /**
  * Provider-specific or environment-selected embedding options.
@@ -141,7 +124,7 @@ export type UnstructuredGenerationOptions = WithoutSchemaJson<
  * };
  * ```
  */
-export type EmbeddingOptions = GetEmbeddingOptions;
+export type EmbeddingOptions = NonNullable<Parameters<typeof getEmbedding>[1]>;
 
 /**
  * Mutable aggregate metrics populated by SDA generation methods.
@@ -192,7 +175,7 @@ function cloneAIOptionValue(
   if (value === null || typeof value !== "object") {
     return value;
   }
-  const prototype = Object.getPrototypeOf(value);
+  const prototype: unknown = Object.getPrototypeOf(value);
   if (prototype !== Object.prototype && prototype !== null) {
     return value;
   }
@@ -222,9 +205,7 @@ export function snapshotAIOptions<T extends object>(options: T): T {
 }
 
 /** Removes SDA's provider discriminator before calling journalism-ai. */
-export function withoutProvider<T extends { provider?: string }>(
-  options: T,
-): Omit<T, "provider"> {
+export function withoutProvider<T extends { provider?: string }>(options: T): Omit<T, "provider"> {
   const { provider: _provider, ...providerOptions } = options;
   return providerOptions;
 }

@@ -1,4 +1,5 @@
-import { assertEquals } from "@std/assert";
+import { expect } from "vite-plus/test";
+
 import type SimpleTable from "../../../src/class/SimpleTable.ts";
 import { quoteIdentifier } from "@nshiab/simple-data-analysis-core/helpers";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
@@ -8,9 +9,11 @@ export default async function createAIEnrichmentFixture(rowCount = 1003) {
   const sdb = new SimpleDB();
   const table = sdb.newTable("enriched");
   // Typed ingestion initializes the spatial extension before SQL-native fixtures.
-  await table.loadArray([{ geometry: null }], {
-    columnTypes: { geometry: "GEOMETRY('EPSG:4326')" },
-  }).run();
+  await table
+    .loadArray([{ geometry: null }], {
+      columnTypes: { geometry: "GEOMETRY('EPSG:4326')" },
+    })
+    .run();
   await sdb.customQuery(`CREATE OR REPLACE TABLE enriched AS SELECT
     i, 'row-' || i AS text, 7 AS rowid,
     9007199254740993::BIGINT AS exact,
@@ -34,18 +37,18 @@ export default async function createAIEnrichmentFixture(rowCount = 1003) {
     assertGeometry: async (result: SimpleTable = table) => {
       const types = await result.getTypes();
       const geometryColumns = Object.keys(originalTypes).filter((name) =>
-        originalTypes[name].startsWith("GEOMETRY")
+        originalTypes[name].startsWith("GEOMETRY"),
       );
       for (const name of geometryColumns) {
-        assertEquals(types[name], originalTypes[name]);
+        expect(types[name]).toEqual(originalTypes[name]);
       }
       const projection = [
         "i",
-        ...geometryColumns.map((name) =>
-          `ST_AsWKB(${quoteIdentifier(name)}) AS ${quoteIdentifier(name)}`
+        ...geometryColumns.map(
+          (name) => `ST_AsWKB(${quoteIdentifier(name)}) AS ${quoteIdentifier(name)}`,
         ),
       ].join(", ");
-      assertEquals(
+      expect(
         await sdb.customQuery(
           `SELECT count(*) AS differences FROM (
           (SELECT ${projection} FROM ${quoteIdentifier(result.name)})
@@ -53,24 +56,21 @@ export default async function createAIEnrichmentFixture(rowCount = 1003) {
         )`,
           { returnData: true },
         ),
-        [{ differences: 0 }],
-      );
+      ).toEqual([{ differences: 0 }]);
     },
     assertPreserved: async (outputs: string[] = []) => {
       const types = await table.getTypes();
-      assertEquals(
-        Object.fromEntries(
-          Object.entries(types).filter(([name]) => !outputs.includes(name)),
-        ),
-        originalTypes,
-      );
-      const projection = Object.keys(originalTypes).map((name) =>
-        originalTypes[name].startsWith("GEOMETRY")
-          ? `ST_AsWKB("${name}") AS "${name}"`
-          : `"${name}"`
-      )
+      expect(
+        Object.fromEntries(Object.entries(types).filter(([name]) => !outputs.includes(name))),
+      ).toEqual(originalTypes);
+      const projection = Object.keys(originalTypes)
+        .map((name) =>
+          originalTypes[name].startsWith("GEOMETRY")
+            ? `ST_AsWKB("${name}") AS "${name}"`
+            : `"${name}"`,
+        )
         .join(", ");
-      assertEquals(
+      expect(
         await sdb.customQuery(
           `SELECT count(*) AS differences FROM (
         ((SELECT ${projection} FROM enriched) EXCEPT ALL (SELECT ${projection} FROM expected))
@@ -79,15 +79,12 @@ export default async function createAIEnrichmentFixture(rowCount = 1003) {
       )`,
           { returnData: true },
         ),
-        [{ differences: 0 }],
-      );
-      assertEquals(
-        (await sdb.getTableNames()).filter((name) =>
-          name.startsWith("__sda_") &&
-          name !== "__sda_embedding_column_metadata"
+      ).toEqual([{ differences: 0 }]);
+      expect(
+        (await sdb.getTableNames()).filter(
+          (name) => name.startsWith("__sda_") && name !== "__sda_embedding_column_metadata",
         ),
-        [],
-      );
+      ).toEqual([]);
     },
   };
 }

@@ -1,38 +1,62 @@
-name: Publish to npm
+name: Release
 
 on:
   push:
     tags:
       - "v*"
 
+permissions:
+  contents: read
+
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
-
-    # 1. THIS IS REQUIRED FOR OIDC
     permissions:
       contents: read
       id-token: write
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Deno
-        uses: denoland/setup-deno@v2
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          deno-version: v2.x
-
-      - name: Setup Node.js and npm registry
-        uses: actions/setup-node@v6
+          node-version: "24.21.0"
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npm run all-tests
+      - run: npm publish --provenance
+      - uses: actions/upload-pages-artifact@v3
         with:
-          node-version: "24.x"
-          registry-url: "https://registry.npmjs.org"
+          path: site
 
-      - name: Build npm package using auto-dnt
-        run: deno run --no-lock -A jsr:@nshiab/deno-to-npm
+  create-release:
+    needs: build-and-publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          tag: ${{ github.ref_name }}
+        run: |
+          gh release create "$tag" \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="v${tag#v}" \
+              --generate-notes
 
-      # 2. Add the --provenance flag and REMOVE the NODE_AUTH_TOKEN env variable
-      - name: Publish to npm
-        working-directory: ./npm
-        run: npm publish --access public --provenance
+  deploy-docs:
+    needs: build-and-publish
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    steps:
+      - name: Deploy documentation
+        id: deployment
+        uses: actions/deploy-pages@v4

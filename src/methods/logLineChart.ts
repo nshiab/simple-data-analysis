@@ -11,9 +11,7 @@ export default async function logLineChart(
       new Set([
         x,
         y,
-        ...(typeof options.smallMultiples === "string"
-          ? [options.smallMultiples]
-          : []),
+        ...(typeof options.smallMultiples === "string" ? [options.smallMultiples] : []),
       ]),
     ),
   });

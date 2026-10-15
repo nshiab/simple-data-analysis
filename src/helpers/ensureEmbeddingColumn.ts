@@ -1,4 +1,4 @@
-import type { EmbeddingIdentity } from "@nshiab/journalism-ai";
+import type { EmbeddingIdentity } from "./aiOptions.ts";
 import { quoteIdentifier } from "@nshiab/simple-data-analysis-core/helpers";
 import type SimpleTable from "../class/SimpleTable.ts";
 
@@ -34,20 +34,17 @@ async function readMetadata(
   table: SimpleTable,
   embeddingColumn: string,
 ): Promise<EmbeddingColumnMetadata | undefined> {
-  const rows = await table.sdb.customQuery(
+  const rows = (await table.sdb.customQuery(
     `SELECT source_column, identity_json, dimensions, schema_version
     FROM ${quoteIdentifier(METADATA_TABLE)}
     WHERE table_name = ${quoteLiteral(table.name)}
       AND embedding_column = ${quoteLiteral(embeddingColumn)};`,
     { returnData: true },
-  ) as EmbeddingColumnMetadata[];
+  )) as EmbeddingColumnMetadata[];
   return rows[0];
 }
 
-async function deleteMetadata(
-  table: SimpleTable,
-  embeddingColumn: string,
-): Promise<void> {
+async function deleteMetadata(table: SimpleTable, embeddingColumn: string): Promise<void> {
   await table.sdb.customQuery(
     `DELETE FROM ${quoteIdentifier(METADATA_TABLE)}
     WHERE table_name = ${quoteLiteral(table.name)}
@@ -55,10 +52,7 @@ async function deleteMetadata(
   );
 }
 
-async function getDimensions(
-  table: SimpleTable,
-  embeddingColumn: string,
-): Promise<number> {
+async function getDimensions(table: SimpleTable, embeddingColumn: string): Promise<number> {
   const type = (await table.getTypes())[embeddingColumn];
   const fixedSize = type?.match(/\[(\d+)\]$/)?.[1];
   if (fixedSize !== undefined) {
@@ -73,25 +67,21 @@ async function getDimensions(
 }
 
 async function dropManagedVssIndexes(table: SimpleTable): Promise<void> {
-  const indexes = await table.sdb.customQuery(
+  const indexes = (await table.sdb.customQuery(
     `SELECT index_name FROM duckdb_indexes()
     WHERE table_name = ${quoteLiteral(table.name)};`,
     { returnData: true },
-  ) as { index_name: string }[];
+  )) as { index_name: string }[];
   const managedIndexes = indexes.filter(({ index_name }) =>
-    index_name.startsWith("vss_cosine_index_")
+    index_name.startsWith("vss_cosine_index_"),
   );
   for (const { index_name } of managedIndexes) {
-    await table.sdb.customQuery(
-      `DROP INDEX IF EXISTS ${quoteIdentifier(index_name)};`,
-    );
+    await table.sdb.customQuery(`DROP INDEX IF EXISTS ${quoteIdentifier(index_name)};`);
   }
   // Table replacement can remove physical indexes while leaving their
   // registered definitions behind. Clear those definitions as well.
   const dropped = new Set(managedIndexes.map(({ index_name }) => index_name));
-  table.indexes = table.indexes.filter((index) =>
-    !dropped.has(index.name) && index.kind !== "vss"
-  );
+  table.indexes = table.indexes.filter((index) => !dropped.has(index.name) && index.kind !== "vss");
 }
 
 async function writeMetadata(
@@ -149,9 +139,7 @@ export default async function ensureEmbeddingColumn(
 
   const columnExists = await table.hasColumn(embeddingColumn);
   const metadata = await readMetadata(table, embeddingColumn);
-  if (
-    options.reuseExisting !== false && columnExists && metadata !== undefined
-  ) {
+  if (options.reuseExisting !== false && columnExists && metadata !== undefined) {
     const dimensions = await getDimensions(table, embeddingColumn);
     if (
       metadata.schema_version === METADATA_SCHEMA_VERSION &&
@@ -171,18 +159,12 @@ export default async function ensureEmbeddingColumn(
   await generate();
   if (!(await table.hasColumn(embeddingColumn))) {
     throw new Error(
-      `Embedding generation did not create ${
-        quoteIdentifier(embeddingColumn)
-      } in table ${quoteIdentifier(table.name)}.`,
+      `Embedding generation did not create ${quoteIdentifier(
+        embeddingColumn,
+      )} in table ${quoteIdentifier(table.name)}.`,
     );
   }
   const dimensions = await getDimensions(table, embeddingColumn);
-  await writeMetadata(
-    table,
-    sourceColumn,
-    embeddingColumn,
-    identityJson,
-    dimensions,
-  );
+  await writeMetadata(table, sourceColumn, embeddingColumn, identityJson, dimensions);
   return "generated";
 }

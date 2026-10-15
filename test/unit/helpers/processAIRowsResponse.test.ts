@@ -1,24 +1,19 @@
-import { assertEquals, assertThrows } from "@std/assert";
+import { test, expect } from "vite-plus/test";
+import { assertThrows } from "../../helpers/assertions.ts";
 import processAIRowsResponse from "../../../src/helpers/processAIRowsResponse.ts";
 
-Deno.test("cleans and validates batched AI rows", () => {
+test("cleans and validates batched AI rows", () => {
   const tested: { [key: string]: unknown }[] = [];
-  const result = processAIRowsResponse(
-    { rows: [{ category: "news" }] },
-    1,
-    ["category"],
-    {
-      clean: (response) =>
-        (response as { rows: { [key: string]: unknown }[] }).rows,
-      test: (row) => tested.push(row),
-    },
-  );
+  const result = processAIRowsResponse({ rows: [{ category: "news" }] }, 1, ["category"], {
+    clean: (response) => (response as { rows: { [key: string]: unknown }[] }).rows,
+    test: (row) => tested.push(row),
+  });
 
-  assertEquals(result, [{ category: "news" }]);
-  assertEquals(tested, result);
+  expect(result).toEqual([{ category: "news" }]);
+  expect(tested).toEqual(result);
 });
 
-Deno.test("rejects invalid batched AI rows", () => {
+test("rejects invalid batched AI rows", () => {
   assertThrows(
     () => processAIRowsResponse([{ other: "value" }], 1, ["category"], {}),
     Error,

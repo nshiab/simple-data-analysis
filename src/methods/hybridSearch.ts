@@ -6,10 +6,7 @@ import {
   queueAsyncBarrier,
   quoteIdentifier,
 } from "@nshiab/simple-data-analysis-core/helpers";
-import {
-  type EmbeddingOptions,
-  snapshotAIOptions,
-} from "../helpers/aiOptions.ts";
+import { type EmbeddingOptions, snapshotAIOptions } from "../helpers/aiOptions.ts";
 import ensureEmbeddingColumn from "../helpers/ensureEmbeddingColumn.ts";
 import { generateEmbeddingColumn } from "./aiEmbeddings.ts";
 import { runAIVectorSimilarity } from "./aiVectorSimilarity.ts";
@@ -137,9 +134,8 @@ export default function hybridSearch(
   options: HybridSearchOptions = {},
 ): SimpleTable {
   options = snapshotAIOptions(options);
-  const outputTable = options.outputTable === undefined
-    ? table
-    : table.sdb.newTable(options.outputTable);
+  const outputTable =
+    options.outputTable === undefined ? table : table.sdb.newTable(options.outputTable);
   queueAsyncBarrier(outputTable, {
     method: "hybridSearch()",
     parameters: {
@@ -150,15 +146,7 @@ export default function hybridSearch(
       outputTable: options.outputTable,
     },
     execute: () =>
-      runHybridSearch(
-        table,
-        query,
-        idColumn,
-        textColumn,
-        nbResults,
-        options,
-        outputTable,
-      ),
+      runHybridSearch(table, query, idColumn, textColumn, nbResults, options, outputTable),
   });
   return outputTable;
 }
@@ -213,12 +201,7 @@ async function runHybridSearch(
         concurrency: options.embeddingsConcurrency,
       };
       const computeEmbeddings = async () => {
-        await generateEmbeddingColumn(
-          table,
-          textColumn,
-          embeddingColumn,
-          embeddingOptions,
-        );
+        await generateEmbeddingColumn(table, textColumn, embeddingColumn, embeddingOptions);
       };
       const identity = getEmbeddingIdentity(options.embeddings);
       const embeddingStatus = await ensureEmbeddingColumn(
@@ -232,17 +215,14 @@ async function runHybridSearch(
             return;
           }
 
-          const computeSource = Function.prototype.toString.call(
-            computeEmbeddings,
-          );
+          const computeSource = Function.prototype.toString.call(computeEmbeddings);
           const cacheProvenance = {
             identity,
             sourceColumn: textColumn,
             embeddingColumn,
           };
           Object.defineProperty(computeEmbeddings, "toString", {
-            value: (): string =>
-              `${computeSource}\n${JSON.stringify(cacheProvenance)}`,
+            value: (): string => `${computeSource}\n${JSON.stringify(cacheProvenance)}`,
           });
           await table.cache(computeEmbeddings);
         },
@@ -280,26 +260,18 @@ async function runHybridSearch(
     if (options.verbose) {
       times.vectorSearchStart = Date.now();
     }
-    const vectorSearchResult = table.sdb.newTable(
-      `${table.name}_vector_search_results`,
-    );
-    await runAIVectorSimilarity(
-      table,
-      query,
-      embeddingColumn,
-      nbResults,
-      {
-        createIndex: options.createIndex ?? false,
-        outputTable: `${table.name}_vector_search_results`,
-        embeddings: options.embeddings,
-        verbose: options.verbose,
-        efConstruction: options.efConstruction,
-        efSearch: options.efSearch,
-        M: options.M,
-        minSimilarity: options.vectorMinSimilarity,
-        similarityColumn: options.vectorSimilarityColumn,
-      },
-    );
+    const vectorSearchResult = table.sdb.newTable(`${table.name}_vector_search_results`);
+    await runAIVectorSimilarity(table, query, embeddingColumn, nbResults, {
+      createIndex: options.createIndex ?? false,
+      outputTable: `${table.name}_vector_search_results`,
+      embeddings: options.embeddings,
+      verbose: options.verbose,
+      efConstruction: options.efConstruction,
+      efSearch: options.efSearch,
+      M: options.M,
+      minSimilarity: options.vectorMinSimilarity,
+      similarityColumn: options.vectorSimilarityColumn,
+    });
     if (options.verbose) {
       times.vectorSearchEnd = Date.now();
     }
@@ -310,26 +282,20 @@ async function runHybridSearch(
     if (options.verbose) {
       times.bm25Start = Date.now();
     }
-    const bm25SearchResult = table.bm25(
-      query,
-      idColumn,
-      textColumn,
-      nbResults,
-      {
-        stemmer: options.stemmer,
-        stopwords: options.stopwords,
-        ignore: options.ignore,
-        stripAccents: options.stripAccents,
-        lower: options.lower,
-        k: options.k,
-        b: options.b,
-        conjunctive: options.conjunctive,
-        outputTable: `${table.name}_bm25_search_results`,
-        verbose: options.verbose,
-        minScore: options.bm25MinScore,
-        scoreColumn: options.bm25ScoreColumn,
-      },
-    );
+    const bm25SearchResult = table.bm25(query, idColumn, textColumn, nbResults, {
+      stemmer: options.stemmer,
+      stopwords: options.stopwords,
+      ignore: options.ignore,
+      stripAccents: options.stripAccents,
+      lower: options.lower,
+      k: options.k,
+      b: options.b,
+      conjunctive: options.conjunctive,
+      outputTable: `${table.name}_bm25_search_results`,
+      verbose: options.verbose,
+      minScore: options.bm25MinScore,
+      scoreColumn: options.bm25ScoreColumn,
+    });
     await bm25SearchResult.run();
     if (options.verbose) {
       times.bm25End = Date.now();
@@ -355,47 +321,27 @@ async function runHybridSearch(
     vectorSearchRows = await vectorSearchResult.getData({
       columns: [
         idColumn,
-        ...(options.vectorSimilarityColumn
-          ? [options.vectorSimilarityColumn]
-          : []),
+        ...(options.vectorSimilarityColumn ? [options.vectorSimilarityColumn] : []),
       ],
     });
-    const vectorSearchResultsIds = vectorSearchRows.map((row) =>
-      row[idColumn]
-    ) as string[];
+    const vectorSearchResultsIds = vectorSearchRows.map((row) => row[idColumn]) as string[];
     bm25SearchRows = await bm25SearchResult.getData({
-      columns: [
-        idColumn,
-        ...(options.bm25ScoreColumn ? [options.bm25ScoreColumn] : []),
-      ],
+      columns: [idColumn, ...(options.bm25ScoreColumn ? [options.bm25ScoreColumn] : [])],
     });
-    const bm25SearchResultsIds = bm25SearchRows.map((row) =>
-      row[idColumn]
-    ) as string[];
+    const bm25SearchResultsIds = bm25SearchRows.map((row) => row[idColumn]) as string[];
 
     await vectorSearchResult.removeTable();
     await bm25SearchResult.removeTable();
 
     if (options.verbose) {
-      console.log(
-        `Vector search results IDs:`,
-        vectorSearchResultsIds,
-      );
-      console.log(
-        `BM25 search results IDs:`,
-        bm25SearchResultsIds,
-      );
+      console.log(`Vector search results IDs:`, vectorSearchResultsIds);
+      console.log(`BM25 search results IDs:`, bm25SearchResultsIds);
     }
 
-    finalIds = getRRFRanking(
-      [vectorSearchResultsIds, bm25SearchResultsIds],
-    );
+    finalIds = getRRFRanking([vectorSearchResultsIds, bm25SearchResultsIds]);
 
     if (options.verbose) {
-      console.log(
-        `Fused results IDs:`,
-        finalIds,
-      );
+      console.log(`Fused results IDs:`, finalIds);
     }
   } else if (enableVectorSearch) {
     // Only vector search enabled
@@ -403,37 +349,26 @@ async function runHybridSearch(
     vectorSearchRows = await vectorSearchResult.getData({
       columns: [
         idColumn,
-        ...(options.vectorSimilarityColumn
-          ? [options.vectorSimilarityColumn]
-          : []),
+        ...(options.vectorSimilarityColumn ? [options.vectorSimilarityColumn] : []),
       ],
     });
     finalIds = vectorSearchRows.map((row) => row[idColumn]) as string[];
     await vectorSearchResult.removeTable();
 
     if (options.verbose) {
-      console.log(
-        `Vector search results IDs:`,
-        finalIds,
-      );
+      console.log(`Vector search results IDs:`, finalIds);
     }
   } else {
     // Only BM25 enabled
     const bm25SearchResult = await bm25Search();
     bm25SearchRows = await bm25SearchResult.getData({
-      columns: [
-        idColumn,
-        ...(options.bm25ScoreColumn ? [options.bm25ScoreColumn] : []),
-      ],
+      columns: [idColumn, ...(options.bm25ScoreColumn ? [options.bm25ScoreColumn] : [])],
     });
     finalIds = bm25SearchRows.map((row) => row[idColumn]) as string[];
     await bm25SearchResult.removeTable();
 
     if (options.verbose) {
-      console.log(
-        `BM25 search results IDs:`,
-        finalIds,
-      );
+      console.log(`BM25 search results IDs:`, finalIds);
     }
   }
 
@@ -441,15 +376,12 @@ async function runHybridSearch(
   const scoreColumns = [
     { name: options.vectorSimilarityColumn, rows: vectorSearchRows },
     { name: options.bm25ScoreColumn, rows: bm25SearchRows },
-  ].filter((
-    column,
-  ): column is { name: string; rows: Record<string, unknown>[] } =>
-    column.name !== undefined
+  ].filter(
+    (column): column is { name: string; rows: Record<string, unknown>[] } =>
+      column.name !== undefined,
   );
   if (scoreColumns.length > 0) {
-    const columns = new Set(
-      (await table.getColumns()).map((name) => name.toLowerCase()),
-    );
+    const columns = new Set((await table.getColumns()).map((name) => name.toLowerCase()));
     for (const { name } of scoreColumns) {
       if (columns.has(name.toLowerCase())) {
         throw new Error(`hybridSearch(): Column "${name}" already exists.`);
@@ -457,34 +389,37 @@ async function runHybridSearch(
       columns.add(name.toLowerCase());
     }
   }
-  const scores = scoreColumns.map(({ name, rows }) =>
-    new Map(rows.map((row) => [row[idColumn], row[name]]))
+  const scores = scoreColumns.map(
+    ({ name, rows }) => new Map(rows.map((row) => [row[idColumn], row[name]])),
   );
-  const scoreProjection = scoreColumns.map(({ name }, index) =>
-    `, round(ranked.score_${index}::DOUBLE, 4) AS ${quoteIdentifier(name)}`
-  ).join("");
+  const scoreProjection = scoreColumns
+    .map(
+      ({ name }, index) => `, round(ranked.score_${index}::DOUBLE, 4) AS ${quoteIdentifier(name)}`,
+    )
+    .join("");
   const destination = quoteIdentifier(options.outputTable ?? table.name);
   const source = quoteIdentifier(table.name);
 
   if (finalIdsSliced.length === 0) {
-    const emptyScores = scoreColumns.map(({ name }) =>
-      `, NULL::DOUBLE AS ${quoteIdentifier(name)}`
-    ).join("");
+    const emptyScores = scoreColumns
+      .map(({ name }) => `, NULL::DOUBLE AS ${quoteIdentifier(name)}`)
+      .join("");
     await table.sdb.customQuery(
       `CREATE OR REPLACE TABLE ${destination} AS SELECT *${emptyScores} FROM ${source} WHERE 1=0`,
     );
   } else {
     // Keep the ranking alongside each ID through the join. Membership alone
     // loses relevance order, and raw search scores cannot recover fused ranks.
-    const rankedRows = finalIdsSliced.map((id, ordinal) =>
-      `(${
-        [
-          parseValue(id),
-          ordinal,
-          ...scores.map((score) => parseValue(score.get(id) ?? null)),
-        ].join(", ")
-      })`
-    ).join(", ");
+    const rankedRows = finalIdsSliced
+      .map(
+        (id, ordinal) =>
+          `(${[
+            parseValue(id),
+            ordinal,
+            ...scores.map((score) => parseValue(score.get(id) ?? null)),
+          ].join(", ")})`,
+      )
+      .join(", ");
     const rankedColumns = [
       "id",
       "ordinal",
@@ -507,9 +442,7 @@ async function runHybridSearch(
 
     if (enableVectorSearch) {
       logParts.push(
-        `- Embedding: ${
-          prettyDuration(times.embeddingStart!, { end: times.embeddingEnd! })
-        }`,
+        `- Embedding: ${prettyDuration(times.embeddingStart!, { end: times.embeddingEnd! })}`,
       );
     }
 
@@ -517,25 +450,21 @@ async function runHybridSearch(
 
     logParts.push(
       enableVectorSearch
-        ? `- Vector Search${parallelLabel}: ${
-          prettyDuration(times.vectorSearchStart!, {
+        ? `- Vector Search${parallelLabel}: ${prettyDuration(times.vectorSearchStart!, {
             end: times.vectorSearchEnd!,
-          })
-        }`
+          })}`
         : `- Vector Search: disabled`,
     );
 
     logParts.push(
       enableBm25
-        ? `- BM25 Search${parallelLabel}: ${
-          prettyDuration(times.bm25Start!, { end: times.bm25End! })
-        }`
+        ? `- BM25 Search${parallelLabel}: ${prettyDuration(times.bm25Start!, {
+            end: times.bm25End!,
+          })}`
         : `- BM25 Search: disabled`,
     );
 
-    logParts.push(
-      `- Total: ${prettyDuration(times.start!)} (verbose adds some overhead)`,
-    );
+    logParts.push(`- Total: ${prettyDuration(times.start!)} (verbose adds some overhead)`);
     console.log(logParts.join("\n") + "\n");
   }
 }

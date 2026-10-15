@@ -23,15 +23,14 @@ import toGeoDatawrapper from "../methods/toGeoDatawrapper.ts";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
- * Extends the core [`SimpleTable`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable) class
+ * Extends the core [`SimpleTable`](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/docs/classes/SimpleTable.md) class
  * from [`simple-data-analysis-core`](https://github.com/nshiab/simple-data-analysis-core) to include
  * additional AI, Google Sheets, and charting methods.
  * Integration dependencies load only when their operations execute, and are reused
  * by subsequent calls. Core-only pipelines do not load these dependencies.
  *
- * All core methods are available on this class. JSR currently omits inherited methods
- * from subclass reference pages because of an [upstream limitation](https://github.com/jsr-io/jsr/issues/747).
- * See the [core SimpleTable reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable)
+ * All core methods are available on this class.
+ * See the [core SimpleTable reference](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/docs/classes/SimpleTable.md)
  * for inherited methods such as `loadData()`, `filter()`, and `log()`.
  *
  * @example
@@ -206,19 +205,15 @@ export default class SimpleTable extends SimpleTableCore {
     newColumn: string | string[],
     prompt: string,
     options: {
-      generation?:
-        & {
-          systemPrompt?: string;
-          model?: string;
-          schemaJson?: unknown;
-          cache?: boolean;
-          processResponse?: (
-            response: unknown,
-          ) => unknown | Promise<unknown>;
-          temperature?: number;
-        }
-        & (
-          | {
+      generation?: {
+        systemPrompt?: string;
+        model?: string;
+        schemaJson?: unknown;
+        cache?: boolean;
+        processResponse?: (response: unknown) => unknown;
+        temperature?: number;
+      } & (
+        | {
             provider: "gemini";
             apiKey?: string;
             vertex?: boolean;
@@ -237,7 +232,7 @@ export default class SimpleTable extends SimpleTableCore {
             contextWindow?: never;
             ollamaParameters?: never;
           }
-          | {
+        | {
             provider: "ollama";
             ollama?: unknown;
             files?: { path: string; type: "image" | "text" }[];
@@ -253,7 +248,7 @@ export default class SimpleTable extends SimpleTableCore {
             safetyEnabled?: never;
             geminiParameters?: never;
           }
-          | {
+        | {
             provider?: undefined;
             apiKey?: string;
             vertex?: boolean;
@@ -272,7 +267,7 @@ export default class SimpleTable extends SimpleTableCore {
             contextWindow?: never;
             ollamaParameters?: never;
           }
-          | {
+        | {
             provider?: undefined;
             ollama?: unknown;
             files?: { path: string; type: "image" | "text" }[];
@@ -288,7 +283,7 @@ export default class SimpleTable extends SimpleTableCore {
             safetyEnabled?: never;
             geminiParameters?: never;
           }
-        );
+      );
       batchSize?: number;
       concurrency?: number;
       errorColumn?: string;
@@ -408,60 +403,60 @@ export default class SimpleTable extends SimpleTableCore {
     options: {
       embeddings?:
         | {
-          provider?: never;
-          model?: string;
-          cache?: boolean;
-          verbose?: boolean;
-          apiKey?: never;
-          vertex?: never;
-          project?: never;
-          location?: never;
-          ollama?: never;
-          contextWindow?: never;
-        }
+            provider?: never;
+            model?: string;
+            cache?: boolean;
+            verbose?: boolean;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
+            ollama?: never;
+            contextWindow?: never;
+          }
         | {
-          provider: "gemini";
-          model?: string;
-          cache?: boolean;
-          verbose?: boolean;
-          vertex?: false;
-          apiKey?: string;
-          project?: never;
-          location?: never;
-          ollama?: never;
-          contextWindow?: never;
-        }
+            provider: "gemini";
+            model?: string;
+            cache?: boolean;
+            verbose?: boolean;
+            vertex?: false;
+            apiKey?: string;
+            project?: never;
+            location?: never;
+            ollama?: never;
+            contextWindow?: never;
+          }
         | {
-          provider: "gemini";
-          model?: string;
-          cache?: boolean;
-          verbose?: boolean;
-          vertex: true;
-          apiKey?: string;
-          project?: string;
-          location?: string;
-          ollama?: never;
-          contextWindow?: never;
-        }
+            provider: "gemini";
+            model?: string;
+            cache?: boolean;
+            verbose?: boolean;
+            vertex: true;
+            apiKey?: string;
+            project?: string;
+            location?: string;
+            ollama?: never;
+            contextWindow?: never;
+          }
         | {
-          provider: "ollama";
-          model?: string;
-          cache?: boolean;
-          verbose?: boolean;
-          ollama?: {
-            embeddingEndpoint?: string;
-            embed(request: {
-              model: string;
-              input: string;
-              options?: { num_ctx?: number };
-            }): Promise<{ embeddings: number[][] }>;
+            provider: "ollama";
+            model?: string;
+            cache?: boolean;
+            verbose?: boolean;
+            ollama?: {
+              embeddingEndpoint?: string;
+              embed(request: {
+                model: string;
+                input: string;
+                options?: { num_ctx?: number };
+              }): Promise<{ embeddings: number[][] }>;
+            };
+            contextWindow?: number;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
           };
-          contextWindow?: number;
-          apiKey?: never;
-          vertex?: never;
-          project?: never;
-          location?: never;
-        };
       createIndex?: boolean;
       overwriteIndex?: boolean;
       concurrency?: number;
@@ -562,60 +557,60 @@ export default class SimpleTable extends SimpleTableCore {
     options: {
       embeddings?:
         | {
-          provider?: never;
-          model?: string;
-          cache?: boolean;
-          verbose?: boolean;
-          apiKey?: never;
-          vertex?: never;
-          project?: never;
-          location?: never;
-          ollama?: never;
-          contextWindow?: never;
-        }
+            provider?: never;
+            model?: string;
+            cache?: boolean;
+            verbose?: boolean;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
+            ollama?: never;
+            contextWindow?: never;
+          }
         | {
-          provider: "gemini";
-          model?: string;
-          cache?: boolean;
-          verbose?: boolean;
-          vertex?: false;
-          apiKey?: string;
-          project?: never;
-          location?: never;
-          ollama?: never;
-          contextWindow?: never;
-        }
+            provider: "gemini";
+            model?: string;
+            cache?: boolean;
+            verbose?: boolean;
+            vertex?: false;
+            apiKey?: string;
+            project?: never;
+            location?: never;
+            ollama?: never;
+            contextWindow?: never;
+          }
         | {
-          provider: "gemini";
-          model?: string;
-          cache?: boolean;
-          verbose?: boolean;
-          vertex: true;
-          apiKey?: string;
-          project?: string;
-          location?: string;
-          ollama?: never;
-          contextWindow?: never;
-        }
+            provider: "gemini";
+            model?: string;
+            cache?: boolean;
+            verbose?: boolean;
+            vertex: true;
+            apiKey?: string;
+            project?: string;
+            location?: string;
+            ollama?: never;
+            contextWindow?: never;
+          }
         | {
-          provider: "ollama";
-          model?: string;
-          cache?: boolean;
-          verbose?: boolean;
-          ollama?: {
-            embeddingEndpoint?: string;
-            embed(request: {
-              model: string;
-              input: string;
-              options?: { num_ctx?: number };
-            }): Promise<{ embeddings: number[][] }>;
+            provider: "ollama";
+            model?: string;
+            cache?: boolean;
+            verbose?: boolean;
+            ollama?: {
+              embeddingEndpoint?: string;
+              embed(request: {
+                model: string;
+                input: string;
+                options?: { num_ctx?: number };
+              }): Promise<{ embeddings: number[][] }>;
+            };
+            contextWindow?: number;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
           };
-          contextWindow?: number;
-          apiKey?: never;
-          vertex?: never;
-          project?: never;
-          location?: never;
-        };
       createIndex?: boolean;
       overwriteIndex?: boolean;
       outputTable?: string;
@@ -627,13 +622,7 @@ export default class SimpleTable extends SimpleTableCore {
       similarityColumn?: string | boolean;
     } = {},
   ): this {
-    return aiVectorSimilarity(
-      this,
-      text,
-      column,
-      nbResults,
-      options,
-    ) as this;
+    return aiVectorSimilarity(this, text, column, nbResults, options) as this;
   }
 
   /**
@@ -729,60 +718,60 @@ export default class SimpleTable extends SimpleTableCore {
     options: {
       embeddings?:
         | {
-          provider?: never;
-          model?: string;
-          cache?: boolean;
-          verbose?: boolean;
-          apiKey?: never;
-          vertex?: never;
-          project?: never;
-          location?: never;
-          ollama?: never;
-          contextWindow?: never;
-        }
+            provider?: never;
+            model?: string;
+            cache?: boolean;
+            verbose?: boolean;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
+            ollama?: never;
+            contextWindow?: never;
+          }
         | {
-          provider: "gemini";
-          model?: string;
-          cache?: boolean;
-          verbose?: boolean;
-          vertex?: false;
-          apiKey?: string;
-          project?: never;
-          location?: never;
-          ollama?: never;
-          contextWindow?: never;
-        }
+            provider: "gemini";
+            model?: string;
+            cache?: boolean;
+            verbose?: boolean;
+            vertex?: false;
+            apiKey?: string;
+            project?: never;
+            location?: never;
+            ollama?: never;
+            contextWindow?: never;
+          }
         | {
-          provider: "gemini";
-          model?: string;
-          cache?: boolean;
-          verbose?: boolean;
-          vertex: true;
-          apiKey?: string;
-          project?: string;
-          location?: string;
-          ollama?: never;
-          contextWindow?: never;
-        }
+            provider: "gemini";
+            model?: string;
+            cache?: boolean;
+            verbose?: boolean;
+            vertex: true;
+            apiKey?: string;
+            project?: string;
+            location?: string;
+            ollama?: never;
+            contextWindow?: never;
+          }
         | {
-          provider: "ollama";
-          model?: string;
-          cache?: boolean;
-          verbose?: boolean;
-          ollama?: {
-            embeddingEndpoint?: string;
-            embed(request: {
-              model: string;
-              input: string;
-              options?: { num_ctx?: number };
-            }): Promise<{ embeddings: number[][] }>;
+            provider: "ollama";
+            model?: string;
+            cache?: boolean;
+            verbose?: boolean;
+            ollama?: {
+              embeddingEndpoint?: string;
+              embed(request: {
+                model: string;
+                input: string;
+                options?: { num_ctx?: number };
+              }): Promise<{ embeddings: number[][] }>;
+            };
+            contextWindow?: number;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
           };
-          contextWindow?: number;
-          apiKey?: never;
-          vertex?: never;
-          project?: never;
-          location?: never;
-        };
       verbose?: boolean;
       createIndex?: boolean;
       embeddingsConcurrency?: number;
@@ -843,14 +832,7 @@ export default class SimpleTable extends SimpleTableCore {
       };
     } = {},
   ): this {
-    return hybridSearch(
-      this,
-      query,
-      idColumn,
-      textColumn,
-      nbResults,
-      options,
-    ) as this;
+    return hybridSearch(this, query, idColumn, textColumn, nbResults, options) as this;
   }
 
   /**
@@ -953,60 +935,60 @@ export default class SimpleTable extends SimpleTableCore {
     options: {
       embeddings?:
         | {
-          provider?: never;
-          model?: string;
-          cache?: boolean;
-          verbose?: boolean;
-          apiKey?: never;
-          vertex?: never;
-          project?: never;
-          location?: never;
-          ollama?: never;
-          contextWindow?: never;
-        }
+            provider?: never;
+            model?: string;
+            cache?: boolean;
+            verbose?: boolean;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
+            ollama?: never;
+            contextWindow?: never;
+          }
         | {
-          provider: "gemini";
-          model?: string;
-          cache?: boolean;
-          verbose?: boolean;
-          vertex?: false;
-          apiKey?: string;
-          project?: never;
-          location?: never;
-          ollama?: never;
-          contextWindow?: never;
-        }
+            provider: "gemini";
+            model?: string;
+            cache?: boolean;
+            verbose?: boolean;
+            vertex?: false;
+            apiKey?: string;
+            project?: never;
+            location?: never;
+            ollama?: never;
+            contextWindow?: never;
+          }
         | {
-          provider: "gemini";
-          model?: string;
-          cache?: boolean;
-          verbose?: boolean;
-          vertex: true;
-          apiKey?: string;
-          project?: string;
-          location?: string;
-          ollama?: never;
-          contextWindow?: never;
-        }
+            provider: "gemini";
+            model?: string;
+            cache?: boolean;
+            verbose?: boolean;
+            vertex: true;
+            apiKey?: string;
+            project?: string;
+            location?: string;
+            ollama?: never;
+            contextWindow?: never;
+          }
         | {
-          provider: "ollama";
-          model?: string;
-          cache?: boolean;
-          verbose?: boolean;
-          ollama?: {
-            embeddingEndpoint?: string;
-            embed(request: {
-              model: string;
-              input: string;
-              options?: { num_ctx?: number };
-            }): Promise<{ embeddings: number[][] }>;
+            provider: "ollama";
+            model?: string;
+            cache?: boolean;
+            verbose?: boolean;
+            ollama?: {
+              embeddingEndpoint?: string;
+              embed(request: {
+                model: string;
+                input: string;
+                options?: { num_ctx?: number };
+              }): Promise<{ embeddings: number[][] }>;
+            };
+            contextWindow?: number;
+            apiKey?: never;
+            vertex?: never;
+            project?: never;
+            location?: never;
           };
-          contextWindow?: number;
-          apiKey?: never;
-          vertex?: never;
-          project?: never;
-          location?: never;
-        };
       verbose?: boolean;
       createIndex?: boolean;
       embeddingsConcurrency?: number;
@@ -1055,18 +1037,14 @@ export default class SimpleTable extends SimpleTableCore {
       efConstruction?: number;
       efSearch?: number;
       M?: number;
-      generation?:
-        & {
-          systemPrompt?: string;
-          model?: string;
-          cache?: boolean;
-          processResponse?: (
-            response: unknown,
-          ) => unknown | Promise<unknown>;
-          temperature?: number;
-        }
-        & (
-          | {
+      generation?: {
+        systemPrompt?: string;
+        model?: string;
+        cache?: boolean;
+        processResponse?: (response: unknown) => unknown;
+        temperature?: number;
+      } & (
+        | {
             provider: "gemini";
             apiKey?: string;
             vertex?: boolean;
@@ -1085,7 +1063,7 @@ export default class SimpleTable extends SimpleTableCore {
             contextWindow?: never;
             ollamaParameters?: never;
           }
-          | {
+        | {
             provider: "ollama";
             ollama?: unknown;
             files?: { path: string; type: "image" | "text" }[];
@@ -1101,7 +1079,7 @@ export default class SimpleTable extends SimpleTableCore {
             safetyEnabled?: never;
             geminiParameters?: never;
           }
-          | {
+        | {
             provider?: undefined;
             apiKey?: string;
             vertex?: boolean;
@@ -1120,7 +1098,7 @@ export default class SimpleTable extends SimpleTableCore {
             contextWindow?: never;
             ollamaParameters?: never;
           }
-          | {
+        | {
             provider?: undefined;
             ollama?: unknown;
             files?: { path: string; type: "image" | "text" }[];
@@ -1136,7 +1114,7 @@ export default class SimpleTable extends SimpleTableCore {
             safetyEnabled?: never;
             geminiParameters?: never;
           }
-        );
+      );
       includeThoughts?: boolean;
       metrics?: {
         totalCost: number;
@@ -1219,18 +1197,14 @@ export default class SimpleTable extends SimpleTableCore {
     prompt: string,
     options: {
       extraInstructions?: string;
-      generation?:
-        & {
-          systemPrompt?: string;
-          model?: string;
-          cache?: boolean;
-          processResponse?: (
-            response: unknown,
-          ) => unknown | Promise<unknown>;
-          temperature?: number;
-        }
-        & (
-          | {
+      generation?: {
+        systemPrompt?: string;
+        model?: string;
+        cache?: boolean;
+        processResponse?: (response: unknown) => unknown;
+        temperature?: number;
+      } & (
+        | {
             provider: "gemini";
             apiKey?: string;
             vertex?: boolean;
@@ -1249,7 +1223,7 @@ export default class SimpleTable extends SimpleTableCore {
             contextWindow?: never;
             ollamaParameters?: never;
           }
-          | {
+        | {
             provider: "ollama";
             ollama?: unknown;
             files?: { path: string; type: "image" | "text" }[];
@@ -1265,7 +1239,7 @@ export default class SimpleTable extends SimpleTableCore {
             safetyEnabled?: never;
             geminiParameters?: never;
           }
-          | {
+        | {
             provider?: undefined;
             apiKey?: string;
             vertex?: boolean;
@@ -1284,7 +1258,7 @@ export default class SimpleTable extends SimpleTableCore {
             contextWindow?: never;
             ollamaParameters?: never;
           }
-          | {
+        | {
             provider?: undefined;
             ollama?: unknown;
             files?: { path: string; type: "image" | "text" }[];
@@ -1300,7 +1274,7 @@ export default class SimpleTable extends SimpleTableCore {
             safetyEnabled?: never;
             geminiParameters?: never;
           }
-        );
+      );
       includeThoughts?: boolean;
       outputTable?: string;
       verbose?: boolean;
@@ -1317,7 +1291,7 @@ export default class SimpleTable extends SimpleTableCore {
    * `.parquet`, `.geojson`, `.geoparquet`, and `.shp.zip`.
    *
    * This method uses the `toBucket` function from the
-   * [journalism-google library](https://jsr.io/@nshiab/journalism-google).
+   * [journalism-google library](https://github.com/nshiab/journalism-google/tree/v2.0.0/docs).
    * Set `BUCKET_PROJECT` and `BUCKET_NAME` in your `.env` file, or pass
    * `project` and `bucket`.
    * Authentication uses Google Application Default Credentials. To load
@@ -1353,17 +1327,20 @@ export default class SimpleTable extends SimpleTableCore {
    * @param options.bucket - The Google Cloud Storage bucket name. Defaults to `BUCKET_NAME`.
    * @param options.overwrite - If `true`, replaces an existing object. Cannot be combined with `skip`. Defaults to `false`.
    * @param options.skip - If `true`, skips the upload when the object already exists. Cannot be combined with `overwrite`. Defaults to `false`.
-   * @param options.metadata - Metadata passed to `journalism-google` for the uploaded object.
+   * @param options.metadata - Metadata object passed to `journalism-google` for the uploaded object.
    * @returns The `gs://` URI of the uploaded object.
    * @category Exporting Data
    */
-  async toBucket(destination: string, options: {
-    project?: string;
-    bucket?: string;
-    overwrite?: boolean;
-    skip?: boolean;
-    metadata?: unknown;
-  } = {}): Promise<string> {
+  async toBucket(
+    destination: string,
+    options: {
+      project?: string;
+      bucket?: string;
+      overwrite?: boolean;
+      skip?: boolean;
+      metadata?: unknown;
+    } = {},
+  ): Promise<string> {
     return await toBucket(this, destination, options);
   }
 
@@ -1373,7 +1350,7 @@ export default class SimpleTable extends SimpleTableCore {
    * `.geojson`, `.geoparquet`, and `.shp.zip`.
    *
    * This method uses the `downloadFromBucket` function from the
-   * [journalism-google library](https://jsr.io/@nshiab/journalism-google).
+   * [journalism-google library](https://github.com/nshiab/journalism-google/tree/v2.0.0/docs).
    * Set `BUCKET_PROJECT` and `BUCKET_NAME` in your `.env` file, or pass
    * `project` and `bucket`.
    * Authentication uses Google Application Default Credentials. To load
@@ -1411,10 +1388,13 @@ export default class SimpleTable extends SimpleTableCore {
    * @returns The table, so methods can be chained.
    * @category Loading Data
    */
-  loadBucket(source: string, options: {
-    project?: string;
-    bucket?: string;
-  } = {}): this {
+  loadBucket(
+    source: string,
+    options: {
+      project?: string;
+      bucket?: string;
+    } = {},
+  ): this {
     loadBucket(this, source, options);
     return this;
   }
@@ -1423,7 +1403,7 @@ export default class SimpleTable extends SimpleTableCore {
 
   /**
    * Writes the table data to a Google Sheet.
-   * This method uses the `pushToSheet` function from the [journalism-google library](https://jsr.io/@nshiab/journalism-google). Refer to its documentation for more details.
+   * This method uses the `pushToSheet` function from the [journalism-google library](https://github.com/nshiab/journalism-google/tree/v2.0.0/docs). Refer to its documentation for more details.
    *
    * By default, the selected tab is overwritten and values are written without Google Sheets interpretation.
    *
@@ -1509,34 +1489,37 @@ export default class SimpleTable extends SimpleTableCore {
    * @returns A promise that resolves to this table after the data has been written to the sheet.
    * @category Exporting Data
    */
-  async toSheet(sheetUrl: string, options: {
-    mode?: "overwrite" | "append";
-    tabTitle?: string;
-    create?: boolean;
-    prepend?: string;
-    lastUpdate?:
-      | boolean
-      | "Canada/Atlantic"
-      | "Canada/Central"
-      | "Canada/Eastern"
-      | "Canada/Mountain"
-      | "Canada/Newfoundland"
-      | "Canada/Pacific"
-      | "Canada/Saskatchewan"
-      | "Canada/Yukon";
-    raw?: boolean;
-    credentials?: {
-      email: string;
-      privateKey: string;
-    };
-  } = {}): Promise<this> {
+  async toSheet(
+    sheetUrl: string,
+    options: {
+      mode?: "overwrite" | "append";
+      tabTitle?: string;
+      create?: boolean;
+      prepend?: string;
+      lastUpdate?:
+        | boolean
+        | "Canada/Atlantic"
+        | "Canada/Central"
+        | "Canada/Eastern"
+        | "Canada/Mountain"
+        | "Canada/Newfoundland"
+        | "Canada/Pacific"
+        | "Canada/Saskatchewan"
+        | "Canada/Yukon";
+      raw?: boolean;
+      credentials?: {
+        email: string;
+        privateKey: string;
+      };
+    } = {},
+  ): Promise<this> {
     await toSheet(this, sheetUrl, options);
     return this;
   }
 
   /**
    * Loads data from a Google Sheet into the table.
-   * This method uses the `getSheetData` function from the [journalism library](https://jsr.io/@nshiab/journalism). Refer to its documentation for more details.
+   * This method uses the `getSheetData` function from the [journalism-google library](https://github.com/nshiab/journalism-google/blob/v2.0.0/docs/functions/getSheetData.md). Refer to its documentation for more details.
    *
    * Environment variables are named configuration values supplied to the running process. By default, this method reads `GOOGLE_SERVICE_ACCOUNT_EMAIL` (for example, `"service-account@example.iam.gserviceaccount.com"`) with `GOOGLE_PRIVATE_KEY` (for example, `"-----BEGIN PRIVATE KEY-----\n..."`). Alternatively, set `GOOGLE_APPLICATION_CREDENTIALS` to a service-account JSON path (for example, `"./service-account.json"`).
    * The download is queued and runs in chain order at the next awaited observer or `run()` call.
@@ -1571,11 +1554,14 @@ export default class SimpleTable extends SimpleTableCore {
    * @returns The table, so methods can be chained.
    * @category Loading Data
    */
-  loadSheet(sheetUrl: string, options: {
-    skip?: number;
-    apiEmailEnvVar?: string;
-    apiKeyEnvVar?: string;
-  } = {}): this {
+  loadSheet(
+    sheetUrl: string,
+    options: {
+      skip?: number;
+      apiEmailEnvVar?: string;
+      apiKeyEnvVar?: string;
+    } = {},
+  ): this {
     loadSheet(this, sheetUrl, options);
     return this;
   }

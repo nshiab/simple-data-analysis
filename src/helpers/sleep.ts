@@ -11,18 +11,12 @@ export default function sleep(
       const remaining = ms - duration;
       if (remaining > 0) {
         if (options.log) {
-          console.log(
-            `\nSleeping for ${prettyDuration(0, { end: remaining })}...`,
-          );
+          console.log(`\nSleeping for ${prettyDuration(0, { end: remaining })}...`);
         }
         return setTimeout(resolve, remaining);
       } else {
         if (options.log) {
-          console.log(
-            `\nNo need to sleep, already took ${
-              prettyDuration(0, { end: duration })
-            }.`,
-          );
+          console.log(`\nNo need to sleep, already took ${prettyDuration(0, { end: duration })}.`);
         }
         return resolve();
       }

@@ -11,11 +11,12 @@ async function columnNames(
   path: string,
 ): Promise<string[]> {
   const result = await connection.run(
-    `DESCRIBE SELECT * FROM read_csv(${
-      sqlString(path)
-    }, header = true, all_varchar = true)`,
+    `DESCRIBE SELECT * FROM read_csv(${sqlString(path)}, header = true, all_varchar = true)`,
   );
-  return (await result.getRowsJS()).map((row) => String(row[0]));
+  return (await result.getRowsJS()).map((row) => {
+    if (typeof row[0] !== "string") throw new Error("Expected a column name");
+    return row[0];
+  });
 }
 
 function canonicalSelect(path: string): string {
@@ -43,18 +44,16 @@ export default async function assertEquivalentCleanOutputs(
   const connection = await instance.connect();
   try {
     await connection.run("SET threads = 1;");
-    for (
-      const [label, path] of [
-        ["raw DuckDB", expectedPath],
-        [implementation, actualPath],
-      ] as const
-    ) {
+    for (const [label, path] of [
+      ["raw DuckDB", expectedPath],
+      [implementation, actualPath],
+    ] as const) {
       const columns = await columnNames(connection, path);
       if (columns.join("\0") !== expectedColumns.join("\0")) {
         throw new Error(
-          `${label} cleaned output columns must be ${
-            expectedColumns.join(",")
-          }. Received ${columns.join(",")}.`,
+          `${label} cleaned output columns must be ${expectedColumns.join(
+            ",",
+          )}. Received ${columns.join(",")}.`,
         );
       }
     }
@@ -76,8 +75,14 @@ export default async function assertEquivalentCleanOutputs(
       FROM expected
       FULL OUTER JOIN actual USING ("__row")
     `);
-    const [[expectedRows, actualRows, mismatchedRows]] = await result
-      .getRowsJS();
+    const [[expectedRows, actualRows, mismatchedRows]] = await result.getRowsJS();
+    if (
+      typeof expectedRows !== "bigint" ||
+      typeof actualRows !== "bigint" ||
+      typeof mismatchedRows !== "bigint"
+    ) {
+      throw new Error("Expected integer benchmark row counts");
+    }
     if (mismatchedRows !== 0n) {
       throw new Error(
         `${implementation} cleaned output has ${actualRows} rows and ${mismatchedRows} row mismatches; raw DuckDB has ${expectedRows} rows.`,

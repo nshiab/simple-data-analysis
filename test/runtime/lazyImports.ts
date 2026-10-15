@@ -1,42 +1,25 @@
-// After building the npm package, run with Node and Bun, using each entry point:
-// node test/runtime/lazyImports.cjs /absolute/path/to/npm esm
-// bun test/runtime/lazyImports.cjs /absolute/path/to/npm script
-const assert = require("node:assert/strict");
-const { mkdtempSync, readFileSync, rmSync } = require("node:fs");
-const { tmpdir } = require("node:os");
-const { join, resolve } = require("node:path");
-const { pathToFileURL } = require("node:url");
+import assert from "node:assert/strict";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 async function main() {
-  const packageDirectory = resolve(process.argv[2] ?? "npm");
-  const mode = process.argv[3] ?? "esm";
-  assert.ok(["esm", "script"].includes(mode));
-  const entry = join(packageDirectory, mode, "index.js");
-  const { SimpleDB } = mode === "esm"
-    ? await import(pathToFileURL(entry).href)
-    : require(entry);
+  const { SimpleDB } = (await import(
+    pathToFileURL(process.argv[2]).href
+  )) as typeof import("../../src/index.ts");
   const directory = mkdtempSync(join(tmpdir(), "sda-runtime-"));
   const sdb = new SimpleDB();
   const originalFetch = globalThis.fetch;
   try {
     const table = sdb.newTable("data").loadArray([{ value: 1 }, { value: 2 }]);
     assert.deepEqual(await table.filter("value > 1").getData(), [{ value: 2 }]);
-    // CommonJS exposes its evaluated modules, so also check the import boundary.
-    if (mode === "script") {
-      assert.deepEqual(
-        Object.keys(require.cache).filter((path) =>
-          /journalism-(ai|google|dataviz|format)/.test(path)
-        ),
-        [],
-      );
-    }
-
     // Use real integration modules without contacting external services.
-    const chart = (data) => {
+    const chart = (data: unknown[]) => {
       const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       svg.setAttribute("width", "120");
       svg.setAttribute("height", "60");
-      svg.textContent = String(data[0].value);
+      svg.textContent = String((data[0] as { value: unknown }).value);
       return svg;
     };
     for (let i = 0; i < 2; i++) {
@@ -67,9 +50,11 @@ async function main() {
       return Promise.resolve(
         new Response(
           JSON.stringify({
-            candidates: [{
-              content: { parts: [{ text: JSON.stringify([{ answer: 42 }]) }] },
-            }],
+            candidates: [
+              {
+                content: { parts: [{ text: JSON.stringify([{ answer: 42 }]) }] },
+              },
+            ],
             usageMetadata: {
               promptTokenCount: 1,
               candidatesTokenCount: 1,
@@ -94,7 +79,7 @@ async function main() {
     assert.equal(requests, 0);
     assert.deepEqual(await table.getData(), [{ value: 2, answer: 42 }]);
     assert.equal(requests, 1);
-    console.log(`${process.versions.bun ? "Bun" : "Node"} ${mode}: passed`);
+    console.log("Built Node ESM integrations: passed");
   } finally {
     globalThis.fetch = originalFetch;
     await sdb.close();

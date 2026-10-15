@@ -6,31 +6,28 @@ export function saveChart(data: unknown, _chart: unknown, path: string) {
   return Promise.resolve();
 }
 
-export function getDataDW(
-  chartId: string,
-  options: { parse?: boolean; apiKey?: string } = {},
-) {
+export function getDataDW(chartId: string, options: { parse?: boolean; apiKey?: string } = {}) {
   calls.push({
     method: "getDataDW",
     value: { chartId, options },
   });
   return Promise.resolve(
-    options.parse ? [{ value: 1 }] : JSON.stringify({
-      type: "FeatureCollection",
-      features: [{
-        type: "Feature",
-        properties: { value: 1 },
-        geometry: { type: "Point", coordinates: [-73, 45] },
-      }],
-    }),
+    options.parse
+      ? [{ value: 1 }]
+      : JSON.stringify({
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              properties: { value: 1 },
+              geometry: { type: "Point", coordinates: [-73, 45] },
+            },
+          ],
+        }),
   );
 }
 
-export function updateDataDW(
-  chartId: string,
-  data: unknown,
-  options: { apiKey?: string } = {},
-) {
+export function updateDataDW(chartId: string, data: unknown, options: { apiKey?: string } = {}) {
   calls.push({ method: "updateDataDW", value: { chartId, data, options } });
   return Promise.resolve();
 }
@@ -44,10 +41,7 @@ export function updateInfoDW(
   return Promise.resolve();
 }
 
-export function publishChartDW(
-  chartId: string,
-  options: { apiKey?: string } = {},
-) {
+export function publishChartDW(chartId: string, options: { apiKey?: string } = {}) {
   calls.push({ method: "publishChartDW", value: { chartId, options } });
   return Promise.resolve();
 }

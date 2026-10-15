@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2024",
+    "module": "NodeNext",
+    "strict": true,
+    "rewriteRelativeImportExtensions": true,
+    "resolveJsonModule": true,
+    "types": ["node"],
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "scripts/**/*.ts",
+    "vite.config.ts",
+    "benchmarks/**/*.ts"
+  ]
+}

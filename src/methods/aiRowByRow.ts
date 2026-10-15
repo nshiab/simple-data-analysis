@@ -1,13 +1,7 @@
 import validateAIRequestOptions from "../helpers/validateAIRequestOptions.ts";
-import {
-  queueAsyncBarrier,
-  updateColumnsWithJS,
-} from "@nshiab/simple-data-analysis-core/helpers";
+import { queueAsyncBarrier, updateColumnsWithJS } from "@nshiab/simple-data-analysis-core/helpers";
 import type SimpleTable from "../class/SimpleTable.ts";
-import type {
-  AIRequestMetrics,
-  GenerationOptions,
-} from "../helpers/aiOptions.ts";
+import type { AIRequestMetrics, GenerationOptions } from "../helpers/aiOptions.ts";
 import { snapshotAIOptions } from "../helpers/aiOptions.ts";
 import processAIRowsResponse from "../helpers/processAIRowsResponse.ts";
 
@@ -92,115 +86,103 @@ async function runAIRowByRow(
   const state = {
     nextRequestStart: 0,
     completed: 0,
-    total: Math.ceil(await table.getRowCount() / batchSize),
+    total: Math.ceil((await table.getRowCount()) / batchSize),
   };
-  const outputColumns = options.errorColumn === undefined
-    ? newColumns
-    : [...newColumns, options.errorColumn];
-  await updateColumnsWithJS(table, [column], outputColumns, async (rows) => {
-    const [
-      { default: askAI },
-      { default: buildAIRowsRequest },
-      { default: runAIRequestPool },
-    ] = await Promise.all([
-      import("../helpers/askAI.ts"),
-      import("../helpers/buildAIRowsRequest.ts"),
-      import("../helpers/runAIRequestPool.ts"),
-    ]);
+  const outputColumns =
+    options.errorColumn === undefined ? newColumns : [...newColumns, options.errorColumn];
+  await updateColumnsWithJS(
+    table,
+    [column],
+    outputColumns,
+    async (rows) => {
+      const [{ default: askAI }, { default: buildAIRowsRequest }, { default: runAIRequestPool }] =
+        await Promise.all([
+          import("../helpers/askAI.ts"),
+          import("../helpers/buildAIRowsRequest.ts"),
+          import("../helpers/runAIRequestPool.ts"),
+        ]);
 
-    const batches: AIRow[][] = [];
-    for (let i = 0; i < rows.length; i += batchSize) {
-      batches.push(rows.slice(i, i + batchSize));
-    }
+      const batches: AIRow[][] = [];
+      for (let i = 0; i < rows.length; i += batchSize) {
+        batches.push(rows.slice(i, i + batchSize));
+      }
 
-    const requests = batches.map((batch) => {
-      const request = buildAIRowsRequest(
-        batch,
-        column,
-        newColumns,
-        prompt,
-        options,
+      const requests = batches.map((batch) => {
+        const request = buildAIRowsRequest(batch, column, newColumns, prompt, options);
+
+        if (options.verbose) {
+          console.log(`\nPrompt:\n${request.prompt}`);
+        }
+
+        return {
+          ...request,
+          processResponse: (response: unknown) =>
+            processAIRowsResponse(response, batch.length, newColumns, options),
+        };
+      });
+
+      const { results, errors } = await runAIRequestPool(
+        requests.map(
+          (request) => (beforeRequest) =>
+            askAI<AIRow[]>(request.prompt, {
+              generation: options.generation,
+              systemPrompt: request.systemPrompt,
+              schemaJson: request.schemaJson,
+              metrics: options.metrics,
+              verbose: options.verbose,
+              processResponse: request.processResponse,
+              beforeRequest,
+            }),
+        ),
+        concurrency,
+        {
+          retry: options.retry,
+          retryCheck: options.retryCheck,
+          minRequestIntervalMs:
+            options.rateLimitPerMinute === undefined
+              ? undefined
+              : 60_000 / options.rateLimitPerMinute,
+          logProgress: options.logProgress,
+          state,
+        },
       );
 
-      if (options.verbose) {
-        console.log(`\nPrompt:\n${request.prompt}`);
+      if (options.errorColumn === undefined) {
+        const error = errors.find((item) => item !== undefined);
+        if (error !== undefined) {
+          throw error;
+        }
       }
 
-      return {
-        ...request,
-        processResponse: (response: unknown) =>
-          processAIRowsResponse(
-            response,
-            batch.length,
-            newColumns,
-            options,
-          ),
-      };
-    });
+      const newRows: AIRow[] = [];
+      for (let i = 0; i < batches.length; i++) {
+        const result = results[i];
+        if (result !== undefined) {
+          for (let j = 0; j < result.length; j++) {
+            newRows.push({
+              ...result[j],
+              ...(options.errorColumn === undefined ? {} : { [options.errorColumn]: null }),
+            });
+          }
+          continue;
+        }
 
-    const { results, errors } = await runAIRequestPool(
-      requests.map((request) => (beforeRequest) =>
-        askAI<AIRow[]>(request.prompt, {
-          generation: options.generation,
-          systemPrompt: request.systemPrompt,
-          schemaJson: request.schemaJson,
-          metrics: options.metrics,
-          verbose: options.verbose,
-          processResponse: request.processResponse,
-          beforeRequest,
-        })
-      ),
-      concurrency,
-      {
-        retry: options.retry,
-        retryCheck: options.retryCheck,
-        minRequestIntervalMs: options.rateLimitPerMinute === undefined
-          ? undefined
-          : 60_000 / options.rateLimitPerMinute,
-        logProgress: options.logProgress,
-        state,
-      },
-    );
-
-    if (options.errorColumn === undefined) {
-      const error = errors.find((item) => item !== undefined);
-      if (error !== undefined) {
-        throw error;
-      }
-    }
-
-    const newRows: AIRow[] = [];
-    for (let i = 0; i < batches.length; i++) {
-      const result = results[i];
-      if (result !== undefined) {
-        for (let j = 0; j < result.length; j++) {
+        const error = errors[i];
+        const errorMessage =
+          error instanceof Error && error.message ? error.message : String(error);
+        const emptyResult = Object.fromEntries(newColumns.map((name) => [name, null]));
+        for (let j = 0; j < batches[i].length; j++) {
           newRows.push({
-            ...result[j],
-            ...(options.errorColumn === undefined
-              ? {}
-              : { [options.errorColumn]: null }),
+            ...emptyResult,
+            [options.errorColumn as string]: errorMessage,
           });
         }
-        continue;
       }
 
-      const error = errors[i];
-      const errorMessage = error instanceof Error && error.message
-        ? error.message
-        : String(error);
-      const emptyResult = Object.fromEntries(
-        newColumns.map((name) => [name, null]),
-      );
-      for (let j = 0; j < batches[i].length; j++) {
-        newRows.push({
-          ...emptyResult,
-          [options.errorColumn as string]: errorMessage,
-        });
-      }
-    }
-
-    return newRows;
-  }, {
-    batchSize: Math.max(batchSize, Math.floor(1000 / batchSize) * batchSize),
-  });
+      return newRows;
+    },
+    {
+      batchSize: Math.max(batchSize, Math.floor(1000 / batchSize) * batchSize),
+    },
+  );
 }

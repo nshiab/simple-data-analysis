@@ -1,12 +1,10 @@
-import { assertEquals } from "@std/assert";
+import { test, expect } from "vite-plus/test";
 import { fileURLToPath } from "node:url";
-import { join } from "node:path";
+import { runNode } from "../../helpers/runNode.ts";
 
-const root = fileURLToPath(new URL("../../../", import.meta.url));
 const fixtures = new URL("../../fixtures/lazyImports/", import.meta.url);
-
-for (
-  const scenario of [
+for (const entry of ["src/index.ts", "dist/index.mjs"]) {
+  for (const scenario of [
     "core",
     "queued",
     "ai",
@@ -17,57 +15,34 @@ for (
     "observers-reversed",
     "observer-returns",
     "failure",
-  ]
-) {
-  Deno.test(`lazy integrations: ${scenario}`, async () => {
-    const directory = await Deno.makeTempDir();
-    try {
-      const config = JSON.parse(
-        await Deno.readTextFile(join(root, "deno.json")),
-      ) as { imports: Record<string, string> };
-      const imports = { ...config.imports };
-      imports["@nshiab/simple-data-analysis-core/helpers"] = `${
-        imports["@nshiab/simple-data-analysis-core"]
-      }/helpers`;
-      for (
-        const [specifier, fixture] of Object.entries({
-          "@nshiab/journalism-dataviz": "dataviz",
-          "@nshiab/journalism-google": scenario === "failure"
-            ? "googleFailure"
-            : "google",
-          "@nshiab/journalism-ai": "ai",
-          "@nshiab/journalism-format": "format",
-          zod: "zod",
-          ollama: "ollama",
-        })
-      ) {
-        imports[specifier] = new URL(`${fixture}.ts`, fixtures).href;
-      }
-      const importMap = join(directory, "imports.json");
-      await Deno.writeTextFile(importMap, JSON.stringify({ imports }));
-      const result = await new Deno.Command(Deno.execPath(), {
-        args: [
-          "run",
-          "-A",
-          "--cached-only",
-          "--frozen",
-          `--config=${join(root, "deno.json")}`,
-          `--import-map=${importMap}`,
+  ]) {
+    test(`lazy integrations (${entry}): ${scenario}`, async () => {
+      const result = await runNode(
+        [
+          "--import",
+          fileURLToPath(new URL("register.ts", fixtures)),
           fileURLToPath(new URL("scenario.ts", fixtures)),
           scenario,
-          directory,
+          process.cwd(),
         ],
-        cwd: root,
-        stdout: "piped",
-        stderr: "piped",
-      }).output();
-      assertEquals(
-        result.success,
-        true,
-        new TextDecoder().decode(result.stderr),
+        process.cwd(),
+        {
+          SDA_LAZY_ENTRY: new URL(`../../../${entry}`, import.meta.url).href,
+          SDA_LAZY_SCENARIO: scenario,
+        },
       );
-    } finally {
-      await Deno.remove(directory, { recursive: true });
-    }
-  });
+      expect(result.success, new TextDecoder().decode(result.stderr)).toBe(true);
+    });
+  }
 }
+
+test("built ESM package runs real integrations without provider requests", async () => {
+  const result = await runNode(
+    [
+      fileURLToPath(new URL("../../runtime/lazyImports.ts", import.meta.url)),
+      fileURLToPath(new URL("../../../dist/index.mjs", import.meta.url)),
+    ],
+    process.cwd(),
+  );
+  expect(result.success, new TextDecoder().decode(result.stderr)).toBe(true);
+});

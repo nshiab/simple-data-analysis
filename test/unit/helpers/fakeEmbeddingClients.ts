@@ -1,4 +1,7 @@
-import type { OllamaEmbeddingClient } from "@nshiab/journalism-ai";
+import type { getEmbedding } from "@nshiab/journalism-ai";
+type OllamaEmbeddingClient = NonNullable<
+  Extract<NonNullable<Parameters<typeof getEmbedding>[1]>, { provider: "ollama" }>["ollama"]
+>;
 
 export class FakeOllamaEmbeddingClient implements OllamaEmbeddingClient {
   readonly embeddingEndpoint: string;
@@ -24,16 +27,13 @@ export class FakeGeminiEmbeddingFetch {
     this.#vector = vector;
   }
 
-  fetch = (
-    _input: string | URL | Request,
-    _init?: RequestInit,
-  ): Promise<Response> => {
+  fetch = (_input: string | URL | Request, _init?: RequestInit): Promise<Response> => {
     this.requests++;
     return Promise.resolve(
-      new Response(
-        JSON.stringify({ embeddings: [{ values: this.#vector }] }),
-        { status: 200, headers: { "content-type": "application/json" } },
-      ),
+      new Response(JSON.stringify({ embeddings: [{ values: this.#vector }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }),
     );
   };
 }

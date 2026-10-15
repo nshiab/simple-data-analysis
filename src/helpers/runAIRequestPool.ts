@@ -16,7 +16,7 @@ export default async function runAIRequestPool<T>(
   options: PoolOptions = {},
 ): Promise<{
   results: (T | undefined)[];
-  errors: (unknown | undefined)[];
+  errors: unknown[];
 }> {
   if (!Number.isSafeInteger(poolSize) || poolSize < 1) {
     throw new Error("poolSize must be a positive safe integer.");
@@ -26,8 +26,8 @@ export default async function runAIRequestPool<T>(
     throw new Error("minRequestIntervalMs must be finite and non-negative.");
   }
 
-  const results: (T | undefined)[] = Array(tasks.length).fill(undefined);
-  const errors: (unknown | undefined)[] = Array(tasks.length).fill(undefined);
+  const results: (T | undefined)[] = Array.from({ length: tasks.length }, () => undefined);
+  const errors: unknown[] = Array.from({ length: tasks.length }, () => undefined);
   let nextIndex = 0;
   let failure: { error: unknown } | undefined;
   const pendingWaits = new Set<() => void>();
@@ -75,7 +75,8 @@ export default async function runAIRequestPool<T>(
             break;
           } catch (error) {
             throwIfStopped();
-            const shouldRetry = retries < (options.retry ?? 0) &&
+            const shouldRetry =
+              retries < (options.retry ?? 0) &&
               (options.retryCheck ? await options.retryCheck(error) : true);
             if (!shouldRetry) {
               if (options.stopOnError) throw error;
@@ -88,9 +89,7 @@ export default async function runAIRequestPool<T>(
 
         state.completed++;
         if (options.logProgress) {
-          console.log(
-            `Processed ${state.completed} of ${state.total} requests.`,
-          );
+          console.log(`Processed ${state.completed} of ${state.total} requests.`);
         }
       }
     } catch (error) {
@@ -99,12 +98,7 @@ export default async function runAIRequestPool<T>(
     }
   };
 
-  await Promise.all(
-    Array.from(
-      { length: Math.min(poolSize, tasks.length) },
-      () => worker(),
-    ),
-  );
+  await Promise.all(Array.from({ length: Math.min(poolSize, tasks.length) }, () => worker()));
   if (failure) throw failure.error;
   return { results, errors };
 }

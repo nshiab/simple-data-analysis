@@ -14,7 +14,7 @@ function sqlString(value: string): string {
 const input = sqlString(requiredEnvironment("BENCHMARK_INPUT"));
 const cleanOutput = sqlString(requiredEnvironment("BENCHMARK_CLEAN_OUTPUT"));
 const resultOutput = sqlString(requiredEnvironment("BENCHMARK_RESULT_OUTPUT"));
-const profileOutput = Deno.env.get(queryProfileEnvironment);
+const profileOutput = process.env[queryProfileEnvironment];
 const profileStart = profileOutput === undefined ? 0 : performance.now();
 const queries: QueryTiming[] = [];
 const instance = await DuckDBInstance.create(":memory:");
@@ -55,11 +55,8 @@ try {
     await connection.run(statements.map(({ query }) => query).join("\n"));
   } else {
     for (const statement of statements) {
-      await recordQuery(
-        queries,
-        statement.label,
-        statement.query,
-        () => connection.run(statement.query),
+      await recordQuery(queries, statement.label, statement.query, () =>
+        connection.run(statement.query),
       );
     }
   }

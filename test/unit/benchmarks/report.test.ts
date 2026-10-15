@@ -1,4 +1,5 @@
-import { assertEquals, assertStringIncludes, assertThrows } from "@std/assert";
+import { test, expect } from "vite-plus/test";
+import { assertThrows } from "../../helpers/assertions.ts";
 import type { Aggregate } from "../../../benchmarks/helpers.ts";
 import {
   createChartData,
@@ -12,7 +13,7 @@ const aggregates: Aggregate[] = [
   {
     benchmark: "tabular",
     implementation: "duckdb",
-    version: "@duckdb/node-api@1.5.5-r.4/duckdb@v1.5.5/deno@2.9.6",
+    version: "@duckdb/node-api@1.5.5-r.4/duckdb@v1.5.5/node@24.21.0",
     meanSeconds: 1,
     stdDevSeconds: 0.1,
     meanPeakMemoryMB: 300,
@@ -20,7 +21,7 @@ const aggregates: Aggregate[] = [
   {
     benchmark: "tabular",
     implementation: "local",
-    version: "6.0.0-rc.9/deno@2.9.6",
+    version: "6.0.0-rc.9/node@24.21.0",
     meanSeconds: 2,
     stdDevSeconds: 0.2,
     meanPeakMemoryMB: 200,
@@ -35,63 +36,54 @@ const aggregates: Aggregate[] = [
   },
 ];
 
-Deno.test("benchmark report calculates SDA-relative percentages", () => {
-  assertEquals(percentageDifference(1, 2), -50);
-  assertEquals(percentageDifference(2, 2), 0);
-  assertEquals(percentageDifference(3, 2), 50);
+test("benchmark report calculates SDA-relative percentages", () => {
+  expect(percentageDifference(1, 2)).toEqual(-50);
+  expect(percentageDifference(2, 2)).toEqual(0);
+  expect(percentageDifference(3, 2)).toEqual(50);
 });
 
-Deno.test("benchmark report presents discovered library and runtime versions", () => {
-  assertEquals(
-    formatVersion(aggregates[0]),
-    "@duckdb/node-api 1.5.5-r.4; DuckDB v1.5.5; Deno 2.9.6",
+test("benchmark report presents discovered library and runtime versions", () => {
+  expect(formatVersion(aggregates[0])).toEqual(
+    "@duckdb/node-api 1.5.5-r.4; DuckDB v1.5.5; Node 24.21.0",
   );
-  assertEquals(formatVersion(aggregates[1]), "SDA 6.0.0-rc.9; Deno 2.9.6");
-  assertEquals(formatVersion(aggregates[2]), "pandas 3.0.3; Python 3.14.5");
+  expect(formatVersion(aggregates[1])).toEqual("SDA 6.0.0-rc.9; Node 24.21.0");
+  expect(formatVersion(aggregates[2])).toEqual("pandas 3.0.3; Python 3.14.5");
 });
 
-Deno.test("benchmark report sorts each chart by its measured value", () => {
+test("benchmark report sorts each chart by its measured value", () => {
   const duration = createChartData(aggregates, "tabular", "duration");
-  assertEquals(duration.map((row) => row.implementation), [
-    "DuckDB",
-    "SDA",
-    "pandas",
-  ]);
-  assertEquals(duration.map((row) => row.versionedImplementation), [
+  expect(duration.map((row) => row.implementation)).toEqual(["DuckDB", "SDA", "pandas"]);
+  expect(duration.map((row) => row.versionedImplementation)).toEqual([
     "DuckDB v1.5.5",
     "SDA 6.0.0-rc.9",
     "pandas 3.0.3",
   ]);
-  assertEquals(duration.map((row) => row.label), [
+  expect(duration.map((row) => row.label)).toEqual([
     "1.00 s (-50.0%)",
     "2.00 s (baseline)",
     "4.00 s (+100.0%)",
   ]);
 
   const memory = createChartData(aggregates, "tabular", "memory");
-  assertEquals(memory.map((row) => row.implementation), [
-    "pandas",
-    "SDA",
-    "DuckDB",
+  expect(memory.map((row) => row.implementation)).toEqual(["pandas", "SDA", "DuckDB"]);
+  expect(memory.map((row) => row.label)).toEqual([
+    "100 MiB (-50.0%)",
+    "200 MiB (baseline)",
+    "300 MiB (+50.0%)",
   ]);
-  assertEquals(memory.map((row) => row.label), [
-    "100 MB (-50.0%)",
-    "200 MB (baseline)",
-    "300 MB (+50.0%)",
-  ]);
-  assertEquals(memory.find((row) => row.isSDA)?.implementation, "SDA");
+  expect(memory.find((row) => row.isSDA)?.implementation).toEqual("SDA");
 });
 
-Deno.test("benchmark report renders only chart references", () => {
+test("benchmark report renders only chart references", () => {
   const markdown = renderBenchmarkResults(aggregates, "tabular");
-  assertStringIncludes(markdown, "benchmark-tabular-duration.png");
-  assertStringIncludes(markdown, "benchmark-tabular-memory.png");
-  assertStringIncludes(markdown, "lower is better");
-  assertEquals(markdown.includes("**Versions:**"), false);
-  assertEquals(markdown.includes("| Mean duration |"), false);
+  expect(markdown).toContain("benchmark-tabular-duration.png");
+  expect(markdown).toContain("benchmark-tabular-memory.png");
+  expect(markdown).toContain("lower is better");
+  expect(markdown.includes("**Versions:**")).toEqual(false);
+  expect(markdown.includes("| Mean duration |")).toEqual(false);
 });
 
-Deno.test("benchmark report replaces only the selected README marker", () => {
+test("benchmark report replaces only the selected README marker", () => {
   const readme = `before
 <!-- benchmark-tabular:start -->
 old tabular
@@ -102,9 +94,7 @@ old spatial
 <!-- benchmark-spatial:end -->
 after
 `;
-  assertEquals(
-    replaceBenchmarkResults(readme, "new tabular", "tabular"),
-    `before
+  expect(replaceBenchmarkResults(readme, "new tabular", "tabular")).toEqual(`before
 <!-- benchmark-tabular:start -->
 
 new tabular
@@ -115,8 +105,7 @@ middle
 old spatial
 <!-- benchmark-spatial:end -->
 after
-`,
-  );
+`);
   assertThrows(
     () => replaceBenchmarkResults("no markers", "new", "spatial"),
     Error,
