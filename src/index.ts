@@ -3,11 +3,6 @@
  *
  * The Simple Data Analysis Library
  *
- * To install the library with Deno, use:
- * ```bash
- * deno add jsr:@nshiab/simple-data-analysis
- * ```
- *
  * To install the library with Node.js, use:
  * ```bash
  * npm i @nshiab/simple-data-analysis

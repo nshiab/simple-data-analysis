@@ -29,24 +29,19 @@ export default function classifyBucketFile(path: string): BucketFile {
   if (lowerPath.endsWith(".shp.zip")) {
     return { kind: "geo", compressed: false };
   }
-  if (
-    lowerPath.endsWith(".geojson") || lowerPath.endsWith(".geoparquet")
-  ) {
+  if (lowerPath.endsWith(".geojson") || lowerPath.endsWith(".geoparquet")) {
     return { kind: "geo", compressed: false };
   }
   if (lowerPath.endsWith(".csv.gz") || lowerPath.endsWith(".json.gz")) {
     return { kind: "data", compressed: true };
   }
-  if (
-    lowerPath.endsWith(".csv") || lowerPath.endsWith(".json") ||
-    lowerPath.endsWith(".parquet")
-  ) {
+  if (lowerPath.endsWith(".csv") || lowerPath.endsWith(".json") || lowerPath.endsWith(".parquet")) {
     return { kind: "data", compressed: false };
   }
 
   throw new Error(
-    `Bucket methods do not support the file extension in ${
-      JSON.stringify(path)
-    }. Use ${supportedExtensions.join(", ")}.`,
+    `Bucket methods do not support the file extension in ${JSON.stringify(
+      path,
+    )}. Use ${supportedExtensions.join(", ")}.`,
   );
 }

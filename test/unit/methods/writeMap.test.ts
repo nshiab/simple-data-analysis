@@ -1,21 +1,18 @@
+import { test, expect } from "vite-plus/test";
 import { existsSync, unlinkSync, writeFileSync } from "node:fs";
-import { assert, assertEquals, assertRejects } from "@std/assert";
+import { assert, assertRejects } from "../../helpers/assertions.ts";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import { geo, plot } from "@observablehq/plot";
 import assertArtifact from "../helpers/assertArtifact.ts";
-const output = await Deno.makeTempDir({ prefix: "sda-write-map-" }) + "/";
+const output = "test/output/";
 
-Deno.test("should write a map as png", async () => {
+test("should write a map as png", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
 
-  table.loadGeoData(
-    "test/geodata/files/CanadianProvincesAndTerritories.json",
-  );
+  table.loadGeoData("test/geodata/files/CanadianProvincesAndTerritories.json");
 
-  const map = (data: {
-    features: unknown[];
-  }) =>
+  const map = (data: { features: unknown[] }) =>
     plot({
       title: "A map",
       subtitle: "A subtitle",
@@ -25,9 +22,7 @@ Deno.test("should write a map as png", async () => {
         rotate: [100, -60],
         domain: data,
       },
-      marks: [
-        geo(data, { stroke: "black", fill: "lightblue" }),
-      ],
+      marks: [geo(data, { stroke: "black", fill: "lightblue" })],
     });
 
   const path = output + "map.png";
@@ -38,7 +33,7 @@ Deno.test("should write a map as png", async () => {
   await sdb.close();
 });
 
-Deno.test("should reject when the map function throws", async () => {
+test("should reject when the map function throws", async () => {
   const sdb = new SimpleDB();
   try {
     const table = sdb.newTable().loadArray([{ lat: 45, lon: -73 }]);
@@ -57,17 +52,13 @@ Deno.test("should reject when the map function throws", async () => {
     await sdb.close();
   }
 });
-Deno.test("should write a dark map as png", async () => {
+test("should write a dark map as png", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
 
-  table.loadGeoData(
-    "test/geodata/files/CanadianProvincesAndTerritories.json",
-  );
+  table.loadGeoData("test/geodata/files/CanadianProvincesAndTerritories.json");
 
-  const map = (data: {
-    features: unknown[];
-  }) =>
+  const map = (data: { features: unknown[] }) =>
     plot({
       title: "A map",
       subtitle: "A subtitle",
@@ -77,9 +68,7 @@ Deno.test("should write a dark map as png", async () => {
         rotate: [100, -60],
         domain: data,
       },
-      marks: [
-        geo(data, { stroke: "black", fill: "lightblue" }),
-      ],
+      marks: [geo(data, { stroke: "black", fill: "lightblue" })],
     });
 
   const path = output + "map-dark.png";
@@ -89,26 +78,20 @@ Deno.test("should write a dark map as png", async () => {
   await assertArtifact(path);
   await sdb.close();
 });
-Deno.test("should write a map as svg", async () => {
+test("should write a map as svg", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
 
-  table.loadGeoData(
-    "test/geodata/files/CanadianProvincesAndTerritories.json",
-  );
+  table.loadGeoData("test/geodata/files/CanadianProvincesAndTerritories.json");
 
-  const map = (data: {
-    features: unknown[];
-  }) =>
+  const map = (data: { features: unknown[] }) =>
     plot({
       projection: {
         type: "conic-conformal",
         rotate: [100, -60],
         domain: data,
       },
-      marks: [
-        geo(data, { stroke: "black", fill: "lightblue" }),
-      ],
+      marks: [geo(data, { stroke: "black", fill: "lightblue" })],
     });
 
   const path = output + "map.svg";
@@ -119,26 +102,20 @@ Deno.test("should write a map as svg", async () => {
   await sdb.close();
 });
 
-Deno.test("should write a map in a folder that doesn't exist", async () => {
+test("should write a map in a folder that doesn't exist", async () => {
   const sdb = new SimpleDB();
   const table = sdb.newTable();
 
-  table.loadGeoData(
-    "test/geodata/files/CanadianProvincesAndTerritories.json",
-  );
+  table.loadGeoData("test/geodata/files/CanadianProvincesAndTerritories.json");
 
-  const map = (data: {
-    features: unknown[];
-  }) =>
+  const map = (data: { features: unknown[] }) =>
     plot({
       projection: {
         type: "conic-conformal",
         rotate: [100, -60],
         domain: data,
       },
-      marks: [
-        geo(data, { stroke: "black", fill: "lightblue" }),
-      ],
+      marks: [geo(data, { stroke: "black", fill: "lightblue" })],
     });
 
   const path = output + "test/test/map.png";
@@ -149,24 +126,20 @@ Deno.test("should write a map in a folder that doesn't exist", async () => {
   await sdb.close();
 });
 
-Deno.test("should write a map with multiple layers as a png", async () => {
+test("should write a map with multiple layers as a png", async () => {
   // From the README example
   const sdb = new SimpleDB();
   const provinces = sdb.newTable("provinces");
 
-  provinces.loadGeoData(
-    "test/geodata/files/CanadianProvincesAndTerritories.json",
-  );
+  provinces.loadGeoData("test/geodata/files/CanadianProvincesAndTerritories.json");
 
   const fires = sdb.newTable("fires");
-  fires.loadData(
-    "test/geodata/files/firesCanada2023.csv",
-  );
+  fires.loadData("test/geodata/files/firesCanada2023.csv");
   fires.createPoints("lat", "lon", "geom");
   fires.replace("cause", {
-    "H": "Human",
-    "N": "Natural",
-    "U": "Unknown",
+    H: "Human",
+    N: "Natural",
+    U: "Unknown",
   });
   fires.selectColumns(["geom", "hectares", "cause"]);
   fires.filter(`hectares > 0 AND cause != 'Unknown'`);
@@ -207,68 +180,71 @@ Deno.test("should write a map with multiple layers as a png", async () => {
   await assertArtifact(path);
 });
 
-Deno.test(
-  "should pass dates and the selected geometry to a map",
-  async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable();
-    table.loadArray([{
+test("should pass dates and the selected geometry to a map", async () => {
+  const sdb = new SimpleDB();
+  const table = sdb.newTable();
+  table.loadArray([
+    {
       day: "2026-08-04",
       moment: "2026-08-04T12:34:56.000Z",
       latA: 45,
       lonA: -73,
       latB: 46,
       lonB: -74,
-    }]);
-    table.convert({ day: "date", moment: "timestamp" });
-    table.createPoints("latA", "lonA", "geometryA");
-    table.createPoints("latB", "lonB", "geometryB");
+    },
+  ]);
+  table.convert({ day: "date", moment: "timestamp" });
+  table.createPoints("latA", "lonA", "geometryA");
+  table.createPoints("latB", "lonB", "geometryB");
 
-    await table.writeMap(
-      (data) => {
-        const feature = data.features[0] as {
-          geometry: { coordinates: number[]; type: string };
-          properties: Record<string, unknown>;
-        };
-        assert(feature.properties.day instanceof Date);
-        assert(feature.properties.moment instanceof Date);
-        assertEquals(feature.geometry, {
-          type: "Point",
-          coordinates: [-74, 46],
-        });
+  await table.writeMap(
+    (data) => {
+      const feature = data.features[0] as {
+        geometry: { coordinates: number[]; type: string };
+        properties: Record<string, unknown>;
+      };
+      assert(feature.properties.day instanceof Date);
+      assert(feature.properties.moment instanceof Date);
+      expect(feature.geometry).toEqual({
+        type: "Point",
+        coordinates: [-74, 46],
+      });
 
-        return plot({ marks: [geo(data)] });
-      },
-      output + "dates-and-selected-geometry.png",
-      {
-        column: "geometryB",
-      },
-    );
+      return plot({ marks: [geo(data)] });
+    },
+    output + "dates-and-selected-geometry.png",
+    {
+      column: "geometryB",
+    },
+  );
 
-    await sdb.close();
-  },
-);
+  await sdb.close();
+});
 
-Deno.test("should rewind polygon coordinates before creating a map", async () => {
+test("should rewind polygon coordinates before creating a map", async () => {
   const inputPath = output + "polygon-to-rewind.geojson";
   writeFileSync(
     inputPath,
     JSON.stringify({
       type: "FeatureCollection",
-      features: [{
-        type: "Feature",
-        properties: {},
-        geometry: {
-          type: "Polygon",
-          coordinates: [[
-            [0, 0],
-            [1, 0],
-            [1, 1],
-            [0, 1],
-            [0, 0],
-          ]],
+      features: [
+        {
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "Polygon",
+            coordinates: [
+              [
+                [0, 0],
+                [1, 0],
+                [1, 1],
+                [0, 1],
+                [0, 0],
+              ],
+            ],
+          },
         },
-      }],
+      ],
     }),
   );
 
@@ -281,7 +257,7 @@ Deno.test("should rewind polygon coordinates before creating a map", async () =>
       const feature = data.features[0] as unknown as {
         geometry: { coordinates: number[][][] };
       };
-      assertEquals(feature.geometry.coordinates[0], [
+      expect(feature.geometry.coordinates[0]).toEqual([
         [0, 0],
         [0, 1],
         [1, 1],
@@ -298,26 +274,28 @@ Deno.test("should rewind polygon coordinates before creating a map", async () =>
   }
 });
 
-Deno.test("writeMap resolves to the same table after saving the map", async () => {
+test("writeMap resolves to the same table after saving the map", async () => {
   const sdb = new SimpleDB();
   try {
-    const table = sdb.newTable().loadArray([
-      { lat: 45, lon: -73, value: 1 },
-      { lat: 46, lon: -74, value: 2 },
-    ]).createPoints("lat", "lon", "geometry");
+    const table = sdb
+      .newTable()
+      .loadArray([
+        { lat: 45, lon: -73, value: 1 },
+        { lat: 46, lon: -74, value: 2 },
+      ])
+      .createPoints("lat", "lon", "geometry");
     const path = output + "returned-table.svg";
     const pending = table.writeMap((data) => {
-      assertEquals(data.features.length, 2);
+      expect(data.features.length).toEqual(2);
       return plot({ marks: [geo(data)] });
     }, path);
     assert(pending instanceof Promise);
     const result = await pending;
     assert(result === table);
     await assertArtifact(path);
-    assertEquals(
-      await result.filter("value = 2").getData({ columns: ["value"] }),
-      [{ value: 2 }],
-    );
+    expect(await result.filter("value = 2").getData({ columns: ["value"] })).toEqual([
+      { value: 2 },
+    ]);
   } finally {
     await sdb.close();
   }

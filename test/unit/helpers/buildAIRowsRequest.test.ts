@@ -1,7 +1,8 @@
-import { assertEquals, assertStringIncludes } from "@std/assert";
+import { test, expect } from "vite-plus/test";
+
 import buildAIRowsRequest from "../../../src/helpers/buildAIRowsRequest.ts";
 
-Deno.test("builds a shared structured row request", () => {
+test("builds a shared structured row request", () => {
   const request = buildAIRowsRequest(
     [{ city: "Montréal" }, { city: "Marrakech" }],
     "city",
@@ -16,12 +17,12 @@ Deno.test("builds a shared structured row request", () => {
     },
   );
 
-  assertStringIncludes(request.prompt, '[\n  "Montréal",\n  "Marrakech"\n]');
-  assertStringIncludes(request.prompt, "Use English names.");
-  assertStringIncludes(request.systemPrompt, "Use concise labels.");
-  assertStringIncludes(request.systemPrompt, "exactly 2 objects");
-  assertEquals(
-    (request.schemaJson as { items: { required: string[] } }).items.required,
-    ["country", "continent"],
-  );
+  expect(request.prompt).toContain('[\n  "Montréal",\n  "Marrakech"\n]');
+  expect(request.prompt).toContain("Use English names.");
+  expect(request.systemPrompt).toContain("Use concise labels.");
+  expect(request.systemPrompt).toContain("exactly 2 objects");
+  expect((request.schemaJson as { items: { required: string[] } }).items.required).toEqual([
+    "country",
+    "continent",
+  ]);
 });

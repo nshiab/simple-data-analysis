@@ -1,35 +1,40 @@
-import { assertRejects } from "@std/assert";
+import { test } from "vite-plus/test";
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { rm } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
+import { assertRejects } from "../../helpers/assertions.ts";
 import assertEquivalentCleanOutputs from "../../../benchmarks/cleanValidation.ts";
 
-Deno.test("cleaned benchmark outputs compare canonical values", async () => {
-  const directory = await Deno.makeTempDir();
+test("cleaned benchmark outputs compare canonical values", async () => {
+  const directory = mkdtempSync(tmpdir() + "/" + "sda-test-");
   const expected = `${directory}/expected.csv`;
   const equivalent = `${directory}/equivalent.csv`;
   try {
-    await Deno.writeTextFile(
+    await writeFile(
       expected,
       "time,station,station_name,tas,decade\n2020-01-01,1,Station,12.0,2020\n",
     );
-    await Deno.writeTextFile(
+    await writeFile(
       equivalent,
       "time,station,station_name,tas,decade\n2020-01-01,1,Station,12,2020\n",
     );
     await assertEquivalentCleanOutputs(expected, equivalent, "tidyverse");
   } finally {
-    await Deno.remove(directory, { recursive: true });
+    await rm(directory, { recursive: true });
   }
 });
 
-Deno.test("cleaned benchmark outputs reject schema and value differences", async () => {
-  const directory = await Deno.makeTempDir();
+test("cleaned benchmark outputs reject schema and value differences", async () => {
+  const directory = mkdtempSync(tmpdir() + "/" + "sda-test-");
   const expected = `${directory}/expected.csv`;
   const different = `${directory}/different.csv`;
   try {
-    await Deno.writeTextFile(
+    await writeFile(
       expected,
       "time,station,station_name,tas,decade\n2020-01-01,1,Station,12,2020\n",
     );
-    await Deno.writeTextFile(
+    await writeFile(
       different,
       "time,station,station_name,tas,decade\n2020-01-01,1,Station,13,2020\n",
     );
@@ -38,16 +43,13 @@ Deno.test("cleaned benchmark outputs reject schema and value differences", async
       Error,
       "1 row mismatches",
     );
-    await Deno.writeTextFile(
-      different,
-      "time,station,station_name,tas\n2020-01-01,1,Station,12\n",
-    );
+    await writeFile(different, "time,station,station_name,tas\n2020-01-01,1,Station,12\n");
     await assertRejects(
       () => assertEquivalentCleanOutputs(expected, different, "pandas"),
       Error,
       "cleaned output columns must be",
     );
   } finally {
-    await Deno.remove(directory, { recursive: true });
+    await rm(directory, { recursive: true });
   }
 });

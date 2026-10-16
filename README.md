@@ -1,7 +1,7 @@
 # Simple data analysis (SDA)
 
 SDA is a fast and easy-to-use TypeScript library for tabular, geospatial,
-vector, and AI-assisted data analysis. It runs on Deno, Node.js, and Bun and
+vector, and AI-assisted data analysis. It runs on Node.js and
 makes it easy to load data from files, databases, and public sources.
 
 > [!TIP]
@@ -44,9 +44,9 @@ SDA is split into two packages:
   features: AI methods (row-by-row processing, embeddings, vector similarity,
   hybrid search, RAG, natural language queries), Google Cloud Storage and Google
   Sheets integrations, and charting/dataviz methods. These features are built
-  respectively on the [`journalism-ai`](https://jsr.io/@nshiab/journalism-ai),
-  [`journalism-google`](https://jsr.io/@nshiab/journalism-google), and
-  [`journalism-dataviz`](https://jsr.io/@nshiab/journalism-dataviz) libraries.
+  respectively on the [`journalism-ai`](https://www.npmjs.com/package/@nshiab/journalism-ai),
+  [`journalism-google`](https://www.npmjs.com/package/@nshiab/journalism-google), and
+  [`journalism-dataviz`](https://www.npmjs.com/package/@nshiab/journalism-dataviz) libraries.
 
 Most users will want this package (`simple-data-analysis`), which includes all
 of the core functionality plus the extended features.
@@ -54,31 +54,17 @@ of the core functionality plus the extended features.
 AI, Google, and charting dependencies load only when those operations run. If
 you only use core methods, you don't pay their startup cost.
 
-> [!NOTE]
-> SDA's `SimpleDB` and `SimpleTable` inherit all core methods, but JSR currently
-> omits inherited methods from their documentation because of an
-> [upstream limitation](https://github.com/jsr-io/jsr/issues/747). For a
-> complete reference combining Core and SDA, see [`llm.md`](./llm.md). You can
-> also consult the core
-> [`SimpleDB` reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleDB)
-> and
-> [`SimpleTable` reference](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable).
-> You can call these methods directly on SDA instances.
+The [documentation](https://nshiab.github.io/simple-data-analysis/) includes
+all inherited Core methods. For AI assistants, use [`llm.md`](https://github.com/nshiab/simple-data-analysis/blob/main/llm.md) or
+[`llms.txt`](https://github.com/nshiab/simple-data-analysis/blob/main/llms.txt).
 
 ## Installation
 
-The library is available on [JSR](https://jsr.io/@nshiab/simple-data-analysis)
-and [NPM](https://www.npmjs.com/package/@nshiab/simple-data-analysis).
+The library requires Node.js 24.21.0 or newer and is available on
+[npm](https://www.npmjs.com/package/@nshiab/simple-data-analysis).
 
 ```bash
-# Deno
-deno add jsr:@nshiab/simple-data-analysis
-
-# Node.js
 npm i @nshiab/simple-data-analysis
-
-# Bun
-bun add @nshiab/simple-data-analysis
 ```
 
 To start a new data project with essential folders, configurations, and
@@ -86,14 +72,7 @@ documentation for AI agents, you can use
 [@nshiab/setup-data-project](https://github.com/nshiab/setup-data-project).
 
 ```bash
-# Deno
-deno run -A jsr:@nshiab/setup-data-project
-
-# Node
 npx @nshiab/setup-data-project
-
-# Bun
-bunx @nshiab/setup-data-project
 ```
 
 ## Performance
@@ -177,8 +156,7 @@ return `Promise<this>`, like `writeData()`. Await the operation to get the same
 table back, preserving its subclass type:
 
 ```ts
-const table = await sdb.newTable().loadGeoData("regions.geojson")
-  .writeMap(map, "output/map.svg");
+const table = await sdb.newTable().loadGeoData("regions.geojson").writeMap(map, "output/map.svg");
 await table.filter("population > 100000").log();
 ```
 
@@ -262,9 +240,7 @@ const firesInsideProvinces = await fires
   .log();
 
 // Write the joined, detailed fire data to a GeoJSON file.
-await firesInsideProvinces.writeGeoData(
-  "sda/output/firesInsideProvinces.geojson",
-);
+await firesInsideProvinces.writeGeoData("sda/output/firesInsideProvinces.geojson");
 
 // Count the fires and sum the burnt area per province.
 await firesInsideProvinces
@@ -285,16 +261,16 @@ await sdb.close();
 #### Charts
 
 You can easily display charts directly in the terminal with the
-[`logBarChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logBarChart),
-[`logDotChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logDotChart),
-[`logLineChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logLineChart)
+[`logBarChart`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#logbarchart),
+[`logDotChart`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#logdotchart),
+[`logLineChart`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#loglinechart)
 and
-[`logHistogram`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.logHistogram)
+[`logHistogram`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#loghistogram)
 methods.
 
 But you can also create [Observable Plot](https://github.com/observablehq/plot)
 charts as an image file (`.png` or `.svg`) with
-[`writeChart`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.writeChart).
+[`writeChart`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#writechart).
 
 Here's an example.
 
@@ -309,7 +285,7 @@ const table = await sdb
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
   )
   .filter(`hectares > 1`)
-  .replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" })
+  .replace("cause", { H: "Human", N: "Natural", U: "Unknown" })
   .log();
 
 // We create a beeswarm chart with a log scale, faceted by cause.
@@ -345,7 +321,7 @@ await sdb.close();
 
 If you want to create [Observable Plot](https://github.com/observablehq/plot)
 maps, you can use
-[`writeMap`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.writeMap).
+[`writeMap`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#writemap).
 
 Here's an example.
 
@@ -361,7 +337,7 @@ const fires = await sdb
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/geodata/files/firesCanada2023.csv",
   )
   .createPoints("lat", "lon", "geom")
-  .replace("cause", { "H": "Human", "N": "Natural", "U": "Unknown" })
+  .replace("cause", { H: "Human", N: "Natural", U: "Unknown" })
   .selectColumns(["geom", "hectares", "cause"])
   .filter(`hectares > 0`)
   .log();
@@ -427,11 +403,7 @@ import { SimpleDB } from "@nshiab/simple-data-analysis";
 const sdb = new SimpleDB();
 
 // Fetch population estimates for Canada, provinces, and territories, then keep Canada.
-await sdb
-  .newTable("population")
-  .loadStatCanData("17-10-0005-01")
-  .filter("GEO = 'Canada'")
-  .log();
+await sdb.newTable("population").loadStatCanData("17-10-0005-01").filter("GEO = 'Canada'").log();
 
 await sdb.close();
 ```
@@ -509,14 +481,17 @@ AI_EMBEDDINGS_MODEL=nomic-embed-text
 ```
 
 SDA's AI capabilities come from
-[`journalism-ai`](https://jsr.io/@nshiab/journalism-ai). By default, LLM
+[`journalism-ai`](https://www.npmjs.com/package/@nshiab/journalism-ai). By default, LLM
 responses and embeddings are cached in the hidden `.journalism-cache` folder,
-avoiding repeated model calls for the same request.
+avoiding repeated model calls for the same request. Processing callbacks still
+run on cache hits; their output is not cached. Keep them lightweight for large
+workloads. This differs from table-level `cache()`, which caches computation
+results in `.sda-cache`.
 
 #### Enrich rows with AI
 
 The
-[`aiRowByRow`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiRowByRow)
+[`aiRowByRow`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#airowbyrow)
 method sends the values of a column to an LLM and stores the structured
 responses in one or more new columns. It processes requests concurrently and can
 record row-level errors, making it useful for cleaning, extracting, classifying,
@@ -530,17 +505,12 @@ const sdb = new SimpleDB();
 const cities = sdb.newTable("cities");
 
 await cities
-  .loadArray([
-    { city: "Marrakech" },
-    { city: "Kyoto" },
-    { city: "Auckland" },
-  ])
-  .aiRowByRow(
-    "city",
-    ["country", "continent"],
-    "Give me the country and continent of the city.",
-    { concurrency: 5, errorColumn: "error", logProgress: true },
-  )
+  .loadArray([{ city: "Marrakech" }, { city: "Kyoto" }, { city: "Auckland" }])
+  .aiRowByRow("city", ["country", "continent"], "Give me the country and continent of the city.", {
+    concurrency: 5,
+    errorColumn: "error",
+    logProgress: true,
+  })
   .log();
 
 await sdb.close();
@@ -554,6 +524,11 @@ The resulting table would be:
 | Kyoto     | Japan       | Asia      | null  |
 | Auckland  | New Zealand | Oceania   | null  |
 
+Use `processResponse` to transform or validate one generated row object at a
+time, even when batching. Return an object with the requested columns, or a
+promise of it. Throwing or rejecting follows `retry` and `retryCheck` for the
+whole batch. The callback reruns on cache hits, and its output is never cached.
+
 #### Create embeddings
 
 Embeddings represent text as lists of numbers that capture aspects of its
@@ -561,7 +536,7 @@ meaning. Texts with similar meanings tend to have similar embeddings, so we can
 compare descriptions even when they use different words.
 
 Let's use
-[`aiEmbeddings`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiEmbeddings)
+[`aiEmbeddings`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#aiembeddings)
 to turn recipe descriptions into vectors. Each recipe keeps its original columns
 and gets a new `embedding` column. These vectors can then be used for
 clustering, visualization, and semantic search.
@@ -595,7 +570,7 @@ vectors are shortened for readability, and embedding values are rounded.
 #### Cluster and visualize embeddings
 
 We can group similar recipe descriptions with
-[`hdbscan`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.hdbscan).
+[`hdbscan`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#hdbscan).
 It clusters the original embeddings and labels recipes it cannot confidently
 assign as `"noise"`. This example uses the same embedding settings and recipe
 data as above.
@@ -634,7 +609,7 @@ dishes, including hummus, falafel, and bread-based dishes.
 | Fatteh        | cluster-0 |
 
 We can also use
-[`umap`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.umap)
+[`umap`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#umap)
 to project the embeddings into two dimensions and draw them with `writeChart`.
 After inspecting the recipes in each cluster, we assign descriptive names to the
 groups below. Nearby points suggest similar descriptions, but the projection
@@ -647,7 +622,8 @@ import { SimpleDB } from "@nshiab/simple-data-analysis";
 import { dot, plot } from "@observablehq/plot";
 
 const sdb = new SimpleDB();
-const recipes = sdb.newTable("recipes")
+const recipes = sdb
+  .newTable("recipes")
   .loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/recipesClean.parquet",
   )
@@ -689,8 +665,8 @@ await recipes.writeChart(
           x: "umapX",
           y: "umapY",
           fill: "cluster",
-          r: (d) => d.cluster === "noise" ? 2 : 4,
-          sort: (d: { cluster: string }) => d.cluster === "noise" ? 0 : 1,
+          r: (d) => (d.cluster === "noise" ? 2 : 4),
+          sort: (d: { cluster: string }) => (d.cluster === "noise" ? 0 : 1),
         }),
       ],
     }),
@@ -704,7 +680,7 @@ await sdb.close();
 #### Semantic search
 
 Once we have embeddings, we can search by meaning rather than exact wording.
-[`aiVectorSimilarity`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiVectorSimilarity)
+[`aiVectorSimilarity`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#aivectorsimilarity)
 embeds a search query using the same model and finds the closest recipe vectors.
 Here, we ask for five recipes similar to "buttery pastry for breakfast".
 
@@ -722,12 +698,7 @@ await recipes
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/recipesClean.parquet",
   )
   .aiEmbeddings("Recipe", "embedding")
-  .aiVectorSimilarity(
-    "buttery pastry for breakfast",
-    "embedding",
-    5,
-    { similarityColumn: true },
-  )
+  .aiVectorSimilarity("buttery pastry for breakfast", "embedding", 5, { similarityColumn: true })
   .log();
 
 await sdb.close();
@@ -736,23 +707,23 @@ await sdb.close();
 Here are the five results with Nomic Embed Text. For readability, we show only
 the dish names and similarity scores, rounded to three decimals.
 
-| Dish                    | … | similarity |
-| ----------------------- | - | ---------- |
-| Full English Breakfast  | … | 0.652      |
-| Pancakes                | … | 0.650      |
-| Bagel with Cream Cheese | … | 0.635      |
-| Biscuits and Gravy      | … | 0.632      |
-| Kunafa                  | … | 0.629      |
+| Dish                    | …   | similarity |
+| ----------------------- | --- | ---------- |
+| Full English Breakfast  | …   | 0.652      |
+| Pancakes                | …   | 0.650      |
+| Bagel with Cream Cheese | …   | 0.635      |
+| Biscuits and Gravy      | …   | 0.632      |
+| Kunafa                  | …   | 0.629      |
 
 #### Retrieval-augmented generation (RAG)
 
 We can take retrieval one step further and use the matching recipes to help an
 LLM answer a question.
-[`aiRAG`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiRAG)
+[`aiRAG`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#airag)
 first retrieves relevant rows with
-[`hybridSearch`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.hybridSearch),
+[`hybridSearch`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#hybridsearch),
 which combines semantic matches from embeddings with
-[`bm25`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.bm25)
+[`bm25`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#bm25)
 keyword matches. It then asks the LLM to answer using only those rows.
 
 ```ts
@@ -767,13 +738,9 @@ const answer = await sdb
   .loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/recipesClean.parquet",
   )
-  .aiRAG(
-    "I am vegan. What can I eat for lunch that is spicy?",
-    "Dish",
-    "Recipe",
-    10,
-    { verbose: true },
-  );
+  .aiRAG("I am vegan. What can I eat for lunch that is spicy?", "Dish", "Recipe", 10, {
+    verbose: true,
+  });
 
 console.log(`${answer}\n`);
 
@@ -804,7 +771,7 @@ Text for embeddings:
 #### Natural language query
 
 The
-[`aiQuery`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.aiQuery)
+[`aiQuery`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#aiquery)
 method turns a natural-language instruction into a SQL query and executes it on
 the table.
 
@@ -820,10 +787,7 @@ await temperatures
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis/main/test/data/files/dailyTemperatures.csv",
   )
   .renameColumns({ t: "temperature", id: "station" })
-  .aiQuery(
-    "Compute the average temperature for each station with two decimals.",
-    { verbose: true },
-  )
+  .aiQuery("Compute the average temperature for each station with two decimals.", { verbose: true })
   .log();
 
 await sdb.close();
@@ -859,7 +823,7 @@ compare.
 
 Let's say we love **Louis Jadot Bourgogne Pinot Noir** and want to discover
 similar wines. We can use
-[`similarityMahalanobis`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.similarityMahalanobis),
+[`similarityMahalanobis`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#similaritymahalanobis),
 as demonstrated below. Mahalanobis distance is useful because it can compare
 features with different units and scales, while also accounting for correlations
 between them.
@@ -878,7 +842,8 @@ the closest matches first.
 import { SimpleDB } from "@nshiab/simple-data-analysis";
 
 const sdb = new SimpleDB();
-const wines = sdb.newTable("wines")
+const wines = sdb
+  .newTable("wines")
   .loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/main/test/data/files/wine.csv",
   )
@@ -886,17 +851,12 @@ const wines = sdb.newTable("wines")
   .removeMissing({ columns: ["acidity", "intensity", "sweetness"] });
 
 // Retrieve our favorite wine's characteristics as an object.
-const reference = await wines.getRow(
-  "fullName === 'Louis Jadot Bourgogne Pinot Noir'",
-);
+const reference = await wines.getRow("fullName === 'Louis Jadot Bourgogne Pinot Noir'");
 
 await wines
-  .similarityMahalanobis(
-    ["acidity", "intensity", "sweetness", "tannin"],
-    reference,
-    "distance",
-    { similarityColumn: true },
-  )
+  .similarityMahalanobis(["acidity", "intensity", "sweetness", "tannin"], reference, "distance", {
+    similarityColumn: true,
+  })
   .sort({ similarity: "desc" })
   .log();
 
@@ -921,10 +881,10 @@ chart.
 
 In the code below, we use `similarityMahalanobis` to calculate similarity scores
 and
-[`hdbscan`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.hdbscan)
+[`hdbscan`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#hdbscan)
 to create clusters of wines with similar characteristics. We rename the
 identified clusters, then use
-[`umap`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.umap)
+[`umap`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#umap)
 to reduce the four features to X and Y coordinates and `writeChart` to create
 the scatter plot.
 
@@ -933,29 +893,24 @@ import { SimpleDB } from "@nshiab/simple-data-analysis";
 import { dot, plot, text } from "@observablehq/plot";
 
 const sdb = new SimpleDB();
-const wines = sdb.newTable("wines")
+const wines = sdb
+  .newTable("wines")
   .loadData(
     "https://raw.githubusercontent.com/nshiab/simple-data-analysis-core/main/test/data/files/wine.csv",
   )
   .replaceNulls("tannin", 0)
   .removeMissing({ columns: ["acidity", "intensity", "sweetness"] });
 
-const reference = await wines.getRow(
-  "fullName === 'Louis Jadot Bourgogne Pinot Noir'",
-);
+const reference = await wines.getRow("fullName === 'Louis Jadot Bourgogne Pinot Noir'");
 
 await wines
-  .similarityMahalanobis(
-    ["acidity", "intensity", "sweetness", "tannin"],
-    reference,
-    "distance",
-    { similarityColumn: true },
-  )
-  .hdbscan(
-    ["acidity", "intensity", "sweetness", "tannin"],
-    "cluster",
-    { minClusterSize: 40, minSamples: 10 },
-  )
+  .similarityMahalanobis(["acidity", "intensity", "sweetness", "tannin"], reference, "distance", {
+    similarityColumn: true,
+  })
+  .hdbscan(["acidity", "intensity", "sweetness", "tannin"], "cluster", {
+    minClusterSize: 40,
+    minSamples: 10,
+  })
   .replace("cluster", {
     "cluster-0": "Lower-intensity reds",
     "cluster-1": "Higher-intensity reds",
@@ -988,22 +943,14 @@ await wines
             x: "umapX",
             y: "umapY",
             fill: "cluster",
-            fillOpacity: (d) => d.similarity > 0.95 ? 1 : 0.25,
+            fillOpacity: (d) => (d.similarity > 0.95 ? 1 : 0.25),
             r: 3,
             stroke: "black",
             strokeWidth: (d) =>
-              d.fullName === reference.fullName
-                ? 2
-                : d.similarity > 0.95
-                ? 0.75
-                : 0,
-            strokeOpacity: (d) => d.fullName === reference.fullName ? 1 : 0.35,
+              d.fullName === reference.fullName ? 2 : d.similarity > 0.95 ? 0.75 : 0,
+            strokeOpacity: (d) => (d.fullName === reference.fullName ? 1 : 0.35),
             sort: (d: { fullName: string; cluster: string }) =>
-              d.fullName === reference.fullName
-                ? 2
-                : d.cluster === "noise"
-                ? 0
-                : 1,
+              d.fullName === reference.fullName ? 2 : d.cluster === "noise" ? 0 : 1,
           }),
           text(data, {
             filter: (d) => d.fullName === reference.fullName,
@@ -1033,17 +980,17 @@ highlighted, with its closest matches appearing nearby.
 Network analysis focuses on connections between items, such as transactions
 between businesses, flights between airports, or friendships between people. SDA
 has useful methods for exploring these relationships
-([`degree`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.degree),
-[`neighbors`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.neighbors),
-[`commonNeighbors`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.commonNeighbors),
-[`reachable`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.reachable),
-[`distances`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.distances),
-[`shortestPath`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.shortestPath),
-[`paths`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.paths),
-[`findCycles`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.findCycles),
-[`topologicalSort`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.topologicalSort),
+([`degree`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#degree),
+[`neighbors`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#neighbors),
+[`commonNeighbors`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#commonneighbors),
+[`reachable`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#reachable),
+[`distances`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#distances),
+[`shortestPath`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#shortestpath),
+[`paths`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#paths),
+[`findCycles`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#findcycles),
+[`topologicalSort`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#topologicalsort),
 and
-[`connectedComponents`](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.connectedComponents)).
+[`connectedComponents`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#connectedcomponents)).
 
 For this example, we use a
 [fictional flight schedule](https://github.com/nshiab/simple-data-analysis-core/blob/main/test/data/graphs/flights.csv)
@@ -1148,10 +1095,10 @@ network for you.
 #### Google Cloud Storage
 
 The
-[`toBucket`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.toBucket)
+[`toBucket`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#tobucket)
 method writes a table to a temporary file and uploads it to Google Cloud
 Storage. The
-[`loadBucket`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.loadBucket)
+[`loadBucket`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#loadbucket)
 method downloads and loads an object in chain order.
 
 Set the project and bucket in `.env`. Authentication uses Google Application
@@ -1179,10 +1126,7 @@ const temperatures = await sdb
   .filter("temperature > 30")
   .log();
 
-const uri = await temperatures.toBucket(
-  "outputs/hotTemperatures.parquet",
-  { overwrite: true },
-);
+const uri = await temperatures.toBucket("outputs/hotTemperatures.parquet", { overwrite: true });
 
 console.log(uri); // gs://my-storage-bucket/outputs/hotTemperatures.parquet
 
@@ -1192,7 +1136,7 @@ await sdb.close();
 #### Google Sheets
 
 The
-[`toSheet`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.toSheet)
+[`toSheet`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#tosheet)
 method sends a table directly to Google Sheets. Authenticate with a service
 account by setting its email and private key in `.env`:
 
@@ -1254,7 +1198,7 @@ await sdb.close();
 #### Datawrapper
 
 The
-[`toDatawrapper`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.toDatawrapper)
+[`toDatawrapper`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#todatawrapper)
 method sends a table directly to a Datawrapper chart or table. Add your API key
 to `.env`:
 
@@ -1263,7 +1207,7 @@ DATAWRAPPER_KEY=your-datawrapper-api-key
 ```
 
 The chart ID is the short identifier in its Datawrapper URL. For maps, use
-[`toGeoDatawrapper`](https://jsr.io/@nshiab/simple-data-analysis/doc/~/SimpleTable.prototype.toGeoDatawrapper)
+[`toGeoDatawrapper`](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#togeodatawrapper)
 with the same API key. The `loadDatawrapper()` and `loadGeoDatawrapper()`
 methods also use it.
 
@@ -1292,7 +1236,7 @@ This can speed up your workflow, especially when fetching data or performing
 computationally expensive operations.
 
 When you use the
-[cache method](https://jsr.io/@nshiab/simple-data-analysis-core/doc/~/SimpleTable.prototype.cache),
+[cache method](https://nshiab.github.io/simple-data-analysis/classes/SimpleTable.html#cache),
 the data is cached in a hidden `.sda-cache` folder. With `cacheVerbose` enabled,
 the logs explain whether the callback, the table, and any additional inputs
 match the cached entry. `cache()` passes the table to its callback and
@@ -1328,21 +1272,19 @@ const fires = await sdb.newTable("fires").cache(
 
 // Refresh this cache when the callback, the firesInsideProvinces table,
 // or either table used by the callback changes.
-const firesInsideProvinces = await sdb.newTable("firesInsideProvinces").cache(
-  (table) => {
-    table
-      .insertTables(fires)
-      .joinGeo(provinces, "inside")
-      .removeMissing()
-      .summarize({
-        columns: "hectares",
-        by: "nameEnglish",
-        stats: { nbFires: "count", burntArea: "sum" },
-        decimals: 0,
-      })
-      .sort({ burntArea: "desc" });
-  },
-);
+const firesInsideProvinces = await sdb.newTable("firesInsideProvinces").cache((table) => {
+  table
+    .insertTables(fires)
+    .joinGeo(provinces, "inside")
+    .removeMissing()
+    .summarize({
+      columns: "hectares",
+      by: "nameEnglish",
+      stats: { nbFires: "count", burntArea: "sum" },
+      decimals: 0,
+    })
+    .sort({ burntArea: "desc" });
+});
 
 await firesInsideProvinces.log("all");
 await firesInsideProvinces.logBarChart("nameEnglish", "burntArea");

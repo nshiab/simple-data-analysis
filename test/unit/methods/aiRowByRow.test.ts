@@ -1,5 +1,6 @@
+import { test, expect } from "vite-plus/test";
 import createAIEnrichmentFixture from "../helpers/createAIEnrichmentFixture.ts";
-import { assert, assertEquals, assertRejects } from "@std/assert";
+import { assert, assertRejects } from "../../helpers/assertions.ts";
 import { existsSync, rmSync } from "node:fs";
 import { Ollama } from "ollama";
 import type { GenerationOptions } from "../../../src/helpers/aiOptions.ts";
@@ -43,9 +44,7 @@ function extractValues(prompt: string): string[] {
   }
   const jsonStart = start + marker.length;
   const jsonEnd = prompt.indexOf("\n\n", jsonStart);
-  return JSON.parse(
-    prompt.slice(jsonStart, jsonEnd < 0 ? undefined : jsonEnd),
-  ) as string[];
+  return JSON.parse(prompt.slice(jsonStart, jsonEnd < 0 ? undefined : jsonEnd)) as string[];
 }
 
 function responseForPrompt(prompt: string): Record<string, unknown>[] {
@@ -77,18 +76,20 @@ function createGeminiFixture(): ProviderFixture {
         init?: RequestInit,
       ): Promise<Response> => {
         requests++;
-        const body = JSON.parse(String(init?.body)) as {
+        const body = JSON.parse(typeof init?.body === "string" ? init.body : "{}") as {
           contents: { parts: { text: string }[] }[];
         };
         const prompt = body.contents.at(-1)?.parts.at(0)?.text ?? "";
         return Promise.resolve(
           new Response(
             JSON.stringify({
-              candidates: [{
-                content: {
-                  parts: [{ text: JSON.stringify(responseForPrompt(prompt)) }],
+              candidates: [
+                {
+                  content: {
+                    parts: [{ text: JSON.stringify(responseForPrompt(prompt)) }],
+                  },
                 },
-              }],
+              ],
               usageMetadata: {
                 promptTokenCount: 1,
                 candidatesTokenCount: 1,
@@ -139,9 +140,7 @@ function createOllamaFixture(): ProviderFixture {
 }
 
 function createOllamaClient(
-  respond: (
-    prompt: string,
-  ) => OllamaChatResponse | Promise<OllamaChatResponse>,
+  respond: (prompt: string) => OllamaChatResponse | Promise<OllamaChatResponse>,
 ): Ollama {
   const client = new Ollama({ host: "http://unused.local:11434" });
   Object.defineProperty(client, "chat", {
@@ -168,7 +167,7 @@ function registerRowProcessingContract(
   provider: string,
   createFixture: () => ProviderFixture,
 ): void {
-  Deno.test(`aiRowByRow shared batching contract (${provider})`, async () => {
+  test(`aiRowByRow shared batching contract (${provider})`, async () => {
     const fixture = createFixture();
     await fixture.run(async () => {
       const sdb = new SimpleDB();
@@ -187,34 +186,29 @@ function registerRowProcessingContract(
       };
 
       const returned = table
-        .aiRowByRow(
-          "city",
-          "country",
-          "Give me the country of the city.",
-          {
-            generation: { ...fixture.generation, cache: false },
-            batchSize: 2,
-            concurrency: 2,
-            metrics,
-          },
-        )
+        .aiRowByRow("city", "country", "Give me the country of the city.", {
+          generation: { ...fixture.generation, cache: false },
+          batchSize: 2,
+          concurrency: 2,
+          metrics,
+        })
         .filter("country IS NOT NULL");
 
-      assertEquals(returned, table);
-      assertEquals(fixture.requestCount(), 0);
-      assertEquals(await returned.getData(), [
+      expect(returned).toEqual(table);
+      expect(fixture.requestCount()).toEqual(0);
+      expect(await returned.getData()).toEqual([
         { city: "Marrakech", country: "Morocco" },
         { city: "Kyoto", country: "Japan" },
         { city: "Auckland", country: "New Zealand" },
         { city: "Paris", country: "France" },
       ]);
-      assertEquals(fixture.requestCount(), 2);
-      assertEquals(metrics.totalRequests, 2);
+      expect(fixture.requestCount()).toEqual(2);
+      expect(metrics.totalRequests).toEqual(2);
       await sdb.close();
     });
   });
 
-  Deno.test(`aiRowByRow shared cache contract (${provider})`, async () => {
+  test(`aiRowByRow shared cache contract (${provider})`, async () => {
     if (existsSync("./.journalism-cache")) {
       rmSync("./.journalism-cache", { recursive: true });
     }
@@ -226,16 +220,13 @@ function registerRowProcessingContract(
           const table = sdb.newTable(`row_cache_${provider}_${tableName}`);
           table.loadArray([{ city: "Marrakech" }, { city: "Kyoto" }]);
           const start = performance.now();
-          await table.aiRowByRow(
-            "city",
-            "country",
-            "Give me the country of the city.",
-            {
+          await table
+            .aiRowByRow("city", "country", "Give me the country of the city.", {
               generation: { ...fixture.generation },
               batchSize: 1,
               rateLimitPerMinute: tableName === "second" ? 120 : undefined,
-            },
-          ).run();
+            })
+            .run();
           if (tableName === "second") {
             const duration = performance.now() - start;
             assert(
@@ -243,10 +234,10 @@ function registerRowProcessingContract(
               `Cached requests took ${duration}ms and appear to have been rate-limited.`,
             );
           }
-          assertEquals(await table.getValues("country"), ["Morocco", "Japan"]);
+          expect(await table.getValues("country")).toEqual(["Morocco", "Japan"]);
           await sdb.close();
         }
-        assertEquals(fixture.requestCount(), 2);
+        expect(fixture.requestCount()).toEqual(2);
       });
     } finally {
       if (existsSync("./.journalism-cache")) {
@@ -255,45 +246,123 @@ function registerRowProcessingContract(
     }
   });
 
-  Deno.test(
-    `aiRowByRow shared multiple-column contract (${provider})`,
-    async () => {
-      const fixture = createFixture();
-      await fixture.run(async () => {
-        const sdb = new SimpleDB();
-        const table = sdb.newTable(`row_columns_${provider}`);
-        table.loadArray([{ city: "Marrakech" }, { city: "Kyoto" }]);
+  test(`aiRowByRow processes async responses and revalidates cache (${provider})`, async () => {
+    const fixture = createFixture();
+    await fixture.run(async () => {
+      const sdb = new SimpleDB();
+      let callbacks = 0;
+      let rejectCached = true;
+      const rawCountries: string[] = [];
+      try {
+        for (const suffix of ["first", "second", "recovered"]) {
+          const table = sdb.newTable(`processed_${suffix}`);
+          await table
+            .loadArray([{ city: "Marrakech" }, { city: "Kyoto" }])
+            .aiRowByRow("city", "country", "Return the country for response processing.", {
+              generation: fixture.generation,
+              batchSize: 2,
+              retry: 1,
+              retryCheck: (error) => error instanceof Error && error.message === "Retry processing",
+              processResponse: async (response) => {
+                await Promise.resolve();
+                callbacks++;
+                const row = z.object({ country: z.string() }).parse(response);
+                rawCountries.push(row.country);
+                if (suffix === "recovered" && rejectCached && row.country === "Japan") {
+                  rejectCached = false;
+                  throw new Error("Retry processing");
+                }
+                response.country = `${row.country}:${suffix}`;
+                return response;
+              },
+            })
+            .run();
+          expect(await table.getValues("country")).toEqual([
+            `Morocco:${suffix}`,
+            `Japan:${suffix}`,
+          ]);
+          expect(fixture.requestCount()).toBe(suffix === "recovered" ? 2 : 1);
+        }
+        expect(callbacks).toBe(8);
+        expect(rawCountries).toEqual(Array(4).fill(["Morocco", "Japan"]).flat());
+      } finally {
+        await sdb.close();
+      }
+    });
+  });
 
-        await table.aiRowByRow(
+  test(`aiRowByRow stores async processing failures after retries (${provider})`, async () => {
+    const fixture = createFixture();
+    await fixture.run(async () => {
+      const sdb = new SimpleDB();
+      let callbacks = 0;
+      try {
+        const table = sdb.newTable("processing_errors");
+        await table
+          .loadArray([{ city: "Kyoto" }])
+          .aiRowByRow("city", "country", "Return the country for rejected processing.", {
+            generation: fixture.generation,
+            retry: 1,
+            errorColumn: "error",
+            processResponse: async () => {
+              await Promise.resolve();
+              callbacks++;
+              throw new Error("Rejected response");
+            },
+          })
+          .run();
+        expect(callbacks).toBe(2);
+        expect(fixture.requestCount()).toBe(2);
+        expect(await table.getData()).toEqual([
+          { city: "Kyoto", country: null, error: "Rejected response" },
+        ]);
+      } finally {
+        await sdb.close();
+      }
+    });
+  });
+
+  test(`aiRowByRow shared multiple-column contract (${provider})`, async () => {
+    const fixture = createFixture();
+    await fixture.run(async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable(`row_columns_${provider}`);
+      table.loadArray([{ city: "Marrakech" }, { city: "Kyoto" }]);
+
+      await table
+        .aiRowByRow(
           "city",
           ["country", "continent"],
           "Give me the country and continent of the city.",
           { generation: fixture.generation, batchSize: 2 },
-        ).run();
+        )
+        .run();
 
-        assertEquals(await table.getData(), [
-          { city: "Marrakech", country: "Morocco", continent: "Africa" },
-          { city: "Kyoto", country: "Japan", continent: "Asia" },
-        ]);
-        await sdb.close();
-      });
-    },
-  );
+      expect(await table.getData()).toEqual([
+        { city: "Marrakech", country: "Morocco", continent: "Africa" },
+        { city: "Kyoto", country: "Japan", continent: "Asia" },
+      ]);
+      await sdb.close();
+    });
+  });
 
-  Deno.test(
-    `aiRowByRow shared custom-schema contract (${provider})`,
-    async () => {
-      const fixture = createFixture();
-      await fixture.run(async () => {
-        const sdb = new SimpleDB();
-        const table = sdb.newTable(`row_schema_${provider}`);
-        table.loadArray([{ city: "Marrakech" }, { city: "Kyoto" }]);
-        const schemaJson = z.toJSONSchema(z.array(z.object({
-          country: z.string(),
-          population: z.number(),
-        })));
+  test(`aiRowByRow shared custom-schema contract (${provider})`, async () => {
+    const fixture = createFixture();
+    await fixture.run(async () => {
+      const sdb = new SimpleDB();
+      const table = sdb.newTable(`row_schema_${provider}`);
+      table.loadArray([{ city: "Marrakech" }, { city: "Kyoto" }]);
+      const schemaJson = z.toJSONSchema(
+        z.array(
+          z.object({
+            country: z.string(),
+            population: z.number(),
+          }),
+        ),
+      );
 
-        await table.aiRowByRow(
+      await table
+        .aiRowByRow(
           "city",
           ["country", "population"],
           "Give me the country and population of the city.",
@@ -301,22 +370,22 @@ function registerRowProcessingContract(
             generation: { ...fixture.generation, schemaJson },
             batchSize: 2,
           },
-        ).run();
+        )
+        .run();
 
-        assertEquals(await table.getData(), [
-          { city: "Marrakech", country: "Morocco", population: 929_987 },
-          { city: "Kyoto", country: "Japan", population: 1_463_723 },
-        ]);
-        await sdb.close();
-      });
-    },
-  );
+      expect(await table.getData()).toEqual([
+        { city: "Marrakech", country: "Morocco", population: 929_987 },
+        { city: "Kyoto", country: "Japan", population: 1_463_723 },
+      ]);
+      await sdb.close();
+    });
+  });
 }
 
 registerRowProcessingContract("gemini", createGeminiFixture);
 registerRowProcessingContract("ollama", createOllamaFixture);
 
-Deno.test("aiRowByRow stores failed batches and continues", async () => {
+test("aiRowByRow stores failed batches and continues", async () => {
   const client = createOllamaClient((prompt) => {
     const city = extractValues(prompt)[0];
     if (city === "Kyoto") {
@@ -326,17 +395,10 @@ Deno.test("aiRowByRow stores failed batches and continues", async () => {
   });
   const sdb = new SimpleDB();
   const table = sdb.newTable("row_errors");
-  table.loadArray([
-    { city: "Marrakech" },
-    { city: "Kyoto" },
-    { city: "Auckland" },
-  ]);
+  table.loadArray([{ city: "Marrakech" }, { city: "Kyoto" }, { city: "Auckland" }]);
 
-  await table.aiRowByRow(
-    "city",
-    "country",
-    "Give me the country of the city.",
-    {
+  await table
+    .aiRowByRow("city", "country", "Give me the country of the city.", {
       generation: {
         provider: "ollama",
         model: "fake-ollama-generation",
@@ -345,10 +407,10 @@ Deno.test("aiRowByRow stores failed batches and continues", async () => {
       },
       concurrency: 2,
       errorColumn: "error",
-    },
-  ).run();
+    })
+    .run();
 
-  assertEquals(await table.getData(), [
+  expect(await table.getData()).toEqual([
     { city: "Marrakech", country: "Morocco", error: null },
     { city: "Kyoto", country: null, error: "provider rejected Kyoto" },
     { city: "Auckland", country: "New Zealand", error: null },
@@ -356,32 +418,27 @@ Deno.test("aiRowByRow stores failed batches and continues", async () => {
   await sdb.close();
 });
 
-Deno.test("aiRowByRow throws a failed batch without errorColumn", async () => {
+test("aiRowByRow throws a failed batch without errorColumn", async () => {
   const client = createOllamaClient(() => {
     throw new Error("provider failed");
   });
   const sdb = new SimpleDB();
   const table = sdb.newTable("row_throw");
   table.loadArray([{ city: "Marrakech" }]);
-  table.aiRowByRow(
-    "city",
-    "country",
-    "Give me the country of the city.",
-    {
-      generation: {
-        provider: "ollama",
-        model: "fake-ollama-generation",
-        ollama: client,
-        cache: false,
-      },
+  table.aiRowByRow("city", "country", "Give me the country of the city.", {
+    generation: {
+      provider: "ollama",
+      model: "fake-ollama-generation",
+      ollama: client,
+      cache: false,
     },
-  );
+  });
 
   await assertRejects(() => table.run(), Error, "provider failed");
   await sdb.close();
 });
 
-Deno.test("aiRowByRow retries when retryCheck accepts the error", async () => {
+test("aiRowByRow retries when retryCheck accepts the error", async () => {
   let attempts = 0;
   let checkedError: unknown;
   const client = createOllamaClient(() => {
@@ -395,11 +452,8 @@ Deno.test("aiRowByRow retries when retryCheck accepts the error", async () => {
   const table = sdb.newTable("row_retry");
   table.loadArray([{ city: "Marrakech" }]);
 
-  await table.aiRowByRow(
-    "city",
-    "country",
-    "Give me the country of the city.",
-    {
+  await table
+    .aiRowByRow("city", "country", "Give me the country of the city.", {
       generation: {
         provider: "ollama",
         model: "fake-ollama-generation",
@@ -411,16 +465,16 @@ Deno.test("aiRowByRow retries when retryCheck accepts the error", async () => {
         checkedError = error;
         return true;
       },
-    },
-  ).run();
+    })
+    .run();
 
-  assertEquals(attempts, 2);
+  expect(attempts).toEqual(2);
   assert(checkedError instanceof Error);
-  assertEquals(await table.getValues("country"), ["Morocco"]);
+  expect(await table.getValues("country")).toEqual(["Morocco"]);
   await sdb.close();
 });
 
-Deno.test("aiRowByRow bounds concurrent requests", async () => {
+test("aiRowByRow bounds concurrent requests", async () => {
   let active = 0;
   let maximumActive = 0;
   const client = createOllamaClient(async (prompt) => {
@@ -435,11 +489,8 @@ Deno.test("aiRowByRow bounds concurrent requests", async () => {
   const table = sdb.newTable("row_concurrent");
   table.loadArray(Object.keys(places).map((city) => ({ city })));
 
-  await table.aiRowByRow(
-    "city",
-    "country",
-    "Give me the country of the city.",
-    {
+  await table
+    .aiRowByRow("city", "country", "Give me the country of the city.", {
       generation: {
         provider: "ollama",
         model: "fake-ollama-generation",
@@ -447,14 +498,14 @@ Deno.test("aiRowByRow bounds concurrent requests", async () => {
         cache: false,
       },
       concurrency: 2,
-    },
-  ).run();
+    })
+    .run();
 
-  assertEquals(maximumActive, 2);
+  expect(maximumActive).toEqual(2);
   await sdb.close();
 });
 
-Deno.test("aiRowByRow globally spaces provider request starts", async () => {
+test("aiRowByRow globally spaces provider request starts", async () => {
   const starts: number[] = [];
   const client = createOllamaClient((prompt) => {
     starts.push(performance.now());
@@ -463,17 +514,10 @@ Deno.test("aiRowByRow globally spaces provider request starts", async () => {
   });
   const sdb = new SimpleDB();
   const table = sdb.newTable("row_rate_limit");
-  table.loadArray([
-    { city: "Marrakech" },
-    { city: "Kyoto" },
-    { city: "Auckland" },
-  ]);
+  table.loadArray([{ city: "Marrakech" }, { city: "Kyoto" }, { city: "Auckland" }]);
 
-  await table.aiRowByRow(
-    "city",
-    "country",
-    "Give me the country of the city.",
-    {
+  await table
+    .aiRowByRow("city", "country", "Give me the country of the city.", {
       generation: {
         provider: "ollama",
         model: "fake-ollama-generation",
@@ -482,58 +526,60 @@ Deno.test("aiRowByRow globally spaces provider request starts", async () => {
       },
       concurrency: 3,
       rateLimitPerMinute: 1_200,
-    },
-  ).run();
+    })
+    .run();
 
-  assertEquals(starts.length, 3);
+  expect(starts.length).toEqual(3);
   assert(starts[1] - starts[0] >= 40);
   assert(starts[2] - starts[1] >= 40);
   await sdb.close();
 });
 
-Deno.test("aiRowByRow preserves geometry columns", async () => {
+test("aiRowByRow preserves geometry columns", async () => {
   const fixture = createOllamaFixture();
   const sdb = new SimpleDB();
   try {
     const table = sdb.newTable("geometry_rows");
-    await table.loadArray([{
-      city: "Paris",
-      geometry: { type: "Point", coordinates: [2.25, 48.5] },
-    }], { columnTypes: { geometry: "GEOMETRY('EPSG:4326')" } })
+    await table
+      .loadArray(
+        [
+          {
+            city: "Paris",
+            geometry: { type: "Point", coordinates: [2.25, 48.5] },
+          },
+        ],
+        { columnTypes: { geometry: "GEOMETRY('EPSG:4326')" } },
+      )
       .aiRowByRow("city", "country", "Give me the country of the city.", {
         generation: { ...fixture.generation, cache: false },
-      }).run();
-    assertEquals(await table.getValues("country"), ["France"]);
-    assertEquals((await table.getTypes()).geometry, "GEOMETRY('EPSG:4326')");
-    assertEquals(
-      await sdb.customQuery(
-        `SELECT ST_AsText(geometry) AS wkt FROM "${table.name}"`,
-        { returnData: true },
-      ),
-      [{ wkt: "POINT (2.25 48.5)" }],
-    );
+      })
+      .run();
+    expect(await table.getValues("country")).toEqual(["France"]);
+    expect((await table.getTypes()).geometry).toEqual("GEOMETRY('EPSG:4326')");
+    expect(
+      await sdb.customQuery(`SELECT ST_AsText(geometry) AS wkt FROM "${table.name}"`, {
+        returnData: true,
+      }),
+    ).toEqual([{ wkt: "POINT (2.25 48.5)" }]);
   } finally {
     await sdb.close();
   }
 });
 
-Deno.test("aiRowByRow preserves SQL values and queued order across transfer batches", async () => {
+test("aiRowByRow preserves SQL values and queued order across transfer batches", async () => {
   const { sdb, table, assertPreserved } = await createAIEnrichmentFixture();
   const sizes: number[] = [];
-  const starts: number[] = [];
   const logs: string[] = [];
   const originalLog = console.log;
   console.log = (message: string) => logs.push(message);
   const client = createOllamaClient((prompt) => {
     const values = extractValues(prompt);
     sizes.push(values.length);
-    starts.push(performance.now());
-    return ollamaResponse(
-      values.map((text) => ({ label: text })),
-    );
+    return ollamaResponse(values.map((text) => ({ label: text })));
   });
   try {
-    const queued = table.replace("text", { "row-0": "changed" })
+    const queued = table
+      .replace("text", { "row-0": "changed" })
       .aiRowByRow("text", "label", "Copy the text.", {
         generation: {
           provider: "ollama",
@@ -541,11 +587,7 @@ Deno.test("aiRowByRow preserves SQL values and queued order across transfer batc
           ollama: client,
           cache: false,
         },
-        clean: (response) =>
-          (response as { label: string }[]).map((row) => ({
-            ...row,
-            extra: "must not be stored",
-          })),
+        processResponse: (row) => ({ ...row, extra: "must not be stored" }),
         batchSize: 300,
         concurrency: 2,
         errorColumn: "error",
@@ -553,25 +595,18 @@ Deno.test("aiRowByRow preserves SQL values and queued order across transfer batc
         logProgress: true,
       })
       .replace("text", { changed: "row-0" });
-    assertEquals(sizes, []);
+    expect(sizes).toEqual([]);
     await queued.run();
-    assertEquals(sizes, [300, 300, 300, 103]);
-    assertEquals(
-      logs,
-      [1, 2, 3, 4].map((n) => `Processed ${n} of 4 requests.`),
-    );
-    for (let i = 1; i < starts.length; i++) {
-      assert(starts[i] - starts[i - 1] >= 40);
-    }
+    expect(sizes).toEqual([300, 300, 300, 103]);
+    expect(logs).toEqual([1, 2, 3, 4].map((n) => `Processed ${n} of 4 requests.`));
     await assertPreserved(["label", "error"]);
-    assertEquals(
+    expect(
       await sdb.customQuery(
         `SELECT count(*) AS valid FROM enriched
       WHERE label = CASE WHEN i = 0 THEN 'changed' ELSE text END AND error IS NULL`,
         { returnData: true },
       ),
-      [{ valid: 1003 }],
-    );
+    ).toEqual([{ valid: 1003 }]);
   } finally {
     console.log = originalLog;
     await sdb.close();
@@ -579,7 +614,7 @@ Deno.test("aiRowByRow preserves SQL values and queued order across transfer batc
 });
 
 for (const failure of ["generation", "staging"]) {
-  Deno.test(`aiRowByRow preserves original data after late ${failure} failure`, async () => {
+  test(`aiRowByRow preserves original data after late ${failure} failure`, async () => {
     const { sdb, table, assertPreserved } = await createAIEnrichmentFixture();
     let requests = 0;
     const client = createOllamaClient((prompt) => {
@@ -587,30 +622,28 @@ for (const failure of ["generation", "staging"]) {
       if (requests > 2 && failure === "generation") {
         throw new Error("late provider failure");
       }
-      return ollamaResponse(
-        extractValues(prompt).map(() => ({ text: "generated" })),
-      );
+      return ollamaResponse(extractValues(prompt).map(() => ({ text: "generated" })));
     });
     try {
       await assertRejects(
         () =>
-          table.aiRowByRow("text", "text", "Replace the text.", {
-            generation: {
-              provider: "ollama",
-              model: "lossless-test",
-              ollama: client,
-              cache: false,
-            },
-            batchSize: 500,
-            clean: (response) =>
-              requests > 2 && failure === "staging"
-                ? (response as unknown[]).map(() => ({ text: 42 }))
-                : response,
-          }).run(),
+          table
+            .aiRowByRow("text", "text", "Replace the text.", {
+              generation: {
+                provider: "ollama",
+                model: "lossless-test",
+                ollama: client,
+                cache: false,
+              },
+              batchSize: 500,
+              processResponse: (response) =>
+                requests > 2 && failure === "staging" ? { text: 42 } : response,
+            })
+            .run(),
         Error,
         failure === "generation" ? "late provider failure" : "changed type",
       );
-      assertEquals(requests, 3);
+      expect(requests).toEqual(3);
       await assertPreserved();
     } finally {
       await sdb.close();
@@ -619,27 +652,27 @@ for (const failure of ["generation", "staging"]) {
 }
 
 for (const target of ["input", "output", "errorColumn"] as const) {
-  Deno.test(`aiRowByRow rejects geometry ${target} before provider requests`, async () => {
+  test(`aiRowByRow rejects geometry ${target} before provider requests`, async () => {
     const { sdb, table, assertPreserved } = await createAIEnrichmentFixture(2);
     const fixture = createOllamaFixture();
     try {
       await assertRejects(
         () =>
-          table.aiRowByRow(
-            target === "input" ? "GEOMETRY" : "text",
-            target === "output" ? "PROJECTED" : "label",
-            "Label the input.",
-            {
-              generation: { ...fixture.generation, cache: false },
-              errorColumn: target === "errorColumn"
-                ? "NULL_GEOMETRY"
-                : undefined,
-            },
-          ).run(),
+          table
+            .aiRowByRow(
+              target === "input" ? "GEOMETRY" : "text",
+              target === "output" ? "PROJECTED" : "label",
+              "Label the input.",
+              {
+                generation: { ...fixture.generation, cache: false },
+                errorColumn: target === "errorColumn" ? "NULL_GEOMETRY" : undefined,
+              },
+            )
+            .run(),
         Error,
         "cannot be an input or output",
       );
-      assertEquals(fixture.requestCount(), 0);
+      expect(fixture.requestCount()).toEqual(0);
       await assertPreserved();
     } finally {
       await sdb.close();
@@ -647,34 +680,28 @@ for (const target of ["input", "output", "errorColumn"] as const) {
   });
 }
 
-Deno.test("aiRowByRow logs compact geometry separately from stored SQL values", async () => {
+test("aiRowByRow logs compact geometry separately from stored SQL values", async () => {
   const { sdb, table, assertGeometry } = await createAIEnrichmentFixture(2);
   const client = createOllamaClient((prompt) =>
-    ollamaResponse(
-      extractValues(prompt).map(() => ({ label: "place" })),
-    )
+    ollamaResponse(extractValues(prompt).map(() => ({ label: "place" }))),
   );
   const logs: string[] = [];
   const originalLog = console.log;
   try {
-    await table.aiRowByRow("text", "label", "Label the input.", {
-      generation: {
-        provider: "ollama",
-        model: "geometry-log",
-        ollama: client,
-        cache: false,
-      },
-    }).run();
-    console.log = (...values: unknown[]) =>
-      logs.push(values.map(String).join(" "));
-    await table.selectColumns([
-      "i",
-      "label",
-      "geometry",
-      "projected",
-      "unknown_crs",
-      "null_geometry",
-    ]).log({ count: 2, types: false });
+    await table
+      .aiRowByRow("text", "label", "Label the input.", {
+        generation: {
+          provider: "ollama",
+          model: "geometry-log",
+          ollama: client,
+          cache: false,
+        },
+      })
+      .run();
+    console.log = (...values: unknown[]) => logs.push(values.map(String).join(" "));
+    await table
+      .selectColumns(["i", "label", "geometry", "projected", "unknown_crs", "null_geometry"])
+      .log({ count: 2, types: false });
     const output = logs.join("\n");
     assert(output.includes("GEOM(EPSG:4326)"));
     assert(output.includes("GEOM(EPSG:3857)"));
@@ -687,36 +714,33 @@ Deno.test("aiRowByRow logs compact geometry separately from stored SQL values", 
   }
 });
 
-Deno.test("aiRowByRow infers output types after a null-only first transfer batch", async () => {
+test("aiRowByRow infers output types after a null-only first transfer batch", async () => {
   const { sdb, table, assertPreserved } = await createAIEnrichmentFixture();
   let requests = 0;
   const client = createOllamaClient((prompt) => {
     requests++;
-    return ollamaResponse(
-      extractValues(prompt).map(() => ({ label: requests <= 2 ? null : 42 })),
-    );
+    return ollamaResponse(extractValues(prompt).map(() => ({ label: requests <= 2 ? null : 42 })));
   });
   try {
-    await table.aiRowByRow("text", "label", "Label each row.", {
-      generation: {
-        provider: "ollama",
-        model: "null-batch",
-        schemaJson: z.toJSONSchema(
-          z.array(z.object({ label: z.number().nullable() })),
-        ),
-        ollama: client,
-        cache: false,
-      },
-      batchSize: 500,
-    }).run();
-    assertEquals(requests, 3);
-    assertEquals(
+    await table
+      .aiRowByRow("text", "label", "Label each row.", {
+        generation: {
+          provider: "ollama",
+          model: "null-batch",
+          schemaJson: z.toJSONSchema(z.array(z.object({ label: z.number().nullable() }))),
+          ollama: client,
+          cache: false,
+        },
+        batchSize: 500,
+      })
+      .run();
+    expect(requests).toEqual(3);
+    expect(
       await sdb.customQuery(
         "SELECT count(*) FILTER (WHERE label IS NULL) AS empty, count(*) FILTER (WHERE label = 42) AS filled FROM enriched",
         { returnData: true },
       ),
-      [{ empty: 1000, filled: 3 }],
-    );
+    ).toEqual([{ empty: 1000, filled: 3 }]);
     await assertPreserved(["label"]);
   } finally {
     await sdb.close();

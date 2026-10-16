@@ -1,14 +1,8 @@
 import type { SimpleTable } from "../index.ts";
-import {
-  type EmbeddingOptions,
-  snapshotAIOptions,
-} from "../helpers/aiOptions.ts";
+import { type EmbeddingOptions, snapshotAIOptions } from "../helpers/aiOptions.ts";
 import validateAIRequestOptions from "../helpers/validateAIRequestOptions.ts";
 import ensureEmbeddingColumn from "../helpers/ensureEmbeddingColumn.ts";
-import {
-  queueAsyncBarrier,
-  updateColumnsWithJS,
-} from "@nshiab/simple-data-analysis-core/helpers";
+import { queueAsyncBarrier, updateColumnsWithJS } from "@nshiab/simple-data-analysis-core/helpers";
 
 /**
  * Options for generating an embedding column.
@@ -89,15 +83,9 @@ export default function aiEmbeddings(
   return simpleTable;
 }
 
-function validateEmbeddingOptions(
-  newColumn: string,
-  options: AIEmbeddingsOptions,
-): void {
+function validateEmbeddingOptions(newColumn: string, options: AIEmbeddingsOptions): void {
   validateAIRequestOptions(options);
-  if (
-    options.retry !== undefined &&
-    (!Number.isSafeInteger(options.retry) || options.retry < 0)
-  ) {
+  if (options.retry !== undefined && (!Number.isSafeInteger(options.retry) || options.retry < 0)) {
     throw new Error("retry must be a non-negative safe integer.");
   }
   if (options.errorColumn?.toLowerCase() === newColumn.toLowerCase()) {
@@ -168,52 +156,40 @@ export async function generateEmbeddingColumn(
   await updateColumnsWithJS(
     simpleTable,
     [column],
-    options.errorColumn === undefined
-      ? [newColumn]
-      : [newColumn, options.errorColumn],
+    options.errorColumn === undefined ? [newColumn] : [newColumn, options.errorColumn],
     async (rows) => {
-      const [
-        { formatNumber },
-        { getEmbeddingForProvider },
-        { default: runAIRequestPool },
-      ] = await Promise.all([
-        import("@nshiab/journalism-format"),
-        import("../helpers/getEmbeddingForProvider.ts"),
-        import("../helpers/runAIRequestPool.ts"),
-      ]);
-      const tasks = rows.map(
-        (row, i) => async (beforeRequest: () => Promise<void>) => {
-          const text = row[column];
-          if (typeof text !== "string") {
-            throw new Error(
-              `The column "${column}" must be a string. Found ${text} instead.`,
-            );
-          }
-          if (options.verbose) {
-            console.log(
-              `Processing row ${processed + i + 1} of ${total}... (${
-                formatNumber(
-                  (processed + i + 1) / total * 100,
-                  { significantDigits: 3, suffix: "%" },
-                )
-              })`,
-            );
-          }
-          return await getEmbeddingForProvider(
-            text,
-            options.embeddings,
-            beforeRequest,
+      const [{ formatNumber }, { getEmbeddingForProvider }, { default: runAIRequestPool }] =
+        await Promise.all([
+          import("@nshiab/journalism-format"),
+          import("../helpers/getEmbeddingForProvider.ts"),
+          import("../helpers/runAIRequestPool.ts"),
+        ]);
+      const tasks = rows.map((row, i) => async (beforeRequest: () => Promise<void>) => {
+        const text = row[column];
+        if (typeof text !== "string") {
+          throw new Error(
+            `The column "${column}" must be a string. Found ${String(text)} instead.`,
           );
-        },
-      );
+        }
+        if (options.verbose) {
+          console.log(
+            `Processing row ${processed + i + 1} of ${total}... (${formatNumber(
+              ((processed + i + 1) / total) * 100,
+              { significantDigits: 3, suffix: "%" },
+            )})`,
+          );
+        }
+        return await getEmbeddingForProvider(text, options.embeddings, beforeRequest);
+      });
       const { results, errors } = await runAIRequestPool(tasks, concurrency, {
         stopOnError: options.errorColumn === undefined,
         retry: options.retry,
         retryCheck: options.retryCheck,
         logProgress: options.logProgress,
-        minRequestIntervalMs: options.rateLimitPerMinute === undefined
-          ? undefined
-          : 60_000 / options.rateLimitPerMinute,
+        minRequestIntervalMs:
+          options.rateLimitPerMinute === undefined
+            ? undefined
+            : 60_000 / options.rateLimitPerMinute,
         state,
       });
       processed += rows.length;
@@ -221,9 +197,7 @@ export async function generateEmbeddingColumn(
         if (vector !== undefined) {
           return {
             [newColumn]: vector,
-            ...(options.errorColumn === undefined
-              ? {}
-              : { [options.errorColumn]: null }),
+            ...(options.errorColumn === undefined ? {} : { [options.errorColumn]: null }),
           };
         }
         if (options.errorColumn === undefined) {
@@ -232,9 +206,8 @@ export async function generateEmbeddingColumn(
         const error = errors[i];
         return {
           [newColumn]: null,
-          [options.errorColumn]: error instanceof Error && error.message
-            ? error.message
-            : String(error),
+          [options.errorColumn]:
+            error instanceof Error && error.message ? error.message : String(error),
         };
       });
     },

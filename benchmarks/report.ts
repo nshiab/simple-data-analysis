@@ -1,3 +1,4 @@
+import { readFile, writeFile, stat, rm } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { barX, plot, ruleX, text as plotText } from "@observablehq/plot";
@@ -56,14 +57,13 @@ function formatDifference(difference: number): string {
 function absoluteLabel(value: number, metric: BenchmarkMetric): string {
   return metric === "duration"
     ? `${value.toFixed(2)} s`
-    : `${Math.round(value).toLocaleString("en-US")} MB`;
+    : `${Math.round(value).toLocaleString("en-US")} MiB`;
 }
 
 function chartImplementation(row: Aggregate): string {
   const formatted = formatVersion(row);
   if (row.implementation === "duckdb") {
-    return formatted.split("; ").find((part) => part.startsWith("DuckDB ")) ??
-      "DuckDB";
+    return formatted.split("; ").find((part) => part.startsWith("DuckDB ")) ?? "DuckDB";
   }
   return formatted.split("; ")[0];
 }
@@ -81,40 +81,34 @@ export function createChartData(
   const value = (row: Aggregate): number =>
     metric === "duration" ? row.meanSeconds : row.meanPeakMemoryMB;
   const baseline = value(sda);
-  return benchmarkRows.map((row) => {
-    const measured = value(row);
-    const difference = percentageDifference(measured, baseline);
-    return {
-      implementation: implementationNames[row.implementation] ??
-        row.implementation,
-      versionedImplementation: chartImplementation(row),
-      value: measured,
-      difference,
-      label: `${absoluteLabel(measured, metric)} (${
-        formatDifference(difference)
-      })`,
-      isSDA: row.implementation === "local",
-    };
-  }).sort((left, right) => left.value - right.value);
+  return benchmarkRows
+    .map((row) => {
+      const measured = value(row);
+      const difference = percentageDifference(measured, baseline);
+      return {
+        implementation: implementationNames[row.implementation] ?? row.implementation,
+        versionedImplementation: chartImplementation(row),
+        value: measured,
+        difference,
+        label: `${absoluteLabel(measured, metric)} (${formatDifference(difference)})`,
+        isSDA: row.implementation === "local",
+      };
+    })
+    .sort((left, right) => left.value - right.value);
 }
 
 export function formatVersion(row: Aggregate): string {
-  const runtimeMatch = row.version.match(/\/(deno|python|R)@([^/]+)$/);
-  const libraryVersion = runtimeMatch?.index === undefined
-    ? row.version
-    : row.version.slice(0, runtimeMatch.index);
+  const runtimeMatch = row.version.match(/\/(node|python|R)@([^/]+)$/);
+  const libraryVersion =
+    runtimeMatch?.index === undefined ? row.version : row.version.slice(0, runtimeMatch.index);
   let library: string;
-  const duckDBMatch = libraryVersion.match(
-    /^(@[^@]+)@([^/]+)\/duckdb@(.+)$/,
-  );
+  const duckDBMatch = libraryVersion.match(/^(@[^@]+)@([^/]+)\/duckdb@(.+)$/);
   if (duckDBMatch !== null) {
     library = `${duckDBMatch[1]} ${duckDBMatch[2]}; DuckDB ${duckDBMatch[3]}`;
   } else {
     const separator = libraryVersion.lastIndexOf("@");
     if (separator <= 0) {
-      library = row.implementation === "local"
-        ? `SDA ${libraryVersion}`
-        : libraryVersion;
+      library = row.implementation === "local" ? `SDA ${libraryVersion}` : libraryVersion;
     } else {
       const name = libraryVersion.slice(0, separator);
       const version = libraryVersion.slice(separator + 1);
@@ -123,7 +117,7 @@ export function formatVersion(row: Aggregate): string {
   }
   if (runtimeMatch === null) return library;
   const runtimeNames: Record<string, string> = {
-    deno: "Deno",
+    node: "Node",
     python: "Python",
     R: "R",
   };
@@ -138,7 +132,7 @@ function chart(
 ): SVGSVGElement | HTMLElement {
   const workload = benchmark === "tabular" ? "Tabular" : "Spatial";
   const measure = metric === "duration" ? "duration" : "peak memory";
-  const unit = metric === "duration" ? "seconds" : "MB";
+  const unit = metric === "duration" ? "seconds" : "MiB";
   const max = Math.max(...rows.map((row) => row.value));
   return plot({
     width: 760,
@@ -162,7 +156,7 @@ function chart(
       barX(rows, {
         x: "value",
         y: "versionedImplementation",
-        fill: (row) => row.isSDA ? "#087f8c" : "#adb5bd",
+        fill: (row: ChartDatum) => (row.isSDA ? "#087f8c" : "#adb5bd"),
       }),
       plotText(rows, {
         x: "value",
@@ -189,10 +183,7 @@ function runtimeContext(rows: Aggregate[]): string {
   return `Runtimes: ${details.join(" · ")}.`;
 }
 
-export function renderBenchmarkResults(
-  rows: Aggregate[],
-  benchmark: BenchmarkName,
-): string {
+export function renderBenchmarkResults(rows: Aggregate[], benchmark: BenchmarkName): string {
   const workloadRows = rows.filter((row) => row.benchmark === benchmark);
   if (workloadRows.length === 0) {
     throw new Error(`Cannot render empty ${benchmark} benchmark results.`);
@@ -212,14 +203,10 @@ export function replaceBenchmarkResults(
   const start = readme.indexOf(startMarker);
   const end = readme.indexOf(endMarker);
   if (start === -1 || end === -1 || end < start) {
-    throw new Error(
-      `README ${benchmark} benchmark markers are missing or out of order.`,
-    );
+    throw new Error(`README ${benchmark} benchmark markers are missing or out of order.`);
   }
   const contentStart = start + startMarker.length;
-  return `${readme.slice(0, contentStart)}\n\n${results.trim()}\n\n${
-    readme.slice(end)
-  }`;
+  return `${readme.slice(0, contentStart)}\n\n${results.trim()}\n\n${readme.slice(end)}`;
 }
 
 async function writeChart(
@@ -228,26 +215,24 @@ async function writeChart(
   metric: BenchmarkMetric,
 ): Promise<void> {
   const path = join(assetsDir, `benchmark-${benchmark}-${metric}.png`);
-  await Deno.remove(path).catch((error) => {
-    if (!(error instanceof Deno.errors.NotFound)) throw error;
-  });
+  await rm(path, { force: true });
   const sdb = new SimpleDB();
   try {
     await sdb
       .newTable()
       .loadArray(aggregates)
       .writeChart(
-        (data) =>
+        () =>
           chart(
-            createChartData(data as Aggregate[], benchmark, metric),
-            (data as Aggregate[]).filter((row) => row.benchmark === benchmark),
+            createChartData(aggregates, benchmark, metric),
+            aggregates.filter((row) => row.benchmark === benchmark),
             benchmark,
             metric,
           ),
         path,
       );
-    const stat = await Deno.stat(path);
-    if (!stat.isFile || stat.size === 0) {
+    const info = await stat(path);
+    if (!info.isFile() || info.size === 0) {
       throw new Error(`Benchmark chart was not written to ${path}.`);
     }
   } finally {
@@ -259,12 +244,10 @@ export async function generateBenchmarkReport(
   resultsPath: string,
   readmePath = join(rootDir, "README.md"),
 ): Promise<void> {
-  const observations = observationsFromCSV(
-    await Deno.readTextFile(resultsPath),
-  );
+  const observations = observationsFromCSV(await readFile(resultsPath, "utf8"));
   const aggregates = aggregateObservations(observations);
   const benchmarks = [...new Set(aggregates.map((row) => row.benchmark))];
-  let readme = await Deno.readTextFile(readmePath);
+  let readme = await readFile(readmePath, "utf8");
   for (const benchmark of benchmarks) {
     await writeChart(aggregates, benchmark, "duration");
     await writeChart(aggregates, benchmark, "memory");
@@ -274,5 +257,5 @@ export async function generateBenchmarkReport(
       benchmark,
     );
   }
-  await Deno.writeTextFile(readmePath, readme);
+  await writeFile(readmePath, readme);
 }

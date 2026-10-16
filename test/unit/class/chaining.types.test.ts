@@ -1,3 +1,4 @@
+import { test, expectTypeOf } from "vite-plus/test";
 import SimpleTable from "../../../src/class/SimpleTable.ts";
 
 class _SpecializedTable extends SimpleTable {
@@ -6,10 +7,8 @@ class _SpecializedTable extends SimpleTable {
   }
 }
 
-async function checkPolymorphicExportTypes(
-  table: _SpecializedTable,
-): Promise<void> {
-  const chart = () => ({} as HTMLElement);
+async function checkPolymorphicExportTypes(table: _SpecializedTable): Promise<void> {
+  const chart = () => ({}) as HTMLElement;
   const pending: Promise<_SpecializedTable> = table.writeMap(chart, "map.svg");
   (await pending).specializedMethod();
   (await table.writeMap(chart, "map.svg")).specializedMethod();
@@ -25,3 +24,9 @@ async function checkPolymorphicExportTypes(
 
 // Type-check the calls without performing remote exports.
 void checkPolymorphicExportTypes;
+
+test("export observers preserve fluent subclasses in their promises", () => {
+  expectTypeOf<ReturnType<_SpecializedTable["writeMap"]>>().toEqualTypeOf<
+    Promise<_SpecializedTable>
+  >();
+});

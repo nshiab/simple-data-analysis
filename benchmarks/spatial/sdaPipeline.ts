@@ -37,8 +37,6 @@ export default async function runSpatialSdaPipeline(
     excludeLeftGeometry: true,
     excludeRightGeometry: true,
   });
-  joined
-    .summarize({ by: "nom_qr", stats: "count" })
-    .sort({ nom_qr: "asc" });
+  joined.summarize({ by: "nom_qr", stats: "count" }).sort({ nom_qr: "asc" });
   await joined.writeData(paths.resultOutput);
 }

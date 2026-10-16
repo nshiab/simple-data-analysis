@@ -1,49 +1,37 @@
-import { assertEquals } from "@std/assert";
+import { test, expect } from "vite-plus/test";
 import { SimpleDB } from "../../../src/index.ts";
+import withTestSheet from "../helpers/withTestSheet.ts";
 
-const email = Deno.env.get("GOOGLE_SERVICE_ACCOUNT_EMAIL");
-const key = Deno.env.get("GOOGLE_PRIVATE_KEY");
-
-if (
-  typeof email === "string" &&
-  email !== "" &&
-  typeof key === "string" &&
-  key !== ""
-) {
-  Deno.test("should write the data to a google sheet", {
-    sanitizeResources: false,
-  }, async () => {
-    const sdb = new SimpleDB();
-    const sheetUrl =
-      "https://docs.google.com/spreadsheets/d/1Ar19cP8oGYEzacfrkLWnSH7ZqImILMUrosBwnZ43EQM/edit#gid=0";
-    const table = sdb.newTable();
-    table.loadArray([
-      { first: "Nael", last: "Shiab" },
-      { first: "Andrew", last: "Ryan" },
-    ]);
-    await table.toSheet(sheetUrl, {
-      prepend: "Hi!",
-      lastUpdate: "Canada/Eastern",
+const configured = Boolean(
+  process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY,
+);
+test.skipIf(process.env.CI === "true" || !configured)(
+  "toSheet overwrites and appends in an isolated tab",
+  async () => {
+    await withTestSheet(async (sheetUrl) => {
+      const sdb = new SimpleDB();
+      try {
+        await sdb
+          .newTable("old")
+          .loadArray([{ first: "Old", last: "Row" }])
+          .toSheet(sheetUrl);
+        const data = [
+          { first: "Nael", last: "Shiab" },
+          { first: "Andrew", last: "Ryan" },
+        ];
+        await sdb
+          .newTable("source")
+          .loadArray(data)
+          .toSheet(sheetUrl, { prepend: "Hi!", lastUpdate: "Canada/Eastern" });
+        const appended = { first: "Ada", last: "Lovelace" };
+        await sdb.newTable("append").loadArray([appended]).toSheet(sheetUrl, { mode: "append" });
+        expect(await sdb.newTable("loaded").loadSheet(sheetUrl, { skip: 2 }).getData()).toEqual([
+          ...data,
+          appended,
+        ]);
+      } finally {
+        await sdb.close();
+      }
     });
-
-    const additionalRows = sdb.newTable();
-    additionalRows.loadArray([{ first: "Ada", last: "Lovelace" }]);
-    await additionalRows.toSheet(sheetUrl, { mode: "append" });
-
-    const writtenData = sdb.newTable();
-    assertEquals(
-      await writtenData.loadSheet(sheetUrl, { skip: 2 }).getData(),
-      [
-        { first: "Nael", last: "Shiab" },
-        { first: "Andrew", last: "Ryan" },
-        { first: "Ada", last: "Lovelace" },
-      ],
-    );
-
-    await sdb.close();
-  });
-} else {
-  console.log(
-    "No GOOGLE_SERVICE_ACCOUNT_EMAIL or GOOGLE_PRIVATE_KEY in process.env",
-  );
-}
+  },
+);

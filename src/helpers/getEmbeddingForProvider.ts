@@ -9,11 +9,12 @@ export function getEmbeddingForProvider(
 ): Promise<number[]> {
   return getEmbedding(text, {
     ...embeddings,
-    beforeRequest: beforeRequest === undefined
-      ? embeddings?.beforeRequest
-      : async () => {
-        await embeddings?.beforeRequest?.();
-        await beforeRequest();
-      },
+    beforeRequest:
+      beforeRequest === undefined
+        ? embeddings?.beforeRequest
+        : async () => {
+            await embeddings?.beforeRequest?.();
+            await beforeRequest();
+          },
   });
 }

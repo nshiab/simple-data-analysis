@@ -1,13 +1,13 @@
-import { FakeTime } from "@std/testing/time";
-import {
-  assert,
-  assertEquals,
-  assertInstanceOf,
-  assertRejects,
-} from "@std/assert";
+import { test, expect } from "vite-plus/test";
+import { afterEach, vi } from "vite-plus/test";
+afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+});
+import { assert, assertInstanceOf, assertRejects } from "../../helpers/assertions.ts";
 import runAIRequestPool from "../../../src/helpers/runAIRequestPool.ts";
 
-Deno.test("retries a failed processed response", async () => {
+test("retries a failed processed response", async () => {
   let attempts = 0;
   const { results, errors } = await runAIRequestPool(
     [
@@ -23,12 +23,12 @@ Deno.test("retries a failed processed response", async () => {
     { retry: 1 },
   );
 
-  assertEquals(attempts, 2);
-  assertEquals(results, ["valid response"]);
-  assertEquals(errors, [undefined]);
+  expect(attempts).toEqual(2);
+  expect(results).toEqual(["valid response"]);
+  expect(errors).toEqual([undefined]);
 });
 
-Deno.test("records an error when retryCheck rejects it", async () => {
+test("records an error when retryCheck rejects it", async () => {
   let attempts = 0;
   const { results, errors } = await runAIRequestPool(
     [
@@ -44,24 +44,27 @@ Deno.test("records an error when retryCheck rejects it", async () => {
     },
   );
 
-  assertEquals(attempts, 1);
-  assertEquals(results, [undefined]);
+  expect(attempts).toEqual(1);
+  expect(results).toEqual([undefined]);
   assertInstanceOf(errors[0], Error);
 });
 
-Deno.test("preserves task order with concurrent workers", async () => {
-  const { results } = await runAIRequestPool([
-    async () => {
-      await new Promise((resolve) => setTimeout(resolve, 10));
-      return "first";
-    },
-    () => Promise.resolve("second"),
-  ], 2);
+test("preserves task order with concurrent workers", async () => {
+  const { results } = await runAIRequestPool(
+    [
+      async () => {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        return "first";
+      },
+      () => Promise.resolve("second"),
+    ],
+    2,
+  );
 
-  assertEquals(results, ["first", "second"]);
+  expect(results).toEqual(["first", "second"]);
 });
 
-Deno.test("spaces provider request starts across concurrent workers", async () => {
+test("spaces provider request starts across concurrent workers", async () => {
   const starts: number[] = [];
   await runAIRequestPool(
     Array.from({ length: 3 }, () => async (beforeRequest) => {
@@ -73,18 +76,45 @@ Deno.test("spaces provider request starts across concurrent workers", async () =
     { minRequestIntervalMs: 30 },
   );
 
-  assertEquals(starts.length, 3);
+  expect(starts.length).toEqual(3);
   assert(starts[1] - starts[0] >= 20);
   assert(starts[2] - starts[1] >= 20);
 });
 
-Deno.test("does not wait after the final provider request", async () => {
+test("does not release overdue requests together after the event loop stalls", async () => {
+  vi.useFakeTimers({ now: 0, toFake: ["Date", "setTimeout", "clearTimeout"] });
+  const starts: number[] = [];
+  const pending = runAIRequestPool(
+    Array.from({ length: 3 }, (_, index) => async (beforeRequest) => {
+      await beforeRequest();
+      starts.push(Date.now());
+      if (index === 0) {
+        // Expire timers without yielding to their promise continuations, as a
+        // synchronous provider operation or an overloaded event loop would.
+        vi.advanceTimersByTime(120);
+      }
+      return index;
+    }),
+    2,
+    { minRequestIntervalMs: 50 },
+  );
+  await vi.runAllTimersAsync();
+  await pending;
+  expect(starts).toHaveLength(3);
+  for (let i = 1; i < starts.length; i++) {
+    expect(starts[i] - starts[i - 1]).toBeGreaterThanOrEqual(50);
+  }
+});
+
+test("does not wait after the final provider request", async () => {
   const start = performance.now();
   await runAIRequestPool(
-    [async (beforeRequest) => {
-      await beforeRequest();
-      return "done";
-    }],
+    [
+      async (beforeRequest) => {
+        await beforeRequest();
+        return "done";
+      },
+    ],
     100,
     { minRequestIntervalMs: 1_000 },
   );
@@ -92,7 +122,7 @@ Deno.test("does not wait after the final provider request", async () => {
   assert(performance.now() - start < 500);
 });
 
-Deno.test("refills free slots around a blocked request and bounds concurrency", async () => {
+test("refills free slots around a blocked request and bounds concurrency", async () => {
   const gate = Promise.withResolvers<void>();
   const third = Promise.withResolvers<void>();
   const starts: number[] = [];
@@ -111,16 +141,16 @@ Deno.test("refills free slots around a blocked request and bounds concurrency", 
   );
   try {
     await third.promise;
-    assertEquals(starts.slice(0, 3), [0, 1, 2]);
-    assertEquals(peak, 2);
+    expect(starts.slice(0, 3)).toEqual([0, 1, 2]);
+    expect(peak).toEqual(2);
   } finally {
     gate.resolve();
   }
-  assertEquals((await pending).results, [0, 1, 2, 3]);
+  expect((await pending).results).toEqual([0, 1, 2, 3]);
 });
 
-Deno.test("paces dispatched retries and sequential batches while cache hits bypass pacing", async () => {
-  using time = new FakeTime(0);
+test("paces dispatched retries and sequential batches while cache hits bypass pacing", async () => {
+  vi.useFakeTimers({ now: 0, toFake: ["Date", "setTimeout", "clearTimeout"] });
   const state = { nextRequestStart: 0, completed: 0, total: 4 };
   const starts: number[] = [];
   let attempts = 0;
@@ -142,22 +172,22 @@ Deno.test("paces dispatched retries and sequential batches while cache hits bypa
     2,
     { retry: 1, minRequestIntervalMs: 100, state },
   );
-  await time.runMicrotasks();
-  await time.runAllAsync();
-  assertEquals((await first).results, ["retried", "cached", "provider"]);
+  await vi.advanceTimersByTimeAsync(0);
+  await vi.runAllTimersAsync();
+  expect((await first).results).toEqual(["retried", "cached", "provider"]);
   const second = runAIRequestPool([task], 2, {
     minRequestIntervalMs: 100,
     state,
   });
-  await time.runMicrotasks();
-  await time.runAllAsync();
+  await vi.advanceTimersByTimeAsync(0);
+  await vi.runAllTimersAsync();
   await second;
-  assertEquals(starts, [0, 100, 200, 300]);
-  assertEquals(state.completed, 4);
+  expect(starts).toEqual([0, 100, 200, 300]);
+  expect(state.completed).toEqual(4);
 });
 
-Deno.test("retry policy failures drain active work before rejecting", async () => {
-  using time = new FakeTime(0);
+test("retry policy failures drain active work before rejecting", async () => {
+  vi.useFakeTimers({ now: 0, toFake: ["Date", "setTimeout", "clearTimeout"] });
   const gate = Promise.withResolvers<void>();
   let settled = false;
   const policyError = new Error("retry predicate failed");
@@ -177,42 +207,44 @@ Deno.test("retry policy failures drain active work before rejecting", async () =
       },
     },
   );
-  const observed = pending.then(() => {
-    settled = true;
-  }, (error) => {
-    settled = true;
-    assertEquals(error, policyError);
-  });
-  await time.runMicrotasks();
-  assertEquals(settled, false);
+  const rejection = expect(pending).rejects.toEqual(policyError);
+  const observed = pending.then(
+    () => {
+      settled = true;
+    },
+    (error) => {
+      settled = true;
+      expect(error).toEqual(policyError);
+    },
+  );
+  await vi.advanceTimersByTimeAsync(0);
+  expect(settled).toEqual(false);
   gate.resolve();
   await observed;
-  assertEquals(settled, true);
+  await rejection;
+  expect(settled).toEqual(true);
 });
 
-Deno.test("stopOnError cancels pacing waits and does not dispatch queued work or retry", async () => {
-  using time = new FakeTime(0);
+test("stopOnError cancels pacing waits and does not dispatch queued work or retry", async () => {
+  vi.useFakeTimers({ now: 0, toFake: ["Date", "setTimeout", "clearTimeout"] });
   let requests = 0;
   const pending = runAIRequestPool(
-    Array.from(
-      { length: 5 },
-      () => async (beforeRequest: () => Promise<void>) => {
-        await beforeRequest();
-        requests++;
-        throw new Error("provider failed");
-      },
-    ),
+    Array.from({ length: 5 }, () => async (beforeRequest: () => Promise<void>) => {
+      await beforeRequest();
+      requests++;
+      throw new Error("provider failed");
+    }),
     2,
     { stopOnError: true, minRequestIntervalMs: 60_000 },
   );
   await assertRejects(() => pending, Error, "provider failed");
-  assertEquals(requests, 1);
-  await time.runMicrotasks();
-  await time.runAllAsync();
-  assertEquals(time.now, 0);
+  expect(requests).toEqual(1);
+  await vi.advanceTimersByTimeAsync(0);
+  await vi.runAllTimersAsync();
+  expect(Date.now()).toEqual(0);
 });
 
-Deno.test("validates pool options even for empty input", async () => {
+test("validates pool options even for empty input", async () => {
   for (const size of [0, -1, 1.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1]) {
     await assertRejects(() => runAIRequestPool([], size), Error, "poolSize");
   }
@@ -223,5 +255,5 @@ Deno.test("validates pool options even for empty input", async () => {
       "minRequestIntervalMs",
     );
   }
-  assertEquals(await runAIRequestPool([], 1), { results: [], errors: [] });
+  expect(await runAIRequestPool([], 1)).toEqual({ results: [], errors: [] });
 });

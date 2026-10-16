@@ -1,0 +1,82 @@
+{
+  "name": "@nshiab/simple-data-analysis",
+  "version": "6.0.10",
+  "description": "Fast DuckDB-powered TypeScript library for tabular, geospatial, vector, AI, Google Cloud Storage, Google Sheets, and data visualization workflows on Node.js.",
+  "keywords": [
+    "csv",
+    "data-analysis",
+    "data-visualization",
+    "dataframe",
+    "duckdb",
+    "geospatial",
+    "google-cloud-storage",
+    "google-sheets",
+    "nodejs",
+    "parquet",
+    "rag",
+    "spatial-analysis",
+    "tabular",
+    "typescript",
+    "vector-search"
+  ],
+  "homepage": "https://nshiab.github.io/simple-data-analysis/",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nshiab/simple-data-analysis.git"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE",
+    "llm.md",
+    "llms.txt"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "login": "gcloud auth application-default login",
+    "fix": "vp check --fix",
+    "docs": "typedoc && node scripts/docs.ts",
+    "all-tests": "vp check && vp pack && vp test && npm run docs",
+    "preversion": "node scripts/check-release-branch.ts && npm run all-tests",
+    "version": "npm run docs && git add docs llm.md llms.txt",
+    "postversion": "git push --atomic origin HEAD \"v$npm_package_version\"",
+    "patch": "npm version patch",
+    "minor": "npm version minor",
+    "major": "npm version major",
+    "benchmark": "node benchmarks/run.ts"
+  },
+  "dependencies": {
+    "@nshiab/journalism-ai": "^3.0.4",
+    "@nshiab/journalism-dataviz": "^1.0.27",
+    "@nshiab/journalism-format": "^1.1.12",
+    "@nshiab/journalism-google": "^2.0.0",
+    "@nshiab/simple-data-analysis-core": "2.1.14",
+    "@observablehq/plot": "^0.6.17",
+    "ollama": "^0.6.4",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@duckdb/node-api": "1.5.6-r.1",
+    "@types/node": "24.19.2",
+    "typedoc": "0.28.20",
+    "typedoc-github-theme": "0.4.0",
+    "typedoc-plugin-llms-txt": "0.1.2",
+    "typedoc-plugin-markdown": "4.14.0",
+    "typescript": "6.0.3",
+    "vite-plus": "1.2.0"
+  },
+  "engines": {
+    "node": ">=24.21.0"
+  }
+}

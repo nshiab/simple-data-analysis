@@ -1,72 +1,35 @@
-import { assertEquals } from "@std/assert";
+import { test, expect } from "vite-plus/test";
 import { SimpleDB } from "../../../src/index.ts";
+import withTestSheet from "../helpers/withTestSheet.ts";
 
-const email = Deno.env.get("GOOGLE_SERVICE_ACCOUNT_EMAIL");
-const key = Deno.env.get("GOOGLE_PRIVATE_KEY");
-
-if (
-  typeof email === "string" &&
-  email !== "" &&
-  typeof key === "string" &&
-  key !== ""
-) {
-  Deno.test("should load data from a google sheet", {
-    sanitizeResources: false,
-  }, async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable();
-    const data = [
-      { first: "Nael", last: "Shiab" },
-      { first: "Andrew", last: "Ryan" },
-    ];
-    table.loadArray(data);
-    // First, we write some data to the sheet.
-    await table.toSheet(
-      "https://docs.google.com/spreadsheets/d/1Ar19cP8oGYEzacfrkLWnSH7ZqImILMUrosBwnZ43EQM/edit#gid=0",
-    );
-
-    assertEquals(
-      [
-        { first: "Nael", last: "Shiab" },
-        { first: "Andrew", last: "Ryan" },
-      ],
-      await table.loadSheet(
-        "https://docs.google.com/spreadsheets/d/1Ar19cP8oGYEzacfrkLWnSH7ZqImILMUrosBwnZ43EQM/edit#gid=0",
-      ).getData(),
-    );
-  });
-  Deno.test("should load data from a google sheet and skip rows", {
-    sanitizeResources: false,
-  }, async () => {
-    const sdb = new SimpleDB();
-    const table = sdb.newTable();
-    const data = [
-      { first: "Nael", last: "Shiab" },
-      { first: "Andrew", last: "Ryan" },
-    ];
-    table.loadArray(data);
-    // First, we write some data to the sheet.
-    await table.toSheet(
-      "https://docs.google.com/spreadsheets/d/1Ar19cP8oGYEzacfrkLWnSH7ZqImILMUrosBwnZ43EQM/edit#gid=0",
-      {
-        prepend: "Hi!",
-        lastUpdate: "Canada/Eastern",
-      },
-    );
-
-    assertEquals(
-      [
-        { first: "Nael", last: "Shiab" },
-        { first: "Andrew", last: "Ryan" },
-      ],
-      await table.loadSheet(
-        "https://docs.google.com/spreadsheets/d/1Ar19cP8oGYEzacfrkLWnSH7ZqImILMUrosBwnZ43EQM/edit#gid=0",
-        { skip: 2 },
-      ).getData(),
-    );
-  });
-} else {
-  console.log(
-    "No GOOGLE_SERVICE_ACCOUNT_EMAIL or GOOGLE_PRIVATE_KEY in process.env",
+const configured = Boolean(
+  process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY,
+);
+for (const metadata of [false, true]) {
+  test.skipIf(process.env.CI === "true" || !configured)(
+    `loadSheet reads isolated data with metadata=${metadata}`,
+    async () => {
+      await withTestSheet(async (sheetUrl) => {
+        const sdb = new SimpleDB();
+        const data = [
+          { first: "Nael", last: "Shiab" },
+          { first: "Andrew", last: "Ryan" },
+        ];
+        try {
+          await sdb
+            .newTable("source")
+            .loadArray(data)
+            .toSheet(sheetUrl, metadata ? { prepend: "Hi!", lastUpdate: "Canada/Eastern" } : {});
+          expect(
+            await sdb
+              .newTable("loaded")
+              .loadSheet(sheetUrl, { skip: metadata ? 2 : 0 })
+              .getData(),
+          ).toEqual(data);
+        } finally {
+          await sdb.close();
+        }
+      });
+    },
   );
 }

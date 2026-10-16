@@ -1,0 +1,71 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/index.ts"],
+  "name": "Simple Data Analysis",
+  "includeVersion": true,
+  "validation": {
+    "notDocumented": true
+  },
+  "requiredToBeDocumented": ["Function", "Class", "Method", "Accessor"],
+  "treatValidationWarningsAsErrors": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "plugin": [
+    "typedoc-plugin-markdown",
+    "typedoc-plugin-llms-txt",
+    "./scripts/typedoc-methods.ts",
+    "typedoc-github-theme"
+  ],
+  "hostedBaseUrl": "https://nshiab.github.io/simple-data-analysis/",
+  "outputs": [
+    {
+      "name": "markdown",
+      "path": ".",
+      "options": {
+        "router": "module",
+        "entryFileName": "llm.md",
+        "mergeReadme": true,
+        "cleanOutputDir": false,
+        "llmsTxt": false,
+        "theme": "default"
+      }
+    },
+    {
+      "name": "markdown",
+      "path": "docs",
+      "options": {
+        "entryFileName": "index.md",
+        "out": "docs",
+        "llmsTxtHeader": {
+          "features": ["[README](../README.md): Installation, examples and usage."]
+        },
+        "router": "methods",
+        "theme": "default"
+      }
+    },
+    {
+      "name": "html",
+      "path": "site",
+      "options": {
+        "llmsTxt": false
+      }
+    }
+  ],
+  "disableSources": true,
+  "excludeInternal": true,
+  "highlightLanguages": [
+    "bash",
+    "console",
+    "css",
+    "html",
+    "javascript",
+    "json",
+    "jsonc",
+    "json5",
+    "yaml",
+    "tsx",
+    "typescript",
+    "dotenv",
+    "sql"
+  ]
+}

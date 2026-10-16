@@ -5,10 +5,7 @@ import {
   queueAsyncBarrier,
   quoteIdentifier,
 } from "@nshiab/simple-data-analysis-core/helpers";
-import {
-  type EmbeddingOptions,
-  snapshotAIOptions,
-} from "../helpers/aiOptions.ts";
+import { type EmbeddingOptions, snapshotAIOptions } from "../helpers/aiOptions.ts";
 
 /**
  * Options for embedding a query and finding similar table rows.
@@ -52,20 +49,12 @@ export default function aiVectorSimilarity(
   options: AIVectorSimilarityOptions = {},
 ): SimpleTable {
   options = snapshotAIOptions(options);
-  const outputTable = options.outputTable === undefined
-    ? simpleTable
-    : simpleTable.sdb.newTable(options.outputTable);
+  const outputTable =
+    options.outputTable === undefined ? simpleTable : simpleTable.sdb.newTable(options.outputTable);
   queueAsyncBarrier(outputTable, {
     method: "aiVectorSimilarity()",
     parameters: { text, column, nbResults, outputTable: options.outputTable },
-    execute: () =>
-      runAIVectorSimilarity(
-        simpleTable,
-        text,
-        column,
-        nbResults,
-        options,
-      ),
+    execute: () => runAIVectorSimilarity(simpleTable, text, column, nbResults, options),
   });
   return outputTable;
 }
@@ -79,14 +68,16 @@ export async function runAIVectorSimilarity(
   options: AIVectorSimilarityOptions,
 ): Promise<void> {
   const types = await simpleTable.getTypes();
-  const similarityColumn = options.similarityColumn === true
-    ? "similarity"
-    : options.similarityColumn === false
-    ? undefined
-    : options.similarityColumn;
+  const similarityColumn =
+    options.similarityColumn === true
+      ? "similarity"
+      : options.similarityColumn === false
+        ? undefined
+        : options.similarityColumn;
   if (similarityColumn !== undefined) {
     if (
-      typeof similarityColumn !== "string" || similarityColumn.length === 0 ||
+      typeof similarityColumn !== "string" ||
+      similarityColumn.length === 0 ||
       similarityColumn.includes("\0")
     ) {
       throw new Error(
@@ -94,26 +85,21 @@ export async function runAIVectorSimilarity(
       );
     }
     // DuckDB folds ASCII letters only, including in quoted identifiers.
-    const folded = similarityColumn.replace(
-      /[A-Z]/g,
-      (letter) => letter.toLowerCase(),
-    );
+    const folded = similarityColumn.replace(/[A-Z]/g, (letter) => letter.toLowerCase());
     if (
-      Object.keys(types).some((name) =>
-        name.replace(/[A-Z]/g, (letter) => letter.toLowerCase()) === folded
+      Object.keys(types).some(
+        (name) => name.replace(/[A-Z]/g, (letter) => letter.toLowerCase()) === folded,
       )
     ) {
       throw new Error(
-        `aiVectorSimilarity() cannot create ${
-          quoteIdentifier(similarityColumn)
-        } because that column already exists. Remove it first or choose a different name.`,
+        `aiVectorSimilarity() cannot create ${quoteIdentifier(
+          similarityColumn,
+        )} because that column already exists. Remove it first or choose a different name.`,
       );
     }
   }
 
-  const { getEmbeddingForProvider } = await import(
-    "../helpers/getEmbeddingForProvider.ts"
-  );
+  const { getEmbeddingForProvider } = await import("../helpers/getEmbeddingForProvider.ts");
   const textEmbedding = await getEmbeddingForProvider(text, options.embeddings);
 
   if (types[column] !== `FLOAT[${textEmbedding.length}]`) {
@@ -135,21 +121,20 @@ export async function runAIVectorSimilarity(
     });
   }
 
-  const targetVector = `${
-    JSON.stringify(textEmbedding)
-  }::FLOAT[${textEmbedding.length}]`;
+  const targetVector = `${JSON.stringify(textEmbedding)}::FLOAT[${textEmbedding.length}]`;
   const columnVector = `"${column}"::FLOAT[${textEmbedding.length}]`;
-  const distanceFunction =
-    `array_cosine_distance(${columnVector}, ${targetVector})`;
+  const distanceFunction = `array_cosine_distance(${columnVector}, ${targetVector})`;
 
-  const thresholdClause = options.minSimilarity !== undefined
-    ? `WHERE ${distanceFunction} <= ${1 - options.minSimilarity}`
-    : "";
+  const thresholdClause =
+    options.minSimilarity !== undefined
+      ? `WHERE ${distanceFunction} <= ${1 - options.minSimilarity}`
+      : "";
 
   // Conditionally build the SELECT statement to include the similarity math
-  const selectClause = similarityColumn !== undefined
-    ? `*, (1 - ${distanceFunction}) AS ${quoteIdentifier(similarityColumn)}`
-    : `*`;
+  const selectClause =
+    similarityColumn !== undefined
+      ? `*, (1 - ${distanceFunction}) AS ${quoteIdentifier(similarityColumn)}`
+      : `*`;
 
   await queryDB(
     simpleTable,

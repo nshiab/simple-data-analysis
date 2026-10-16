@@ -1,11 +1,8 @@
-import {
-  assertEquals,
-  assertNotStrictEquals,
-  assertStrictEquals,
-} from "@std/assert";
+import { test, expect } from "vite-plus/test";
+
 import { snapshotAIOptions } from "../../../src/helpers/aiOptions.ts";
 
-Deno.test("snapshotAIOptions captures nested mutable configuration", () => {
+test("snapshotAIOptions captures nested mutable configuration", () => {
   const options = {
     generation: {
       files: [{ path: "before.txt", type: "text" as const }],
@@ -19,17 +16,14 @@ Deno.test("snapshotAIOptions captures nested mutable configuration", () => {
   options.generation.files[0].path = "after.txt";
   options.generation.geminiParameters.nested.temperature = 1;
 
-  assertNotStrictEquals(snapshot, options);
-  assertNotStrictEquals(snapshot.generation, options.generation);
-  assertNotStrictEquals(snapshot.generation.files, options.generation.files);
-  assertEquals(snapshot.generation.files[0].path, "before.txt");
-  assertEquals(
-    snapshot.generation.geminiParameters.nested.temperature,
-    0.25,
-  );
+  expect(snapshot).not.toBe(options);
+  expect(snapshot.generation).not.toBe(options.generation);
+  expect(snapshot.generation.files).not.toBe(options.generation.files);
+  expect(snapshot.generation.files[0].path).toEqual("before.txt");
+  expect(snapshot.generation.geminiParameters.nested.temperature).toEqual(0.25);
 });
 
-Deno.test("snapshotAIOptions preserves intentional shared references", () => {
+test("snapshotAIOptions preserves intentional shared references", () => {
   const ollama = {
     chat: () => Promise.resolve({ message: { content: "" } }),
   };
@@ -47,7 +41,7 @@ Deno.test("snapshotAIOptions preserves intentional shared references", () => {
     times,
   });
 
-  assertStrictEquals(snapshot.generation.ollama, ollama);
-  assertStrictEquals(snapshot.metrics, metrics);
-  assertStrictEquals(snapshot.times, times);
+  expect(snapshot.generation.ollama).toBe(ollama);
+  expect(snapshot.metrics).toBe(metrics);
+  expect(snapshot.times).toBe(times);
 });

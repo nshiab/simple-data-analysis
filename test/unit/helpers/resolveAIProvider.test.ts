@@ -1,15 +1,16 @@
-import { assertEquals, assertThrows } from "@std/assert";
+import { test, expect } from "vite-plus/test";
+import { assertThrows } from "../../helpers/assertions.ts";
 import resolveAIProvider from "../../../src/helpers/resolveAIProvider.ts";
 
-Deno.test("defaults to Gemini", () => {
-  assertEquals(resolveAIProvider({}), "gemini");
+test("defaults to Gemini", () => {
+  expect(resolveAIProvider({})).toEqual("gemini");
 });
 
-Deno.test("ignores OLLAMA", () => {
-  assertEquals(resolveAIProvider({ OLLAMA: "true" }), "gemini");
+test("ignores OLLAMA", () => {
+  expect(resolveAIProvider({ OLLAMA: "true" })).toEqual("gemini");
 });
 
-Deno.test("rejects an invalid AI_PROVIDER", () => {
+test("rejects an invalid AI_PROVIDER", () => {
   assertThrows(
     () => resolveAIProvider({ AI_PROVIDER: "other" }),
     Error,

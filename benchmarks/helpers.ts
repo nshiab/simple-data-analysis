@@ -26,9 +26,7 @@ export function rotateValues<T>(values: T[], offset: number): T[] {
 }
 
 export function parsePeakMemoryMB(stderr: string): number | null {
-  const match = stderr.match(
-    /(?:^|\n)\s*(\d+)\s+maximum resident set size\s*(?:\n|$)/,
-  );
+  const match = stderr.match(/(?:^|\n)\s*(\d+)\s+maximum resident set size\s*(?:\n|$)/);
   return match === null ? null : Number(match[1]) / (1024 * 1024);
 }
 
@@ -38,10 +36,9 @@ export function csvEscape(value: string | number): string {
 }
 
 export function observationsToCSV(rows: Observation[]): string {
-  const header =
-    "package,benchmark,implementation,version,iteration,seconds,peakMemoryMB";
-  return `${header}\n${
-    rows.map((row) =>
+  const header = "package,benchmark,implementation,version,iteration,seconds,peakMemoryMB";
+  return `${header}\n${rows
+    .map((row) =>
       [
         row.package,
         row.benchmark,
@@ -50,9 +47,11 @@ export function observationsToCSV(rows: Observation[]): string {
         row.iteration,
         row.seconds.toFixed(6),
         row.peakMemoryMB.toFixed(3),
-      ].map(csvEscape).join(",")
-    ).join("\n")
-  }${rows.length === 0 ? "" : "\n"}`;
+      ]
+        .map(csvEscape)
+        .join(","),
+    )
+    .join("\n")}${rows.length === 0 ? "" : "\n"}`;
 }
 
 export function parseCSV(csv: string): string[][] {
@@ -97,14 +96,10 @@ export function parseCSV(csv: string): string[][] {
   return rows.filter((values) => values.some((value) => value.length > 0));
 }
 
-function keyedRows(
-  csv: string,
-  benchmark: BenchmarkName,
-): { key: string; value: number }[] {
+function keyedRows(csv: string, benchmark: BenchmarkName): { key: string; value: number }[] {
   const rows = parseCSV(csv);
-  const expected = benchmark === "tabular"
-    ? ["station", "station_name", "decade", "mean"]
-    : ["nom_qr", "count"];
+  const expected =
+    benchmark === "tabular" ? ["station", "station_name", "decade", "mean"] : ["nom_qr", "count"];
   const header = rows.shift();
   if (header === undefined || header.join("\0") !== expected.join("\0")) {
     throw new Error(
@@ -115,27 +110,27 @@ function keyedRows(
   }
 
   const numericIndex = expected.length - 1;
-  return rows.map((values, index) => {
-    if (values.length !== expected.length) {
-      throw new Error(
-        `${benchmark} result row ${
-          index + 2
-        } has ${values.length} columns; expected ${expected.length}.`,
-      );
-    }
-    const value = Number(values[numericIndex]);
-    if (!Number.isFinite(value)) {
-      throw new Error(
-        `${benchmark} result row ${index + 2} has a non-numeric ${
-          expected[numericIndex]
-        }.`,
-      );
-    }
-    return {
-      key: values.slice(0, numericIndex).join("\0"),
-      value,
-    };
-  }).sort((left, right) => left.key.localeCompare(right.key));
+  return rows
+    .map((values, index) => {
+      if (values.length !== expected.length) {
+        throw new Error(
+          `${benchmark} result row ${
+            index + 2
+          } has ${values.length} columns; expected ${expected.length}.`,
+        );
+      }
+      const value = Number(values[numericIndex]);
+      if (!Number.isFinite(value)) {
+        throw new Error(
+          `${benchmark} result row ${index + 2} has a non-numeric ${expected[numericIndex]}.`,
+        );
+      }
+      return {
+        key: values.slice(0, numericIndex).join("\0"),
+        value,
+      };
+    })
+    .sort((left, right) => left.key.localeCompare(right.key));
 }
 
 export function assertEquivalentResults(
@@ -155,14 +150,11 @@ export function assertEquivalentResults(
   for (let i = 0; i < expected.length; i++) {
     if (actual[i].key !== expected[i].key) {
       throw new Error(
-        `${implementation} produced a different ${benchmark} key at sorted row ${
-          i + 1
-        }.`,
+        `${implementation} produced a different ${benchmark} key at sorted row ${i + 1}.`,
       );
     }
-    const tolerance = benchmark === "tabular"
-      ? Math.max(1e-10, Math.abs(expected[i].value) * 1e-10)
-      : 0;
+    const tolerance =
+      benchmark === "tabular" ? Math.max(1e-10, Math.abs(expected[i].value) * 1e-10) : 0;
     if (Math.abs(actual[i].value - expected[i].value) > tolerance) {
       throw new Error(
         `${implementation} produced ${actual[i].value} for ${
@@ -182,28 +174,24 @@ export function aggregateObservations(rows: Observation[]): Aggregate[] {
     groups.set(key, group);
   }
 
-  return [...groups.values()].map((group) => {
-    const meanSeconds = group.reduce((sum, row) => sum + row.seconds, 0) /
-      group.length;
-    const variance = group.reduce(
-      (sum, row) => sum + (row.seconds - meanSeconds) ** 2,
-      0,
-    ) / group.length;
-    return {
-      benchmark: group[0].benchmark,
-      implementation: group[0].implementation,
-      version: group[0].version,
-      meanSeconds,
-      stdDevSeconds: Math.sqrt(variance),
-      meanPeakMemoryMB: group.reduce(
-        (sum, row) => sum + row.peakMemoryMB,
-        0,
-      ) / group.length,
-    };
-  }).sort((left, right) =>
-    left.benchmark.localeCompare(right.benchmark) ||
-    left.meanSeconds - right.meanSeconds
-  );
+  return [...groups.values()]
+    .map((group) => {
+      const meanSeconds = group.reduce((sum, row) => sum + row.seconds, 0) / group.length;
+      const variance =
+        group.reduce((sum, row) => sum + (row.seconds - meanSeconds) ** 2, 0) / group.length;
+      return {
+        benchmark: group[0].benchmark,
+        implementation: group[0].implementation,
+        version: group[0].version,
+        meanSeconds,
+        stdDevSeconds: Math.sqrt(variance),
+        meanPeakMemoryMB: group.reduce((sum, row) => sum + row.peakMemoryMB, 0) / group.length,
+      };
+    })
+    .sort(
+      (left, right) =>
+        left.benchmark.localeCompare(right.benchmark) || left.meanSeconds - right.meanSeconds,
+    );
 }
 
 export function observationsFromCSV(csv: string): Observation[] {

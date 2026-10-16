@@ -1,21 +1,46 @@
-import {
-  assertArrayIncludes,
-  assertEquals,
-  assertRejects,
-  assertStrictEquals,
-} from "@std/assert";
+import { deepStrictEqual, strictEqual as assertStrictEquals, rejects } from "node:assert/strict";
+function assertEquals(actual: unknown, expected: unknown, message?: string): void {
+  deepStrictEqual(actual, expected, message);
+}
+async function assertRejects(
+  run: () => Promise<unknown>,
+  errorClass: typeof Error,
+  message: string,
+) {
+  let captured: Error | undefined;
+  await rejects(run, (error: unknown) => {
+    assertEquals(error instanceof errorClass, true);
+    captured = error as Error;
+    assertEquals(captured.message.includes(message), true);
+    return true;
+  });
+  return captured!;
+}
+function assertArrayIncludes(actual: unknown[], expected: unknown[]) {
+  for (const value of expected)
+    assertEquals(
+      actual.some((item) => isDeepStrictEqual(item, value)),
+      true,
+    );
+}
 import { existsSync } from "node:fs";
+import { isDeepStrictEqual } from "node:util";
 import { bucketObjects, calls, loaded } from "./state.ts";
-import { SimpleDB } from "../../../src/index.ts";
+// Run the same typed scenario against the source and built ESM entries.
+const { SimpleDB } = (await import(
+  process.env.SDA_LAZY_ENTRY!
+)) as typeof import("../../../src/index.ts");
 
 assertEquals(loaded, [], "Importing SDA must not evaluate integrations");
 const sdb = new SimpleDB();
 try {
   const table = sdb.newTable("data");
-  switch (Deno.args[0]) {
+  switch (process.argv[2]) {
     case "core": {
-      const result = await table.loadArray([{ value: 1 }, { value: 2 }])
-        .filter("value > 1").getData();
+      const result = await table
+        .loadArray([{ value: 1 }, { value: 2 }])
+        .filter("value > 1")
+        .getData();
       assertEquals(result, [{ value: 2 }]);
       assertEquals(loaded, []);
       break;
@@ -32,14 +57,16 @@ try {
       assertEquals(loaded, [], "Queueing a method must not load integrations");
       assertEquals(await table.getData(), [{ value: 2 }]);
       assertEquals(loaded, ["google"]);
-      assertEquals(calls, [{
-        method: "getSheetData",
-        value: {
-          skip: 0,
-          apiEmail: "GOOGLE_EMAIL_ENV",
-          apiKey: "GOOGLE_KEY_ENV",
+      assertEquals(calls, [
+        {
+          method: "getSheetData",
+          value: {
+            skip: 0,
+            apiEmail: "GOOGLE_EMAIL_ENV",
+            apiKey: "GOOGLE_KEY_ENV",
+          },
         },
-      }]);
+      ]);
       await table.loadSheet("fixture", { skip: 1 }).run();
       assertEquals(loaded, ["google"], "Repeated calls reuse the module");
       break;
@@ -52,9 +79,11 @@ try {
       });
       assertEquals(result.name, "answer");
       assertEquals(loaded, []);
-      assertEquals(await result.filter("answer > 0").getData(), [{
-        answer: 42,
-      }]);
+      assertEquals(await result.filter("answer > 0").getData(), [
+        {
+          answer: 42,
+        },
+      ]);
       assertEquals(loaded.includes("ai"), true);
       assertEquals(loaded.includes("google"), false);
       assertEquals(loaded.includes("dataviz"), false);
@@ -102,14 +131,12 @@ try {
         republish: true,
       });
       const chartCalls = calls.slice(-3);
-      assertEquals(chartCalls.map(({ method }) => method), [
-        "updateDataDW",
-        "updateInfoDW",
-        "publishChartDW",
-      ]);
       assertEquals(
-        (chartCalls[0].value as { options: { apiKey?: string } }).options
-          .apiKey,
+        chartCalls.map(({ method }) => method),
+        ["updateDataDW", "updateInfoDW", "publishChartDW"],
+      );
+      assertEquals(
+        (chartCalls[0].value as { options: { apiKey?: string } }).options.apiKey,
         "CUSTOM_DATAWRAPPER_KEY",
       );
       assertEquals(chartCalls[1].value, {
@@ -134,11 +161,10 @@ try {
         republish: true,
       });
       const mapCalls = calls.slice(-3);
-      assertEquals(mapCalls.map(({ method }) => method), [
-        "updateDataDW",
-        "updateInfoDW",
-        "publishChartDW",
-      ]);
+      assertEquals(
+        mapCalls.map(({ method }) => method),
+        ["updateDataDW", "updateInfoDW", "publishChartDW"],
+      );
       assertEquals(
         (mapCalls[0].value as { options: { apiKey?: string } }).options.apiKey,
         "CUSTOM_DATAWRAPPER_KEY",
@@ -165,15 +191,13 @@ try {
       ]);
       assertEquals(loaded, []);
 
-      for (
-        const destination of [
-          "data/results.csv",
-          "data/results.csv.gz",
-          "data/results.json",
-          "data/results.json.gz",
-          "data/results.parquet",
-        ]
-      ) {
+      for (const destination of [
+        "data/results.csv",
+        "data/results.csv.gz",
+        "data/results.json",
+        "data/results.json.gz",
+        "data/results.parquet",
+      ]) {
         const uri = await source.toBucket(destination, {
           project: "fixture-project",
           bucket: "fixture-bucket",
@@ -183,42 +207,31 @@ try {
         assertEquals(uri, `gs://fixture-bucket/${destination}`);
         const upload = calls.at(-1)!;
         assertEquals(upload.method, "toBucket");
-        assertEquals(
-          (upload.value as { fileExists: boolean }).fileExists,
-          true,
-        );
-        assertEquals(
-          (upload.value as { options: { metadata: unknown } }).options.metadata,
-          { contentType: "application/octet-stream" },
-        );
+        assertEquals((upload.value as { fileExists: boolean }).fileExists, true);
+        assertEquals((upload.value as { options: { metadata: unknown } }).options.metadata, {
+          contentType: "application/octet-stream",
+        });
         assertEquals(existsSync(upload.path!), false);
 
         const loadedTable = sdb.newTable().loadBucket(destination, {
           project: "fixture-project",
           bucket: "fixture-bucket",
         });
-        assertEquals(await loadedTable.filter("value > 1").getData(), [
-          { value: 2, label: "two" },
-        ]);
+        assertEquals(await loadedTable.filter("value > 1").getData(), [{ value: 2, label: "two" }]);
         const download = calls.at(-1)!;
         assertEquals(download.method, "downloadFromBucket");
-        assertEquals(
-          (download.value as { fileExists: boolean }).fileExists,
-          true,
-        );
+        assertEquals((download.value as { fileExists: boolean }).fileExists, true);
         assertEquals(existsSync(download.path!), false);
       }
 
-      const geoSource = sdb.newTable("geoSource").loadGeoData(
-        "test/geodata/files/CanadianProvincesAndTerritories.json",
-      );
-      for (
-        const destination of [
-          "geo/provinces.geojson",
-          "geo/provinces.geoparquet",
-          "geo/provinces.shp.zip",
-        ]
-      ) {
+      const geoSource = sdb
+        .newTable("geoSource")
+        .loadGeoData("test/geodata/files/CanadianProvincesAndTerritories.json");
+      for (const destination of [
+        "geo/provinces.geojson",
+        "geo/provinces.geoparquet",
+        "geo/provinces.shp.zip",
+      ]) {
         await geoSource.toBucket(destination, {
           project: "fixture-project",
           bucket: "fixture-bucket",
@@ -233,10 +246,7 @@ try {
       break;
     }
     case "bucket-queued": {
-      bucketObjects.set(
-        "data/queued.csv",
-        new TextEncoder().encode("value\n1\n2\n"),
-      );
+      bucketObjects.set("data/queued.csv", new TextEncoder().encode("value\n1\n2\n"));
       const options = {
         project: "fixture-project",
         bucket: "fixture-bucket",
@@ -248,15 +258,15 @@ try {
       assertEquals(await table.getData(), [{ value: 2 }]);
       assertEquals(loaded, ["google"]);
       assertEquals(calls.at(-1)?.method, "downloadFromBucket");
-      assertEquals(
-        (calls.at(-1)?.value as { options: unknown }).options,
-        { project: "fixture-project", bucket: "fixture-bucket" },
-      );
+      assertEquals((calls.at(-1)!.value as { options: unknown }).options, {
+        project: "fixture-project",
+        bucket: "fixture-bucket",
+      });
       break;
     }
     case "observers":
     case "observers-reversed": {
-      const reverse = Deno.args[0] === "observers-reversed";
+      const reverse = process.argv[2] === "observers-reversed";
       const firstRead = Promise.withResolvers<void>();
       let value = 1;
       let requests = 0;
@@ -267,20 +277,10 @@ try {
           ? firstRead.promise.then(() => data)
           : Promise.resolve(data);
       };
-      const first = table.writeChart(
-        () => ({} as HTMLElement),
-        `${Deno.args[1]}/first.png`,
-      );
-      assertEquals(
-        requests,
-        1,
-        "writeChart must request data before awaiting its import",
-      );
+      const first = table.writeChart(() => ({}) as HTMLElement, `${process.argv[3]}/first.png`);
+      assertEquals(requests, 1, "writeChart must request data before awaiting its import");
       value = 2;
-      const second = table.writeChart(
-        () => ({} as HTMLElement),
-        `${Deno.args[1]}/second.png`,
-      );
+      const second = table.writeChart(() => ({}) as HTMLElement, `${process.argv[3]}/second.png`);
       assertEquals(requests, 2);
       if (reverse) {
         await second;
@@ -295,20 +295,16 @@ try {
         {
           method: "saveChart",
           value: [{ value: 1 }],
-          path: `${Deno.args[1]}/first.png`,
+          path: `${process.argv[3]}/first.png`,
         },
         {
           method: "saveChart",
           value: [{ value: 2 }],
-          path: `${Deno.args[1]}/second.png`,
+          path: `${process.argv[3]}/second.png`,
         },
       ]);
       const sheet = table.toSheet("fixture");
-      assertEquals(
-        requests,
-        3,
-        "toSheet must request data before awaiting its import",
-      );
+      assertEquals(requests, 3, "toSheet must request data before awaiting its import");
       await sheet;
       assertEquals(loaded, ["dataviz", "google"]);
       assertEquals(calls.at(-1), {
@@ -318,14 +314,17 @@ try {
       break;
     }
     case "observer-returns": {
-      const chart = () => ({} as HTMLElement);
-      table.loadArray([{ value: 1, lat: 45, lon: -73 }, {
-        value: 2,
-        lat: 46,
-        lon: -74,
-      }]);
+      const chart = () => ({}) as HTMLElement;
+      table.loadArray([
+        { value: 1, lat: 45, lon: -73 },
+        {
+          value: 2,
+          lat: 46,
+          lon: -74,
+        },
+      ]);
       const operations = [
-        () => table.writeChart(chart, `${Deno.args[1]}/chart.svg`),
+        () => table.writeChart(chart, `${process.argv[3]}/chart.svg`),
         () => table.toSheet("fixture"),
         () => table.toDatawrapper("chart-id"),
         () => table.logLineChart("value", "lat"),
@@ -333,10 +332,9 @@ try {
         () => table.logBarChart("value", "lat"),
         () => table.logHistogram("value"),
         () =>
-          table.createPoints("lat", "lon", "geometry").writeMap(
-            chart,
-            `${Deno.args[1]}/map.svg`,
-          ),
+          table
+            .createPoints("lat", "lon", "geometry")
+            .writeMap(chart, `${process.argv[3]}/map.svg`),
         () => table.toGeoDatawrapper("map-id"),
       ];
       for (const operation of operations) {
@@ -355,15 +353,18 @@ try {
     case "failure": {
       table.loadSheet("fixture");
       assertEquals(loaded, []);
-      await assertRejects(
-        () => table.run(),
+      const first = await assertRejects(() => table.run(), Error, "Google module could not load");
+      const second = await assertRejects(
+        () => sdb.newTable("retry").loadSheet("fixture").run(),
         Error,
         "Google module could not load",
       );
+      assertStrictEquals(first, second, "Failed imports reuse the same rejected promise");
+      assertEquals(loaded, ["googleFailure"], "A failed optional dependency is evaluated once");
       break;
     }
     default:
-      throw new Error(`Unknown scenario ${Deno.args[0]}`);
+      throw new Error(`Unknown scenario ${process.argv[2]}`);
   }
 } finally {
   await sdb.close();

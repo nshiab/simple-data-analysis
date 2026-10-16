@@ -1,4 +1,6 @@
-import { assertEquals } from "@std/assert";
+import { test, expect } from "vite-plus/test";
+import { readFile } from "node:fs/promises";
+
 import SimpleTable from "../../../src/class/SimpleTable.ts";
 
 class _SpecializedTable extends SimpleTable {
@@ -30,125 +32,118 @@ const ollamaOptions = {
 } as const;
 
 function checkPublicMethodOptions(table: SimpleTable): void {
-  const embeddingsTable: SimpleTable = table.aiEmbeddings(
-    "text",
-    "text_embeddings",
-    {
+  const embeddingsTable: SimpleTable = table
+    .aiEmbeddings("text", "text_embeddings", {
       embeddings: vertexOptions,
       errorColumn: "embedding_error",
       retry: 2,
       retryCheck: (error) => Promise.resolve(error instanceof Error),
       logProgress: true,
       verbose: true,
-    },
-  ).selectColumns("*");
-  const vectorTable: SimpleTable = table.aiVectorSimilarity(
-    "query",
-    "text_embeddings",
-    5,
-  ).selectColumns("*");
-  const hybridTable: SimpleTable = table.hybridSearch(
-    "query",
-    "id",
-    "text",
-    5,
-    {
+    })
+    .selectColumns("*");
+  const vectorTable: SimpleTable = table
+    .aiVectorSimilarity("query", "text_embeddings", 5)
+    .selectColumns("*");
+  const hybridTable: SimpleTable = table
+    .hybridSearch("query", "id", "text", 5, {
       embeddings: ollamaOptions,
-    },
-  ).selectColumns("*");
-  const queryTable: SimpleTable = table.aiQuery("select rows").selectColumns(
-    "*",
-  );
-  const sheetTable: SimpleTable = table.loadSheet("https://example.com/sheet")
+    })
     .selectColumns("*");
-  const dwTable: SimpleTable = table.loadDatawrapper("chart-id").selectColumns(
-    "*",
-  );
-  const geoDwTable: SimpleTable = table.loadGeoDatawrapper("map-id")
-    .selectColumns("*");
-  void [
-    embeddingsTable,
-    vectorTable,
-    hybridTable,
-    queryTable,
-    sheetTable,
-    dwTable,
-    geoDwTable,
-  ];
-
-  void table.aiEmbeddings("text", "text_embeddings", {
-    embeddings: vertexOptions,
-  }).run();
-  void table.hybridSearch("query", "id", "text", 5, {
-    embeddings: ollamaOptions,
-  }).run();
-  void table.aiEmbeddings("text", "text_embeddings", {
-    embeddings: {
-      provider: "ollama",
-      // @ts-expect-error SDA methods preserve upstream provider restrictions.
-      apiKey: "key",
-    },
-  }).run();
-  void table.hybridSearch("query", "id", "text", 5, {
-    embeddings: {
+  table.aiRowByRow("text", "label", "Classify", {
+    processResponse: async (response) => response,
+  });
+  table.aiRowByRow("text", "label", "Classify", {
+    // @ts-expect-error Validation now uses the single processResponse callback.
+    test: () => {},
+  });
+  table.aiRowByRow("text", "label", "Classify", {
+    generation: {
       provider: "gemini",
-      // @ts-expect-error SDA methods preserve upstream provider restrictions.
-      contextWindow: 8_192,
+      // @ts-expect-error Row processing belongs in the top-level callback.
+      processResponse: (response: unknown) => response,
     },
-  }).run();
-  void table.aiEmbeddings("text", "text_embeddings", {
-    // @ts-expect-error Environment-selected requests expose common fields only.
-    embeddings: {
-      contextWindow: 8_192,
+  });
+  table.aiQuery("select rows", {
+    generation: {
+      provider: "ollama",
+      // @ts-expect-error SDA owns the SQL response processing.
+      processResponse: (response: unknown) => response,
     },
-  }).run();
+  });
+  const queryTable: SimpleTable = table.aiQuery("select rows").selectColumns("*");
+  const sheetTable: SimpleTable = table.loadSheet("https://example.com/sheet").selectColumns("*");
+  const dwTable: SimpleTable = table.loadDatawrapper("chart-id").selectColumns("*");
+  const geoDwTable: SimpleTable = table.loadGeoDatawrapper("map-id").selectColumns("*");
+  void [embeddingsTable, vectorTable, hybridTable, queryTable, sheetTable, dwTable, geoDwTable];
+
+  void table
+    .aiEmbeddings("text", "text_embeddings", {
+      embeddings: vertexOptions,
+    })
+    .run();
+  void table
+    .hybridSearch("query", "id", "text", 5, {
+      embeddings: ollamaOptions,
+    })
+    .run();
+  void table
+    .aiEmbeddings("text", "text_embeddings", {
+      embeddings: {
+        provider: "ollama",
+        // @ts-expect-error SDA methods preserve upstream provider restrictions.
+        apiKey: "key",
+      },
+    })
+    .run();
+  void table
+    .hybridSearch("query", "id", "text", 5, {
+      embeddings: {
+        provider: "gemini",
+        // @ts-expect-error SDA methods preserve upstream provider restrictions.
+        contextWindow: 8_192,
+      },
+    })
+    .run();
+  void table
+    .aiEmbeddings("text", "text_embeddings", {
+      // @ts-expect-error Environment-selected requests expose common fields only.
+      embeddings: {
+        contextWindow: 8_192,
+      },
+    })
+    .run();
 }
 void checkPublicMethodOptions;
 
 function checkPolymorphicBuilderTypes(table: _SpecializedTable): void {
   table.aiEmbeddings("text", "text_embeddings").specializedMethod();
-  table.aiVectorSimilarity("query", "text_embeddings", 5)
-    .specializedMethod();
+  table.aiVectorSimilarity("query", "text_embeddings", 5).specializedMethod();
   table.hybridSearch("query", "id", "text", 5).specializedMethod();
   table.aiQuery("select rows").specializedMethod();
   table.loadSheet("https://example.com/sheet").specializedMethod();
   table.loadDatawrapper("chart-id").specializedMethod();
   table.loadGeoDatawrapper("map-id").specializedMethod();
 
-  table.aiVectorSimilarity(
-    "query",
-    "text_embeddings",
-    5,
-    { outputTable: "vector-output" },
-  ).specializedMethod();
-  table.hybridSearch(
-    "query",
-    "id",
-    "text",
-    5,
-    { outputTable: "hybrid-output" },
-  ).specializedMethod();
-  table.aiQuery("select rows", {
-    outputTable: "query-output",
-  }).specializedMethod();
+  table
+    .aiVectorSimilarity("query", "text_embeddings", 5, { outputTable: "vector-output" })
+    .specializedMethod();
+  table
+    .hybridSearch("query", "id", "text", 5, { outputTable: "hybrid-output" })
+    .specializedMethod();
+  table
+    .aiQuery("select rows", {
+      outputTable: "query-output",
+    })
+    .specializedMethod();
 }
 void checkPolymorphicBuilderTypes;
 
-Deno.test("public AI methods preserve provider-specific embedding options", () => {
-  assertEquals(
-    [
-      environmentOptions,
-      geminiOptions,
-      vertexOptions,
-      ollamaOptions,
-    ].length,
-    4,
-  );
+test("public AI methods preserve provider-specific embedding options", () => {
+  expect([environmentOptions, geminiOptions, vertexOptions, ollamaOptions].length).toEqual(4);
 });
 
-Deno.test("the public index does not export type aliases", async () => {
-  const indexSource = await Deno.readTextFile(
-    new URL("../../../src/index.ts", import.meta.url),
-  );
-  assertEquals(/\bexport\s+type\b/.test(indexSource), false);
+test("the public index does not export type aliases", async () => {
+  const indexSource = await readFile(new URL("../../../src/index.ts", import.meta.url), "utf8");
+  expect(/\bexport\s+type\b/.test(indexSource)).toEqual(false);
 });

@@ -2,11 +2,14 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { bucketObjects, calls, loaded } from "./state.ts";
 loaded.push("google");
 
-export function getSheetData(_url: string, options: {
-  skip?: number;
-  apiEmail?: string;
-  apiKey?: string;
-}) {
+export function getSheetData(
+  _url: string,
+  options: {
+    skip?: number;
+    apiEmail?: string;
+    apiKey?: string;
+  },
+) {
   calls.push({ method: "getSheetData", value: options });
   return Promise.resolve([{ value: 1 }, { value: 2 }].slice(options.skip));
 }
@@ -16,11 +19,7 @@ export function pushToSheet(data: unknown) {
   return Promise.resolve();
 }
 
-export function toBucket(
-  file: string,
-  destination: string,
-  options: unknown,
-) {
+export function toBucket(file: string, destination: string, options: unknown) {
   bucketObjects.set(destination, readFileSync(file));
   calls.push({
     method: "toBucket",
@@ -31,11 +30,7 @@ export function toBucket(
   return Promise.resolve(`gs://${bucket}/${destination}`);
 }
 
-export function downloadFromBucket(
-  source: string,
-  destination: string,
-  options: unknown,
-) {
+export function downloadFromBucket(source: string, destination: string, options: unknown) {
   const data = bucketObjects.get(source);
   if (data === undefined) {
     throw new Error(`Missing fixture bucket object ${source}`);

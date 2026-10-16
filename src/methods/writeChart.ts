@@ -11,10 +11,5 @@ export default async function writeChart(
   createDirectory(path);
   const data = await table.getData();
   const { saveChart } = await import("@nshiab/journalism-dataviz");
-  await saveChart(
-    data,
-    chart as (data: Data) => SVGSVGElement | HTMLElement,
-    path,
-    options,
-  );
+  await saveChart(data, chart as (data: Data) => SVGSVGElement | HTMLElement, path, options);
 }

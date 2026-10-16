@@ -20,41 +20,44 @@ export default async function toBucket(
   const file = classifyBucketFile(destination);
   assertOptions(options);
 
-  return await withTemporaryDirectory(
-    "sda-bucket-upload-",
-    async (directory) => {
-      let localFile = join(directory, basename(destination));
+  return await withTemporaryDirectory("sda-bucket-upload-", async (directory) => {
+    let localFile = join(directory, basename(destination));
 
-      if (file.kind === "data") {
-        if (file.compressed) {
-          localFile = localFile.slice(0, -".gz".length);
-          await table.writeData(localFile, { compression: true });
-          localFile += ".gz";
-        } else {
-          await table.writeData(localFile);
-        }
+    if (file.kind === "data") {
+      if (file.compressed) {
+        localFile = localFile.slice(0, -".gz".length);
+        await table.writeData(localFile, { compression: true });
+        localFile += ".gz";
       } else {
-        await table.writeGeoData(localFile);
+        await table.writeData(localFile);
       }
+    } else {
+      await table.writeGeoData(localFile);
+    }
 
-      const { toBucket: uploadToBucket } = await import(
-        "@nshiab/journalism-google"
-      );
-      return await uploadToBucket(localFile, destination, {
-        project: options.project,
-        bucket: options.bucket,
-        overwrite: options.overwrite,
-        skip: options.skip,
-        metadata: options.metadata,
-      });
-    },
-  );
+    const { toBucket: uploadToBucket } = await import("@nshiab/journalism-google");
+    return await uploadToBucket(localFile, destination, {
+      project: options.project,
+      bucket: options.bucket,
+      overwrite: options.overwrite,
+      skip: options.skip,
+      metadata: options.metadata,
+    });
+  });
 }
 
-function assertOptions(options: ToBucketOptions): void {
+function assertOptions(
+  options: ToBucketOptions,
+): asserts options is ToBucketOptions & { metadata?: { [key: string]: unknown } } {
+  if (
+    options.metadata !== undefined &&
+    (options.metadata === null ||
+      typeof options.metadata !== "object" ||
+      Array.isArray(options.metadata))
+  ) {
+    throw new Error("Bucket metadata must be an object.");
+  }
   if (options.skip === true && options.overwrite === true) {
-    throw new Error(
-      "Cannot use both skip and overwrite. Choose one existing-object behavior.",
-    );
+    throw new Error("Cannot use both skip and overwrite. Choose one existing-object behavior.");
   }
 }

@@ -1,8 +1,9 @@
-import { assert, assertEquals, assertRejects } from "@std/assert";
+import { test, expect } from "vite-plus/test";
+import { assert, assertRejects } from "../../helpers/assertions.ts";
 import { existsSync } from "node:fs";
 import withTemporaryDirectory from "../../../src/helpers/withTemporaryDirectory.ts";
 
-Deno.test("withTemporaryDirectory starts work synchronously and cleans up", async () => {
+test("withTemporaryDirectory starts work synchronously and cleans up", async () => {
   let directory = "";
   let started = false;
   const result = withTemporaryDirectory("sda-test-", (path) => {
@@ -13,11 +14,11 @@ Deno.test("withTemporaryDirectory starts work synchronously and cleans up", asyn
   });
 
   assert(started);
-  assertEquals(await result, "done");
-  assertEquals(existsSync(directory), false);
+  expect(await result).toEqual("done");
+  expect(existsSync(directory)).toEqual(false);
 });
 
-Deno.test("withTemporaryDirectory cleans up after an operation fails", async () => {
+test("withTemporaryDirectory cleans up after an operation fails", async () => {
   let directory = "";
   await assertRejects(
     () =>
@@ -28,5 +29,5 @@ Deno.test("withTemporaryDirectory cleans up after an operation fails", async () 
     Error,
     "operation failed",
   );
-  assertEquals(existsSync(directory), false);
+  expect(existsSync(directory)).toEqual(false);
 });

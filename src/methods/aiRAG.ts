@@ -1,9 +1,6 @@
 import type SimpleTable from "../class/SimpleTable.ts";
 import hybridSearch, { type HybridSearchOptions } from "./hybridSearch.ts";
-import type {
-  AIRequestMetrics,
-  UnstructuredGenerationOptions,
-} from "../helpers/aiOptions.ts";
+import type { AIRequestMetrics, UnstructuredGenerationOptions } from "../helpers/aiOptions.ts";
 
 /**
  * Options for retrieval and the final generation request in `aiRAG`.
@@ -16,19 +13,14 @@ import type {
  * };
  * ```
  */
-export type AIRAGOptions =
-  & Omit<
-    HybridSearchOptions,
-    "outputTable" | "times"
-  >
-  & {
-    /** Generation options excluding `schemaJson`, because `aiRAG` returns text. */
-    generation?: UnstructuredGenerationOptions;
-    /** Includes model thoughts in verbose logs when the provider returns them. */
-    includeThoughts?: boolean;
-    /** Mutable aggregate request metrics updated after the final provider response. */
-    metrics?: AIRequestMetrics;
-  };
+export type AIRAGOptions = Omit<HybridSearchOptions, "outputTable" | "times"> & {
+  /** Generation options excluding `schemaJson`, because `aiRAG` returns text. */
+  generation?: UnstructuredGenerationOptions;
+  /** Includes model thoughts in verbose logs when the provider returns them. */
+  includeThoughts?: boolean;
+  /** Mutable aggregate request metrics updated after the final provider response. */
+  metrics?: AIRequestMetrics;
+};
 
 export default async function aiRAG(
   table: SimpleTable,
@@ -52,23 +44,16 @@ export default async function aiRAG(
   };
 
   // Perform hybrid search (vector similarity + BM25 with RRF fusion)
-  const searchResultsTable = await hybridSearch(
-    table,
-    query,
-    idColumn,
-    textColumn,
-    nbResults,
-    {
-      ...searchOptions,
-      outputTable: `${table.name}_rag_search_results`,
-      times,
-    },
-  );
+  const searchResultsTable = hybridSearch(table, query, idColumn, textColumn, nbResults, {
+    ...searchOptions,
+    outputTable: `${table.name}_rag_search_results`,
+    times,
+  });
 
   searchResultsTable.selectColumns([idColumn, textColumn]);
 
   // Get the retrieved data
-  const retrievedData = await searchResultsTable.getData() as {
+  const retrievedData = (await searchResultsTable.getData()) as {
     [key: string]: string;
   }[];
 
@@ -80,21 +65,18 @@ export default async function aiRAG(
   }
 
   const { default: askAI } = await import("../helpers/askAI.ts");
-  const response = await askAI(
+  const response = (await askAI(
     `Answer the following:
 - ${query}
 
 Base your answer only on the following data:\n
-${
-      retrievedData.map((entry) =>
-        `${idColumn}: ${entry[idColumn]}\n\n${textColumn}:\n\n${
-          entry[textColumn]
-        }`
-      ).join("\n\n-----\n\n")
-    }`,
+${retrievedData
+  .map((entry) => `${idColumn}: ${entry[idColumn]}\n\n${textColumn}:\n\n${entry[textColumn]}`)
+  .join("\n\n-----\n\n")}`,
     {
       generation,
-      systemPrompt: generation?.systemPrompt ??
+      systemPrompt:
+        generation?.systemPrompt ??
         `You are a focused research assistant. Your goal is to answer the user's question using ONLY the provided data.
 
 Rules of Engagement:
@@ -106,7 +88,7 @@ Rules of Engagement:
       includeThoughts,
       metrics,
     },
-  ) as string;
+  )) as string;
 
   if (searchOptions.verbose) {
     times.llmEnd = Date.now();
@@ -119,37 +101,29 @@ Rules of Engagement:
 
     if (enableVectorSearch) {
       logParts.push(
-        `- Embedding: ${
-          prettyDuration(times.embeddingStart, { end: times.embeddingEnd })
-        }`,
+        `- Embedding: ${prettyDuration(times.embeddingStart, { end: times.embeddingEnd })}`,
       );
     }
 
     logParts.push(
       enableVectorSearch
-        ? `- Vector Search${parallelLabel}: ${
-          prettyDuration(times.vectorSearchStart, {
+        ? `- Vector Search${parallelLabel}: ${prettyDuration(times.vectorSearchStart, {
             end: times.vectorSearchEnd,
-          })
-        }`
+          })}`
         : `- Vector Search: disabled`,
     );
 
     logParts.push(
       enableBm25
-        ? `- BM25 Search${parallelLabel}: ${
-          prettyDuration(times.bm25Start, { end: times.bm25End })
-        }`
+        ? `- BM25 Search${parallelLabel}: ${prettyDuration(times.bm25Start, {
+            end: times.bm25End,
+          })}`
         : `- BM25 Search: disabled`,
     );
 
-    logParts.push(
-      `- LLM: ${prettyDuration(times.llmStart, { end: times.llmEnd })}`,
-    );
+    logParts.push(`- LLM: ${prettyDuration(times.llmStart, { end: times.llmEnd })}`);
 
-    logParts.push(
-      `- Total: ${prettyDuration(times.start)} (verbose adds overhead)`,
-    );
+    logParts.push(`- Total: ${prettyDuration(times.start)} (verbose adds overhead)`);
 
     console.log(logParts.join("\n") + "\n");
   }
