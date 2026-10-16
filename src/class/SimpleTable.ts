@@ -104,6 +104,7 @@ export default class SimpleTable extends SimpleTableCore {
    * import { z } from "zod";
    *
    * const rowSchema = z.object({ gender: z.enum(["Man", "Woman", "Neutral"]) });
+   * const schemaJson = z.toJSONSchema(z.array(rowSchema));
    * const people = await sdb
    *   .newTable("people")
    *   .loadArray([
@@ -119,7 +120,7 @@ export default class SimpleTable extends SimpleTableCore {
    *       generation: {
    *         provider: "gemini",
    *         model: "gemini-3-flash-preview",
-   *         schemaJson: z.toJSONSchema(z.array(rowSchema)),
+   *         schemaJson,
    *       },
    *       batchSize: 10, // Process up to 10 rows per request
    *       concurrency: 5, // Process up to 5 requests concurrently
