@@ -34,12 +34,18 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24.21.0"
+      - name: Package documentation
+        run: node scripts/archive-docs.ts "$RUNNER_TEMP/documentation.tar.gz"
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
           tag: ${{ github.ref_name }}
         run: |
-          gh release create "$tag" \
+          gh release create "$tag" "$RUNNER_TEMP/documentation.tar.gz" \
               --repo="$GITHUB_REPOSITORY" \
               --title="v${tag#v}" \
               --generate-notes
