@@ -10,7 +10,7 @@
   "treatValidationWarningsAsErrors": true,
   "excludePrivate": true,
   "excludeProtected": true,
-  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-llms-txt"],
+  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-llms-txt", "./scripts/typedoc-methods.ts"],
   "hostedBaseUrl": "https://nshiab.github.io/simple-data-analysis/",
   "outputs": [
     {
@@ -39,7 +39,8 @@
         "out": "docs",
         "llmsTxtHeader": {
           "features": ["[README](../README.md): Installation, examples and usage."]
-        }
+        },
+        "router": "methods"
       }
     }
   ],
