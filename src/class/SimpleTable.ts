@@ -115,7 +115,7 @@ export default class SimpleTable extends SimpleTableCore {
    *         provider: "gemini",
    *         model: "gemini-3-flash-preview",
    *       },
-   *       batchSize: 10, // Process 10 rows at once
+   *       batchSize: 10, // Process up to 10 rows per request
    *       concurrency: 5, // Process up to 5 requests concurrently
    *       errorColumn: "error", // Store failed rows instead of throwing
    *       processResponse: (row) => {
@@ -124,7 +124,7 @@ export default class SimpleTable extends SimpleTableCore {
    *         }
    *         return row;
    *       },
-   *       retry: 3, // Retry up to 3 times on failure
+   *       retry: 3, // Retry the batch up to 3 times on failure
    *       rateLimitPerMinute: 15, // Limit requests to 15 per minute
    *       verbose: true, // Log detailed information
    *     },
@@ -133,9 +133,9 @@ export default class SimpleTable extends SimpleTableCore {
    *
    * // Example results:
    * // [
-   * //   { name: "Marie", gender: "Woman" },
-   * //   { name: "John", gender: "Man" },
-   * //   { name: "Alex", gender: "Neutral" },
+   * //   { name: "Marie", gender: "Woman", error: null },
+   * //   { name: "John", gender: "Man", error: null },
+   * //   { name: "Alex", gender: "Neutral", error: null },
    * // ]
    * ```
    *
@@ -1192,7 +1192,7 @@ export default class SimpleTable extends SimpleTableCore {
    *     outputTable: "top_employees",
    *   })
    *   .log();
-   * console.log(await topEmployees.getRowCount()); // 10
+   * console.log(await topEmployees.getRowCount()); // Up to 10
    * ```
    *
    * @example
