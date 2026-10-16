@@ -1,4 +1,4 @@
-**Simple Data Analysis v6.0.11**
+**Simple Data Analysis v6.0.12**
 
 ***
 
@@ -100,9 +100,9 @@ stays close to raw DuckDB while keeping the code simple and readable.
 
 <!-- benchmark-tabular:start -->
 
-![Horizontal bars comparing mean duration for the tabular workload; lower is better](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.11/assets/benchmark-tabular-duration.png)
+![Horizontal bars comparing mean duration for the tabular workload; lower is better](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.12/assets/benchmark-tabular-duration.png)
 
-![Horizontal bars comparing mean peak memory for the tabular workload; lower is better](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.11/assets/benchmark-tabular-memory.png)
+![Horizontal bars comparing mean peak memory for the tabular workload; lower is better](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.12/assets/benchmark-tabular-memory.png)
 
 <!-- benchmark-tabular:end -->
 
@@ -119,9 +119,9 @@ DuckDB's geospatial tools to the same simple, chainable API.
 
 <!-- benchmark-spatial:start -->
 
-![Horizontal bars comparing mean duration for the spatial workload; lower is better](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.11/assets/benchmark-spatial-duration.png)
+![Horizontal bars comparing mean duration for the spatial workload; lower is better](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.12/assets/benchmark-spatial-duration.png)
 
-![Horizontal bars comparing mean peak memory for the spatial workload; lower is better](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.11/assets/benchmark-spatial-memory.png)
+![Horizontal bars comparing mean peak memory for the spatial workload; lower is better](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.12/assets/benchmark-spatial-memory.png)
 
 <!-- benchmark-spatial:end -->
 
@@ -319,7 +319,7 @@ await table.writeChart(
 await sdb.close();
 ```
 
-![Beeswarm chart showing the size of wildfires in Canada in 2023.](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.11/assets/beeswarm.png)
+![Beeswarm chart showing the size of wildfires in Canada in 2023.](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.12/assets/beeswarm.png)
 
 #### Maps
 
@@ -389,7 +389,7 @@ await provinces.writeMap(
 await sdb.close();
 ```
 
-![Map showing the wildfires in Canada in 2023.](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.11/assets/map.png)
+![Map showing the wildfires in Canada in 2023.](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.12/assets/map.png)
 
 ### Public data sources
 
@@ -679,7 +679,7 @@ await recipes.writeChart(
 await sdb.close();
 ```
 
-![UMAP scatterplot of 335 recipe descriptions, colored by manually named HDBSCAN clusters, with unclustered recipes in gray.](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.11/assets/recipes-umap.png)
+![UMAP scatterplot of 335 recipe descriptions, colored by manually named HDBSCAN clusters, with unclustered recipes in gray.](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.12/assets/recipes-umap.png)
 
 #### Semantic search
 
@@ -977,7 +977,7 @@ await sdb.close();
 Clustering and UMAP reveal five groups of wines. Our reference wine is
 highlighted, with its closest matches appearing nearby.
 
-![UMAP scatterplot of wines colored by HDBSCAN group, with opacity highlighting similarity scores above 0.95, with Louis Jadot Bourgogne Pinot Noir highlighted.](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.11/assets/wines-umap.png)
+![UMAP scatterplot of wines colored by HDBSCAN group, with opacity highlighting similarity scores above 0.95, with Louis Jadot Bourgogne Pinot Noir highlighted.](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.12/assets/wines-umap.png)
 
 #### Network analysis
 

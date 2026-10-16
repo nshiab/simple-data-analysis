@@ -1,9 +1,9 @@
-# Simple Data Analysis v6.0.11
+# Simple Data Analysis v6.0.12
 
 > Fast DuckDB-powered TypeScript library for tabular, geospatial, vector, AI, Google Cloud Storage, Google Sheets, and data visualization workflows on Node.js.
 
-- [README](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.11/README.md): Installation, examples and usage.
+- [README](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.12/README.md): Installation, examples and usage.
 
 ## API
-- [SimpleDB](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.11/docs/classes/SimpleDB.md): SimpleDB class
-- [SimpleTable](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.11/docs/classes/SimpleTable.md): SimpleTable class
+- [SimpleDB](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.12/docs/classes/SimpleDB.md): SimpleDB class
+- [SimpleTable](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.12/docs/classes/SimpleTable.md): SimpleTable class
