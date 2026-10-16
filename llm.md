@@ -2111,7 +2111,7 @@ To manage rate limits, use `batchSize` to process multiple rows per request and 
 **Caching**: model calls can be slow and costly, so original responses are cached in Journalism AI's `.journalism-cache` folder by default. `processResponse` reruns on every call, including cache hits, and its output is never cached. Keep processing lightweight and optimize heavier work, especially for large tables. Set `generation.cache: false` to disable caching.
 To cache the resulting table and skip the entire operation, including processing, wrap it in [cache()](#cache). This stores the table in `.sda-cache`.
 
-Pass a JSON Schema for the response array through `generation.schemaJson`. With Zod, use `z.toJSONSchema(z.array(rowSchema))`; validate each returned row with `processResponse: (row) => rowSchema.parse(row)`.
+Pass a JSON Schema for the response array through `generation.schemaJson`. Convert a Zod array schema with `z.toJSONSchema()`.
 
 `processResponse` receives one generated row object at a time, even when batching. Return an object with the requested columns, or a promise of it. Throwing or rejecting follows `retry` and `retryCheck` for the whole batch; its model cache entry is discarded.
 
@@ -2244,8 +2244,9 @@ The table, so methods can be chained.
 ```ts
 import { z } from "zod";
 
-const rowSchema = z.object({ gender: z.enum(["Man", "Woman", "Neutral"]) });
-const schemaJson = z.toJSONSchema(z.array(rowSchema));
+const schemaJson = z.toJSONSchema(
+  z.array(z.object({ gender: z.enum(["Man", "Woman", "Neutral"]) })),
+);
 const people = await sdb
   .newTable("people")
   .loadArray([
@@ -2266,7 +2267,6 @@ const people = await sdb
       batchSize: 10, // Process up to 10 rows per request
       concurrency: 5, // Process up to 5 requests concurrently
       errorColumn: "error", // Store failed rows instead of throwing
-      processResponse: (row) => rowSchema.parse(row),
       retry: 3, // Retry the batch up to 3 times on failure
       rateLimitPerMinute: 15, // Limit requests to 15 per minute
       verbose: true, // Log detailed information
