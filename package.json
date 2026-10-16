@@ -57,7 +57,7 @@
     "benchmark": "node benchmarks/run.ts"
   },
   "dependencies": {
-    "@nshiab/journalism-ai": "^3.0.2",
+    "@nshiab/journalism-ai": "^3.0.4",
     "@nshiab/journalism-dataviz": "^1.0.27",
     "@nshiab/journalism-format": "^1.1.12",
     "@nshiab/journalism-google": "^2.0.0",

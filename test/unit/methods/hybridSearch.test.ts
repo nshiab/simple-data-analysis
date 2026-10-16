@@ -696,48 +696,6 @@ describe.skipIf(process.env.CI === "true" || !(process.env["AI_EMBEDDINGS_PROVID
       await sdb.run();
       await sdb.close();
     });
-    test("should have threshold and new columns for scores", async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      table.loadData("test/data/files/recipes.parquet");
-      table.removeDuplicates({ on: "Dish" });
-      table.removeMissing({ columns: "Recipe" });
-
-      await table
-        .hybridSearch("gluten-free dessert", "Dish", "Recipe", 10, {
-          embeddings: ollamaEmbeddings,
-          vectorMinSimilarity: 0.6, // Only include vector results with at least 60% similarity
-          bm25MinScore: 1.4, // Only include BM25 results with a score above 1.5
-          bm25ScoreColumn: "bm25_score", // Add BM25 scores to the results
-          vectorSimilarityColumn: "vector_similarity", // Add vector similarity scores to the results
-        })
-        .log();
-
-      expect(true).toEqual(true);
-
-      await sdb.close();
-    });
-    test("should should not throw an error when nothing is returned with strict thresholds and score columns", async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      table.loadData("test/data/files/recipes.parquet");
-      table.removeDuplicates({ on: "Dish" });
-      table.removeMissing({ columns: "Recipe" });
-
-      await table
-        .hybridSearch("gluten-free dessert", "Dish", "Recipe", 10, {
-          embeddings: ollamaEmbeddings,
-          vectorMinSimilarity: 0.9, // Only include vector results with at least 60% similarity
-          bm25MinScore: 2, // Only include BM25 results with a score above 1.5
-          bm25ScoreColumn: "bm25_score", // Add BM25 scores to the results
-          vectorSimilarityColumn: "vector_similarity", // Add vector similarity scores to the results
-        })
-        .log();
-
-      expect(true).toEqual(true);
-
-      await sdb.close();
-    });
     test("should perform hybrid search with conjunctive option", async () => {
       const sdb = new SimpleDB();
       const table = sdb.newTable("data");
@@ -1063,3 +1021,76 @@ test("hybridSearch rejects a geometry embedding-column collision before provider
     await sdb.close();
   }
 });
+
+for (const mode of ["bm25", "vector"] as const) {
+  test(`hybridSearch ${mode} thresholds filter results and preserve empty score columns`, async () => {
+    const sdb = new SimpleDB();
+    try {
+      const table = sdb
+        .newTable("thresholds")
+        .loadArray([
+          { id: "match", text: "zebra" },
+          { id: "weaker", text: "zebra unrelated" },
+          ...Array.from({ length: 8 }, (_, i) => ({ id: `noise${i}`, text: "other topic" })),
+        ]);
+      const base = {
+        vectorSearch: mode === "vector",
+        bm25: mode === "bm25",
+        bm25ScoreColumn: "bm25_score",
+        vectorSimilarityColumn: "vector_score",
+        embeddings: {
+          provider: "ollama",
+          model: "thresholds",
+          cache: false,
+          ollama: {
+            embeddingEndpoint: "http://thresholds.local:11434",
+            embed({ input }: { input: string }) {
+              return Promise.resolve({ embeddings: [input === "zebra" ? [1, 0] : [0.8, 0.2]] });
+            },
+          },
+        },
+      } as const;
+      const ranked = table.hybridSearch("zebra", "id", "text", 10, {
+        ...base,
+        outputTable: "ranked",
+        vectorMinSimilarity: 0.99,
+      });
+      const rows = await ranked.getData();
+      expect(rows.map((row) => row.id)).toEqual(
+        mode === "vector" ? ["match"] : ["match", "weaker"],
+      );
+      if (mode === "vector") expect(rows[0].vector_score).toEqual(1);
+      else {
+        for (const row of rows) expect(row.bm25_score).toBeGreaterThan(0);
+      }
+      const empty = table.hybridSearch(
+        mode === "vector" ? "no exact match" : "zebra",
+        "id",
+        "text",
+        10,
+        {
+          ...base,
+          outputTable: "empty",
+          bm25MinScore: 1000,
+          vectorMinSimilarity: 0.99999,
+          embeddings: {
+            ...base.embeddings,
+            ollama: {
+              ...base.embeddings.ollama,
+              embed() {
+                return Promise.resolve({ embeddings: [[0, 1]] });
+              },
+            },
+          },
+        },
+      );
+      // Change the query vector only: stored vectors remain [1,0] / [0.8,0.2].
+      expect(await empty.getData()).toEqual([]);
+      const types = await empty.getTypes();
+      expect(types.bm25_score).toEqual("DOUBLE");
+      expect(types.vector_score).toEqual("DOUBLE");
+    } finally {
+      await sdb.close();
+    }
+  });
+}

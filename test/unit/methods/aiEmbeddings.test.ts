@@ -1,4 +1,3 @@
-import { describe } from "vite-plus/test";
 import { test, expect } from "vite-plus/test";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -14,7 +13,6 @@ import { assertRejects } from "../../helpers/assertions.ts";
 import SimpleDB from "../../../src/class/SimpleDB.ts";
 import type SimpleTable from "../../../src/class/SimpleTable.ts";
 import { existsSync, rmSync } from "node:fs";
-import { Ollama } from "ollama";
 import {
   FakeGeminiEmbeddingFetch,
   FakeOllamaEmbeddingClient,
@@ -593,268 +591,43 @@ test("failed regeneration is retried and restores cache logging", async () => {
   await sdb.close();
 });
 
-describe.skipIf(process.env.CI === "true" || !hasGoogleEmbeddingCredentials)(
-  "live integration: hasGoogleEmbeddingCredentials",
-  () => {
-    if (existsSync("./.journalism-cache")) {
-      rmSync("./.journalism-cache", { recursive: true });
-    }
-    test("should create embeddings", async () => {
+for (const provider of ["gemini", "ollama"] as const) {
+  const configured =
+    provider === "gemini"
+      ? hasGoogleEmbeddingCredentials
+      : process.env.AI_EMBEDDINGS_PROVIDER === "ollama";
+  test.skipIf(process.env.CI === "true" || !configured)(
+    `live ${provider} embeddings preserve rows and produce finite vectors`,
+    async () => {
       const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      table.loadArray([
-        { food: "pizza" },
-        { food: "sushi" },
-        { food: "burger" },
-        { food: "pasta" },
-        { food: "salad" },
-        { food: "tacos" },
-      ]);
-
-      // Ask the AI to generate embeddings in a new column "embeddings".
-      await table
-        .aiEmbeddings("food", "embeddings", {
-          embeddings: {
-            ...geminiEmbeddingOptions,
-          },
-          // Avoid exceeding a rate limit by waiting between requests
-          rateLimitPerMinute: 15,
-          // Log details
-          verbose: true,
-        })
-        .run();
-
-      // Just making sure it's doesnt crash for now
-      expect(true).toEqual(true);
-      await sdb.close();
-    });
-    test("should retrieve embedding from cache", async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      table.loadArray([
-        { food: "pizza" },
-        { food: "sushi" },
-        { food: "burger" },
-        { food: "pasta" },
-        { food: "salad" },
-        { food: "tacos" },
-      ]);
-
-      // Ask the AI to generate embeddings in a new column "embeddings".
-      await table
-        .aiEmbeddings("food", "embeddings", {
-          embeddings: {
-            ...geminiEmbeddingOptions,
-            cache: true,
-          },
-          // Avoid exceeding a rate limit by waiting between requests
-          rateLimitPerMinute: 15,
-          // Log details
-          verbose: true,
-        })
-        .run();
-
-      // Just making sure it's doesnt crash for now
-      expect(true).toEqual(true);
-      await sdb.close();
-    });
-    test("should create embeddings with an index", async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      table.loadArray([
-        { food: "pizza" },
-        { food: "sushi" },
-        { food: "burger" },
-        { food: "pasta" },
-        { food: "salad" },
-        { food: "tacos" },
-      ]);
-
-      // Ask the AI to generate embeddings in a new column "embeddings".
-      await table
-        .aiEmbeddings("food", "embeddings", {
-          embeddings: {
-            ...geminiEmbeddingOptions,
-          },
-          // Avoid exceeding a rate limit by waiting between requests
-          rateLimitPerMinute: 15,
-          // Create an index on the new column "embeddings"
-          createIndex: true,
-          // Log details
-          verbose: true,
-        })
-        .run();
-
-      // Just making sure it's doesnt crash for now
-      expect(true).toEqual(true);
-      await sdb.close();
-    });
-  },
-);
-
-describe.skipIf(process.env.CI === "true" || !(process.env["AI_EMBEDDINGS_PROVIDER"] === "ollama"))(
-  "live integration: process.env['AI_EMBEDDINGS_PROVIDER'] === 'ollama'",
-  () => {
-    if (existsSync("./.journalism-cache")) {
-      rmSync("./.journalism-cache", { recursive: true });
-    }
-    test("should create embeddings", async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      table.loadArray([
-        { food: "pizza" },
-        { food: "sushi" },
-        { food: "burger" },
-        { food: "pasta" },
-        { food: "salad" },
-        { food: "tacos" },
-      ]);
-
-      // Ask the AI to generate embeddings in a new column "embeddings".
-      await table
-        .aiEmbeddings("food", "embeddings", {
-          embeddings: {
-            provider: "ollama",
-            cache: false,
-          },
-          // Log details
-          verbose: true,
-        })
-        .run();
-
-      // Just making sure it's doesnt crash for now
-      expect(true).toEqual(true);
-      await sdb.close();
-    });
-    test("should create embeddings with a different Ollama instance", async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      table.loadArray([
-        { food: "pizza" },
-        { food: "sushi" },
-        { food: "burger" },
-        { food: "pasta" },
-        { food: "salad" },
-        { food: "tacos" },
-      ]);
-
-      const ollama = new Ollama({ host: "http://127.0.0.1:11434" });
-
-      // Ask the AI to generate embeddings in a new column "embeddings".
-      await table
-        .aiEmbeddings("food", "embeddings", {
-          embeddings: {
-            provider: "ollama",
-            ollama,
-            cache: false,
-          },
-          // Log details
-          verbose: true,
-        })
-        .run();
-
-      // Just making sure it's doesnt crash for now
-      expect(true).toEqual(true);
-      await sdb.close();
-    });
-    test("should retrieve embedding from cache", async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      table.loadArray([
-        { food: "pizza" },
-        { food: "sushi" },
-        { food: "burger" },
-        { food: "pasta" },
-        { food: "salad" },
-        { food: "tacos" },
-      ]);
-
-      // Ask the AI to generate embeddings in a new column "embeddings".
-      await table
-        .aiEmbeddings("food", "embeddings", {
-          embeddings: {
-            provider: "ollama",
-            cache: true,
-          },
-          // Avoid exceeding a rate limit by waiting between requests
-          // rateLimitPerMinute: 15,
-          // Log details
-          verbose: true,
-        })
-        .run();
-
-      // Just making sure it's doesnt crash for now
-      expect(true).toEqual(true);
-      await sdb.close();
-    });
-    test("should create embeddings with an index", async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      table.loadArray([
-        { food: "pizza" },
-        { food: "sushi" },
-        { food: "burger" },
-        { food: "pasta" },
-        { food: "salad" },
-        { food: "tacos" },
-      ]);
-
-      // Ask the AI to generate embeddings in a new column "embeddings".
-      await table
-        .aiEmbeddings("food", "embeddings", {
-          embeddings: {
-            provider: "ollama",
-            cache: false,
-          },
-          // Avoid exceeding a rate limit by waiting between requests
-          // rateLimitPerMinute: 15,
-          // Create an index on the new column "embeddings"
-          createIndex: true,
-          // Log details
-          verbose: true,
-        })
-        .run();
-
-      // Just making sure it's doesnt crash for now
-      expect(true).toEqual(true);
-      await sdb.close();
-    });
-    test("should create embeddings with concurrent requests", async () => {
-      const sdb = new SimpleDB();
-      const table = sdb.newTable("data");
-      table.loadArray([
-        { food: "pizza" },
-        { food: "sushi" },
-        { food: "burger" },
-        { food: "pasta" },
-        { food: "salad" },
-        { food: "tacos" },
-      ]);
-
-      // Ask the AI to generate embeddings in a new column "embeddings".
-      await table
-        .aiEmbeddings("food", "embeddings", {
-          embeddings: {
-            provider: "ollama",
-            cache: false,
-          },
-          // Avoid exceeding a rate limit by waiting between requests
-          // rateLimitPerMinute: 15,
-          // Create an index on the new column "embeddings"
-          createIndex: true,
-          // Use concurrent requests to speed up the process
-          concurrency: 2,
-          // Log details
-          verbose: true,
-        })
-        .run();
-
-      // Just making sure it's doesnt crash for now
-      expect(true).toEqual(true);
-      await sdb.close();
-    });
-  },
-);
+      const input = [{ food: "pizza" }, { food: "salad" }];
+      try {
+        const rows = await sdb
+          .newTable("foods")
+          .loadArray(input)
+          .aiEmbeddings("food", "embedding", {
+            embeddings: provider === "gemini" ? geminiEmbeddingOptions : { provider, cache: false },
+            concurrency: 2,
+          })
+          .getData();
+        expect(rows.map(({ food }) => ({ food }))).toEqual(input);
+        let dimensions: number | undefined;
+        for (const row of rows) {
+          const vector = row.embedding;
+          if (!Array.isArray(vector)) throw new Error("Expected an embedding array");
+          expect(vector.length).toBeGreaterThan(0);
+          expect(
+            vector.every((value: unknown) => typeof value === "number" && Number.isFinite(value)),
+          ).toEqual(true);
+          dimensions ??= vector.length;
+          expect(vector.length).toEqual(dimensions);
+        }
+      } finally {
+        await sdb.close();
+      }
+    },
+  );
+}
 
 test("aiEmbeddings preserves SQL values and independent vectors across transfer batches", async () => {
   const { sdb, table, assertPreserved } = await createAIEnrichmentFixture();

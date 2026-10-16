@@ -207,6 +207,7 @@ test("retry policy failures drain active work before rejecting", async () => {
       },
     },
   );
+  const rejection = expect(pending).rejects.toEqual(policyError);
   const observed = pending.then(
     () => {
       settled = true;
@@ -220,6 +221,7 @@ test("retry policy failures drain active work before rejecting", async () => {
   expect(settled).toEqual(false);
   gate.resolve();
   await observed;
+  await rejection;
   expect(settled).toEqual(true);
 });
 
