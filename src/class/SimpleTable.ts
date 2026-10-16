@@ -103,6 +103,8 @@ export default class SimpleTable extends SimpleTableCore {
    * ```ts
    * import { z } from "zod";
    *
+   * // aiRowByRow requests an array of objects, even with batchSize: 1.
+   * // Each object represents one input row and contains the new columns.
    * const schemaJson = z.toJSONSchema(
    *   z.array(z.object({ gender: z.enum(["Man", "Woman", "Neutral"]) })),
    * );
