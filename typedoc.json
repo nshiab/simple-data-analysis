@@ -10,16 +10,14 @@
   "treatValidationWarningsAsErrors": true,
   "excludePrivate": true,
   "excludeProtected": true,
-  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-llms-txt", "./scripts/typedoc-methods.ts"],
+  "plugin": [
+    "typedoc-plugin-markdown",
+    "typedoc-plugin-llms-txt",
+    "./scripts/typedoc-methods.ts",
+    "typedoc-github-theme"
+  ],
   "hostedBaseUrl": "https://nshiab.github.io/simple-data-analysis/",
   "outputs": [
-    {
-      "name": "html",
-      "path": "site",
-      "options": {
-        "llmsTxt": false
-      }
-    },
     {
       "name": "markdown",
       "path": ".",
@@ -28,7 +26,8 @@
         "entryFileName": "llm.md",
         "mergeReadme": true,
         "cleanOutputDir": false,
-        "llmsTxt": false
+        "llmsTxt": false,
+        "theme": "default"
       }
     },
     {
@@ -40,7 +39,15 @@
         "llmsTxtHeader": {
           "features": ["[README](../README.md): Installation, examples and usage."]
         },
-        "router": "methods"
+        "router": "methods",
+        "theme": "default"
+      }
+    },
+    {
+      "name": "html",
+      "path": "site",
+      "options": {
+        "llmsTxt": false
       }
     }
   ],
