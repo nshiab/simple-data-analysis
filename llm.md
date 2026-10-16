@@ -2111,6 +2111,8 @@ To manage rate limits, use `batchSize` to process multiple rows per request and 
 **Caching**: model calls can be slow and costly, so original responses are cached in Journalism AI's `.journalism-cache` folder by default. `processResponse` reruns on every call, including cache hits, and its output is never cached. Keep processing lightweight and optimize heavier work, especially for large tables. Set `generation.cache: false` to disable caching.
 To cache the resulting table and skip the entire operation, including processing, wrap it in [cache()](#cache). This stores the table in `.sda-cache`.
 
+Pass a JSON Schema for the response array through `generation.schemaJson`. With Zod, use `z.toJSONSchema(z.array(rowSchema))`; validate each returned row with `processResponse: (row) => rowSchema.parse(row)`.
+
 `processResponse` receives one generated row object at a time, even when batching. Return an object with the requested columns, or a promise of it. Throwing or rejecting follows `retry` and `retryCheck` for the whole batch; its model cache entry is discarded.
 
 By default, a failed batch throws. Set `errorColumn` to store the error on every row in the failed batch, set its output columns to `NULL`, and continue processing other batches. Successful rows contain `NULL` in the error column.
@@ -2240,6 +2242,9 @@ The table, so methods can be chained.
 ###### Examples
 
 ```ts
+import { z } from "zod";
+
+const rowSchema = z.object({ gender: z.enum(["Man", "Woman", "Neutral"]) });
 const people = await sdb
   .newTable("people")
   .loadArray([
@@ -2255,16 +2260,12 @@ const people = await sdb
       generation: {
         provider: "gemini",
         model: "gemini-3-flash-preview",
+        schemaJson: z.toJSONSchema(z.array(rowSchema)),
       },
       batchSize: 10, // Process up to 10 rows per request
       concurrency: 5, // Process up to 5 requests concurrently
       errorColumn: "error", // Store failed rows instead of throwing
-      processResponse: (row) => {
-        if (typeof row.gender !== "string" || !["Man", "Woman", "Neutral"].includes(row.gender)) {
-          throw new Error("Invalid gender response.");
-        }
-        return row;
-      },
+      processResponse: (row) => rowSchema.parse(row),
       retry: 3, // Retry the batch up to 3 times on failure
       rateLimitPerMinute: 15, // Limit requests to 15 per minute
       verbose: true, // Log detailed information
