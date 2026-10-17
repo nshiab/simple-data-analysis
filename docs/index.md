@@ -64,7 +64,7 @@ all inherited Core methods. For AI assistants, use [`llm.md`](https://github.com
 
 ## Installation
 
-The library requires Node.js 24.21.0 or newer and is available on
+The library is available on
 [npm](https://www.npmjs.com/package/@nshiab/simple-data-analysis).
 
 ```bash
