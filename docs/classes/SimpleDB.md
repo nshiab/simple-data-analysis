@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.12**](../index.md)
+[**Simple Data Analysis v6.0.13**](../index.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: SimpleDB
 
-Defined in: [src/class/SimpleDB.ts:46](https://github.com/nshiab/simple-data-analysis/blob/v6.0.12/src/class/SimpleDB.ts#L46)
+Defined in: [src/class/SimpleDB.ts:46](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleDB.ts#L46)
 
 Manages a DuckDB database instance, providing a simplified interface for database operations.
 Extends the core [`SimpleDB`](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/docs/classes/SimpleDB.md) class
@@ -58,7 +58,7 @@ const sdb = new SimpleDB({
 
 > **new SimpleDB**(`options?`): `SimpleDB`
 
-Defined in: [src/class/SimpleDB.ts:81](https://github.com/nshiab/simple-data-analysis/blob/v6.0.12/src/class/SimpleDB.ts#L81)
+Defined in: [src/class/SimpleDB.ts:81](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleDB.ts#L81)
 
 Creates a new SimpleDB instance.
 

@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.12**](../../index.md)
+[**Simple Data Analysis v6.0.13**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **toSheet**(`sheetUrl`, `options?`): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
-Defined in: [src/class/SimpleTable.ts:1519](https://github.com/nshiab/simple-data-analysis/blob/v6.0.12/src/class/SimpleTable.ts#L1519)
+Defined in: [src/class/SimpleTable.ts:1519](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L1519)
 
 Writes the table data to a Google Sheet.
 This method uses the `pushToSheet` function from the [journalism-google library](https://github.com/nshiab/journalism-google/tree/v2.0.0/docs). Refer to its documentation for more details.

@@ -1,8 +1,8 @@
-[**Simple Data Analysis v6.0.12**](index.md)
+[**Simple Data Analysis v6.0.13**](index.md)
 
 ***
 
-# Simple Data Analysis v6.0.12
+# Simple Data Analysis v6.0.13
 
 ## Main
 

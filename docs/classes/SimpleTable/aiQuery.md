@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.12**](../../index.md)
+[**Simple Data Analysis v6.0.13**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **aiQuery**(`prompt`, `options?`): `this`
 
-Defined in: [src/class/SimpleTable.ts:1223](https://github.com/nshiab/simple-data-analysis/blob/v6.0.12/src/class/SimpleTable.ts#L1223)
+Defined in: [src/class/SimpleTable.ts:1223](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L1223)
 
 Generates and executes a SQL query based on a prompt.
 Additional instructions, such as column types, are automatically added to your prompt. Set `verbose` to `true` to see the full prompt.

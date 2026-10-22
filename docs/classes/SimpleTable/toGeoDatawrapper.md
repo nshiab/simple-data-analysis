@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.12**](../../index.md)
+[**Simple Data Analysis v6.0.13**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **toGeoDatawrapper**(`chartId`, `options?`): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
-Defined in: [src/class/SimpleTable.ts:1727](https://github.com/nshiab/simple-data-analysis/blob/v6.0.12/src/class/SimpleTable.ts#L1727)
+Defined in: [src/class/SimpleTable.ts:1727](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L1727)
 
 Writes the table's geospatial data as GeoJSON to a Datawrapper map.
 
