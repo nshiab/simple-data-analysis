@@ -14,7 +14,8 @@
     "typedoc-plugin-markdown",
     "typedoc-plugin-llms-txt",
     "./scripts/typedoc-methods.ts",
-    "typedoc-github-theme"
+    "typedoc-github-theme",
+    "./scripts/typedoc-dependency-sources.ts"
   ],
   "hostedBaseUrl": "https://nshiab.github.io/simple-data-analysis/",
   "outputs": [
@@ -51,7 +52,6 @@
       }
     }
   ],
-  "disableSources": true,
   "excludeInternal": true,
   "highlightLanguages": [
     "bash",

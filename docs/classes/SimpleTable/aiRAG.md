@@ -8,6 +8,8 @@
 
 > **aiRAG**(`query`, `idColumn`, `textColumn`, `nbResults`, `options?`): `Promise`\<`string`\>
 
+Defined in: [src/class/SimpleTable.ts:954](https://github.com/nshiab/simple-data-analysis/blob/v6.0.12/src/class/SimpleTable.ts#L954)
+
 Performs Retrieval-Augmented Generation (RAG) by combining semantic vector search and BM25 full-text search to retrieve the most relevant context, then passing it to an LLM for answering queries. This hybrid approach uses both `aiVectorSimilarity` (embeddings-based) and `bm25` (keyword-based) methods in parallel, fusing their results using Reciprocal Rank Fusion (RRF) before using [journalism-ai](https://nshiab.github.io/journalism-ai/) to generate an answer.
 
 Internally, this method uses the `hybridSearch` method to retrieve relevant rows. If you want to perform hybrid search without the LLM step (i.e., to get the table of results directly), use `hybridSearch` instead.

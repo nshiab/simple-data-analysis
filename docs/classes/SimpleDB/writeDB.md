@@ -8,6 +8,8 @@
 
 > **writeDB**(`file`, `options?`): `Promise`\<[`SimpleDB`](../SimpleDB.md)\>
 
+Defined in: [simple-data-analysis-core/src/class/SimpleDB.ts:970](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleDB.ts#L970)
+
 Exports a snapshot of the current database after executing pending work.
 Does not change the working database or where subsequent changes persist.
 DuckDB outputs (`.db` and `.duckdb`) preserve database objects and embed SDA

@@ -8,6 +8,8 @@
 
 > **getSum**(`column`): `Promise`\<`number`\>
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7209](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L7209)
+
 Returns the sum of values from a specific numeric column.
 
 ## Parameters

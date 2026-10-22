@@ -8,6 +8,8 @@
 
 > **crossJoin**(`rightTable`, `options?`): `this`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:4657](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L4657)
+
 Performs a cross join operation with another table. A cross join returns the Cartesian product of the rows from both tables, meaning all possible pairs of rows will be in the resulting table.
 This means that if the left table has `n` rows and the right table has `m` rows, the result will have `n * m` rows.
 

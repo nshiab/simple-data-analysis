@@ -8,6 +8,8 @@
 
 > **writeMap**(`map`, `path`, `options?`): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
+Defined in: [src/class/SimpleTable.ts:1864](https://github.com/nshiab/simple-data-analysis/blob/v6.0.12/src/class/SimpleTable.ts#L1864)
+
 Creates an [Observable Plot](https://github.com/observablehq/plot) map as an image file (.png or .svg) from the table's geospatial data.
 To create charts from non-geospatial data, use the `writeChart` method.
 

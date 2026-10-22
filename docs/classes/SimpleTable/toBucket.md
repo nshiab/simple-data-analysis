@@ -8,6 +8,8 @@
 
 > **toBucket**(`destination`, `options?`): `Promise`\<`string`\>
 
+Defined in: [src/class/SimpleTable.ts:1361](https://github.com/nshiab/simple-data-analysis/blob/v6.0.12/src/class/SimpleTable.ts#L1361)
+
 Writes the table to a file and uploads it to a Google Cloud Storage bucket.
 Supported destinations are `.csv`, `.csv.gz`, `.json`, `.json.gz`,
 `.parquet`, `.geojson`, `.geoparquet`, and `.shp.zip`.

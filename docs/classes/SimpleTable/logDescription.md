@@ -8,6 +8,8 @@
 
 > **logDescription**(): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9047](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L9047)
+
 Logs descriptive information about the columns in the table to the console. This includes details such as data types, number of null values, and number of distinct values for each column.
 It internally calls the `getDescription` method to retrieve the descriptive statistics.
 

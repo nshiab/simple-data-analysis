@@ -8,6 +8,8 @@
 
 > **logHistogram**(`values`, `options?`): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
+Defined in: [src/class/SimpleTable.ts:2115](https://github.com/nshiab/simple-data-analysis/blob/v6.0.12/src/class/SimpleTable.ts#L2115)
+
 Generates and logs a histogram of a numeric column to the console.
 
 ## Parameters

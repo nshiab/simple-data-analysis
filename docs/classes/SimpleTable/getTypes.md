@@ -8,6 +8,8 @@
 
 > **getTypes**(): `Promise`\<\{\[`key`: `string`\]: `string`; \}\>
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7038](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L7038)
+
 Returns the data types of all columns in the table.
 
 ## Returns

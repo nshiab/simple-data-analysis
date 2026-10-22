@@ -8,6 +8,8 @@
 
 > **logBarChart**(`labels`, `values`, `options?`): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
+Defined in: [src/class/SimpleTable.ts:2067](https://github.com/nshiab/simple-data-analysis/blob/v6.0.12/src/class/SimpleTable.ts#L2067)
+
 Generates and logs a bar chart to the console.
 
 ## Parameters

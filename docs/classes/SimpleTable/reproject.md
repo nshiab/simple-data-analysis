@@ -8,6 +8,8 @@
 
 > **reproject**(`crs`, `options?`): `this`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7981](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L7981)
+
 Reprojects the geometries in a specified column to another Spatial Reference System (SRS).
 
 ## Parameters

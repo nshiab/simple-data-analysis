@@ -8,6 +8,8 @@
 
 > **loadOpenStreetMap**(`source`, `options?`): `this`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:901](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L901)
+
 Loads OpenStreetMap data into the table from a local `.osm` or `.osm.pbf` file, a remote file URL, or an Overpass bounding-box query. Pass a path or URL string to load an existing file, or pass a bounding box with `filters` to download matching features.
 
 DuckDB's [Osmium community extension](https://duckdb.org/community_extensions/extensions/osmium) materializes the complete result and reconstructs `geom` as EPSG:4326. By default, that canonical result is cached as GeoParquet in `.sda-cache/osm`. Distinct paths, local file fingerprints, normalized URLs, endpoints, queries, and bounding boxes retain independent entries. The cache has no expiration unless `ttl` is set and can be cleared by removing `.sda-cache/osm`. Immutable URLs can safely use the default indefinite cache; mutable URLs should set a TTL.

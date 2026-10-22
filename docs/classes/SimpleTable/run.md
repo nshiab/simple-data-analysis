@@ -8,6 +8,8 @@
 
 > **run**(): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:335](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L335)
+
 Executes all queued methods across every table in the database, not just
 this table. Sync builder methods (like `filter()` or `convert()`) only
 queue their operation; execution happens when an async observer method

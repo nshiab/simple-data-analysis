@@ -8,6 +8,8 @@
 
 > **getColumnCount**(): `Promise`\<`number`\>
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6921](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L6921)
+
 Returns the number of columns in the table.
 
 ## Returns

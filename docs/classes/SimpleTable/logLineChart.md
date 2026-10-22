@@ -8,6 +8,8 @@
 
 > **logLineChart**(`x`, `y`, `options?`): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
+Defined in: [src/class/SimpleTable.ts:1943](https://github.com/nshiab/simple-data-analysis/blob/v6.0.12/src/class/SimpleTable.ts#L1943)
+
 Generates and logs a line chart to the console. The data should be sorted by the x-axis values for accurate representation.
 
 **Data Type Requirements:**

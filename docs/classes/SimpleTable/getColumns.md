@@ -8,6 +8,8 @@
 
 > **getColumns**(): `Promise`\<`string`[]\>
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6861](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L6861)
+
 Returns a list of all column names in the table.
 
 ## Returns

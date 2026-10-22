@@ -8,6 +8,8 @@
 
 > **loadDatawrapper**(`chartId`, `options?`): `this`
 
+Defined in: [src/class/SimpleTable.ts:1675](https://github.com/nshiab/simple-data-analysis/blob/v6.0.12/src/class/SimpleTable.ts#L1675)
+
 Loads data from a Datawrapper chart or table into the table.
 
 Environment variables are named configuration values supplied to the running process. By default, this method reads the API key from `DATAWRAPPER_KEY` (for example, `"your-datawrapper-api-key"`).

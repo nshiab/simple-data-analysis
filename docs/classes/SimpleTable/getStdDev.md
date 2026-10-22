@@ -8,6 +8,8 @@
 
 > **getStdDev**(`column`, `options?`): `Promise`\<`number`\>
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7266](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L7266)
+
 Returns the standard deviation of values from a specific numeric column.
 
 ## Parameters

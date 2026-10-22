@@ -8,6 +8,8 @@
 
 > **fuzzyJoin**(`rightTable`, `leftColumn`, `rightColumn`, `threshold`, `options?`): `this`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:4772](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L4772)
+
 Performs a fuzzy left join between this table (considered the left table) and another table
 (the right table) based on string similarity between two text columns. Uses the
 [rapidfuzz](https://query.farm/duckdb_extension_rapidfuzz) DuckDB community extension.

@@ -8,6 +8,8 @@
 
 > **concatenate**(`columns`, `newColumn`, `options?`): `this`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5224](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L5224)
+
 Concatenates values from specified columns into a new column.
 
 ## Parameters

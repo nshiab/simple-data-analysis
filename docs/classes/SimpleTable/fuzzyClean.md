@@ -8,6 +8,8 @@
 
 > **fuzzyClean**(`column`, `newColumn`, `threshold`, `options?`): `this`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:4847](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L4847)
+
 Normalizes string values in a column by detecting fuzzy duplicates and replacing them with a single canonical value.
 
 Similar strings are grouped into clusters. Matching is transitive: if `"New York"` is similar to `"New Yorke"` and

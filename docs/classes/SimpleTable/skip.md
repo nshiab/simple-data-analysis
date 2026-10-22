@@ -8,6 +8,8 @@
 
 > **skip**(`count`): `this`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:1801](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L1801)
+
 Skips the first `n` rows of the table, effectively removing them.
 
 ## Parameters

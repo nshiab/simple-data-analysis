@@ -8,6 +8,8 @@
 
 > **umap**(`columns`, `options?`): `this`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:1167](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L1167)
+
 Reduces numeric features, such as embeddings, to a two-dimensional UMAP
 projection. The resulting coordinates are added as `umapX` and `umapY`,
 while all existing columns (including the source feature columns), their

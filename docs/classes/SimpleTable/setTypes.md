@@ -8,6 +8,8 @@
 
 > **setTypes**(`types`): `this`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:387](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L387)
+
 Sets the data types for columns in a new table. If the table already exists, it will be replaced.
 To convert the types of an existing table, use the `.convert()` method instead.
 

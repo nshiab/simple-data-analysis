@@ -8,6 +8,8 @@
 
 > **nest**(`column`, `separator`, `by`): `this`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5537](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L5537)
+
 Nests (collapses) rows by aggregating a column's values into a single string per group, separated by a delimiter.
 
 This is the inverse operation of `unnest()`. Multiple rows are combined into fewer rows by grouping on specified category columns and concatenating the target column values with a separator.

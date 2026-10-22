@@ -8,6 +8,8 @@
 
 > **addGeoNoise**(`maxDistance`, `options?`): `this`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7924](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L7924)
+
 Moves EPSG:4326 point geometries to random locations within a maximum great-circle distance of their original positions.
 
 Points are sampled uniformly within the requested distance using the spherical direct geodesic (destination-point) formula and the same spherical Earth model as DuckDB's `ST_Distance_Sphere()`. This accounts for longitude scale changing with latitude. This method adds random jitter; it does not provide anonymization or differential privacy guarantees.

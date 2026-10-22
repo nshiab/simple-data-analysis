@@ -8,6 +8,8 @@
 
 > **connectedComponents**(`sourceColumn`, `targetColumn`, `options?`): `SimpleTable`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:3172](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L3172)
+
 Groups nodes that are connected to one another, directly or through other
 nodes. By default, connection direction is ignored. With the `mode`
 option set to "strong", nodes belong to the same group only if each can

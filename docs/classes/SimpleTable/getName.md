@@ -8,6 +8,8 @@
 
 > **getName**(): `string`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6845](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L6845)
+
 Returns the name of the table.
 
 ## Returns

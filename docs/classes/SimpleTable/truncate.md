@@ -8,6 +8,8 @@
 
 > **truncate**(`column`, `length`): `this`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5002](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L5002)
+
 Truncates string values in a specified column to a maximum number of characters.
 
 ## Parameters

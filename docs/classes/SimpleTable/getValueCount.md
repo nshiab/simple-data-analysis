@@ -8,6 +8,8 @@
 
 > **getValueCount**(): `Promise`\<`number`\>
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7021](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L7021)
+
 Returns the total number of values in the table (number of columns multiplied by the number of rows).
 
 ## Returns

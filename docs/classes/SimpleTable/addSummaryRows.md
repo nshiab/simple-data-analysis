@@ -8,6 +8,8 @@
 
 > **addSummaryRows**(`columns`, `labelColumn`, `options?`): `this`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6213](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L6213)
+
 Adds one or more summary rows to the table. Each row is calculated from
 the original rows before any summary rows are added. This is useful for
 preparing totals and other statistics before exporting tabular data.

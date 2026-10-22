@@ -8,6 +8,8 @@
 
 > **findCycles**(`sourceColumn`, `targetColumn`, `edgeId`, `startNodes`, `options?`): `SimpleTable`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:4522](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L4522)
+
 Finds all cycles starting and ending at each node in `startNodes`.
 Pass one node ID or an array of node IDs. A cycle cannot visit the same
 node twice, except to return to its start, or reuse a connection.

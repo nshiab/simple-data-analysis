@@ -8,6 +8,8 @@
 
 > **wider**(`namesFrom`, `valuesFrom`, `options?`): `this`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:2294](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L2294)
+
 Restructures this table by unstacking (pivoting) values, transforming data from a long format to a wide format.
 
 For example, given a table showing employee counts per department per year:

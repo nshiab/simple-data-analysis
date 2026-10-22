@@ -8,6 +8,8 @@
 
 > **distance**(`column1`, `column2`, `newColumn`, `options?`): `this`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8506](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L8506)
+
 Computes the distance between geometries in two specified columns.
 By default, the distance is calculated in the Spatial Reference System (SRS) unit of the input geometries.
 You can optionally specify `"spheroid"` or `"haversine"` methods to get results in meters or kilometers.

@@ -8,6 +8,8 @@
 
 > **hybridSearch**(`query`, `idColumn`, `textColumn`, `nbResults`, `options?`): `this`
 
+Defined in: [src/class/SimpleTable.ts:735](https://github.com/nshiab/simple-data-analysis/blob/v6.0.12/src/class/SimpleTable.ts#L735)
+
 Performs hybrid text search combining vector similarity and BM25 text search using Reciprocal Rank Fusion (RRF).
 
 This method:

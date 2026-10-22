@@ -8,6 +8,8 @@
 
 > **simplify**(`tolerance`, `options?`): `this`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8398](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L8398)
+
 Simplifies geometries while preserving their overall coverage. A higher tolerance results in more significant simplification.
 
 ## Parameters

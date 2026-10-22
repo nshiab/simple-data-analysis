@@ -8,6 +8,8 @@
 
 > **getTable**(`name`): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
+Defined in: [simple-data-analysis-core/src/class/SimpleDB.ts:623](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleDB.ts#L623)
+
 Retrieves an existing SimpleTable instance from the database.
 
 ## Parameters

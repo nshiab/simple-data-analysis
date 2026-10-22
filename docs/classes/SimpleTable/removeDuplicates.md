@@ -8,6 +8,8 @@
 
 > **removeDuplicates**(`options?`): `this`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:1926](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L1926)
+
 Removes duplicate rows from this table, keeping only unique rows.
 Note that the resulting data order might differ from the original.
 

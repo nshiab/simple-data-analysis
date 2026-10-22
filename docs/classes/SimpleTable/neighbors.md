@@ -8,6 +8,8 @@
 
 > **neighbors**(`sourceColumn`, `targetColumn`, `startNodes`, `options?`): `SimpleTable`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:2644](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L2644)
+
 Finds the distinct nodes directly connected to one or more starting nodes.
 The `direction` option lets you find neighbors from source to target,
 from target to source, or in either direction. The result has `start` and

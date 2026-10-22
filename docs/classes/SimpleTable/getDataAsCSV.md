@@ -8,6 +8,8 @@
 
 > **getDataAsCSV**(`options?`): `Promise`\<`string`\>
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7699](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L7699)
+
 Returns the data from the table as a CSV string, optionally filtered by SQL conditions.
 With the default `SimpleDB.expressionSyntax: "js"`, conditions support JavaScript-style operators (`&&`, `||`, `===`, `!==`). Set `expressionSyntax: "sql"` for unchanged SQL.
 Temporal values are first converted as they are in `getData()`, then

@@ -8,6 +8,8 @@
 
 > **loadBucket**(`source`, `options?`): `this`
 
+Defined in: [src/class/SimpleTable.ts:1418](https://github.com/nshiab/simple-data-analysis/blob/v6.0.12/src/class/SimpleTable.ts#L1418)
+
 Downloads a file from Google Cloud Storage and loads it into the table.
 Supported sources are `.csv`, `.csv.gz`, `.json`, `.json.gz`, `.parquet`,
 `.geojson`, `.geoparquet`, and `.shp.zip`.

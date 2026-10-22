@@ -8,6 +8,8 @@
 
 > **logBottom**(`count?`, `options?`): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9240](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L9240)
+
 Logs the bottom `n` rows of the table to the console. By default, the last row will be returned first. To preserve the original order, use the `originalOrder` option.
 
 Uses the same precision-preserving temporal display, nested stringification,

@@ -8,6 +8,8 @@
 
 > **loadGeoDatawrapper**(`chartId`, `options?`): `this`
 
+Defined in: [src/class/SimpleTable.ts:1766](https://github.com/nshiab/simple-data-analysis/blob/v6.0.12/src/class/SimpleTable.ts#L1766)
+
 Loads geospatial data from a Datawrapper map into the table.
 
 Environment variables are named configuration values supplied to the running process. By default, this method reads the API key from `DATAWRAPPER_KEY` (for example, `"your-datawrapper-api-key"`).

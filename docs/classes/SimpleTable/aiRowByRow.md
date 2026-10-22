@@ -8,6 +8,8 @@
 
 > **aiRowByRow**(`column`, `newColumn`, `prompt`, `options?`): `this`
 
+Defined in: [src/class/SimpleTable.ts:220](https://github.com/nshiab/simple-data-analysis/blob/v6.0.12/src/class/SimpleTable.ts#L220)
+
 Applies a prompt to the value of each row in a specified column, storing the AI's response in one or more new columns. Requests are processed by a worker pool with configurable batching and concurrency.
 
 This method automatically appends instructions to your prompt; set `verbose` to `true` to see the full prompt.

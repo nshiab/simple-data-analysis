@@ -8,6 +8,8 @@
 
 > **splitSpread**(`column`, `separator`, `newColumns`, `options?`): `this`
 
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5116](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L5116)
+
 Splits strings in a specified column by a separator and spreads the resulting parts into multiple new columns.
 
 Each part of the split string will be stored in a separate column. The number of columns created is determined by the length of the `newColumns` array.
