@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.13**](../../index.md)
+[**Simple Data Analysis v6.0.14**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **logBarChart**(`labels`, `values`, `options?`): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
-Defined in: [src/class/SimpleTable.ts:2067](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L2067)
+Defined in: [src/class/SimpleTable.ts:2067](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L2067)
 
 Generates and logs a bar chart to the console.
 

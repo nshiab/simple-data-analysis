@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.13**](../../index.md)
+[**Simple Data Analysis v6.0.14**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **toDatawrapper**(`chartId`, `options?`): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
-Defined in: [src/class/SimpleTable.ts:1639](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L1639)
+Defined in: [src/class/SimpleTable.ts:1639](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L1639)
 
 Writes the table data as CSV to a Datawrapper chart or table.
 

@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.13**](../../index.md)
+[**Simple Data Analysis v6.0.14**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **loadDatawrapper**(`chartId`, `options?`): `this`
 
-Defined in: [src/class/SimpleTable.ts:1675](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L1675)
+Defined in: [src/class/SimpleTable.ts:1675](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L1675)
 
 Loads data from a Datawrapper chart or table into the table.
 

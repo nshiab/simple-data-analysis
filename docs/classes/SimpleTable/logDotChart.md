@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.13**](../../index.md)
+[**Simple Data Analysis v6.0.14**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **logDotChart**(`x`, `y`, `options?`): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
-Defined in: [src/class/SimpleTable.ts:2021](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L2021)
+Defined in: [src/class/SimpleTable.ts:2021](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L2021)
 
 Generates and logs a dot chart to the console. The data should be sorted by the x-axis values for accurate representation.
 

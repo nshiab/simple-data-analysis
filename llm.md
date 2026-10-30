@@ -1,4 +1,4 @@
-**Simple Data Analysis v6.0.13**
+**Simple Data Analysis v6.0.14**
 
 ***
 
@@ -100,9 +100,9 @@ stays close to raw DuckDB while keeping the code simple and readable.
 
 <!-- benchmark-tabular:start -->
 
-![Horizontal bars comparing mean duration for the tabular workload; lower is better](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.13/assets/benchmark-tabular-duration.png)
+![Horizontal bars comparing mean duration for the tabular workload; lower is better](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.14/assets/benchmark-tabular-duration.png)
 
-![Horizontal bars comparing mean peak memory for the tabular workload; lower is better](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.13/assets/benchmark-tabular-memory.png)
+![Horizontal bars comparing mean peak memory for the tabular workload; lower is better](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.14/assets/benchmark-tabular-memory.png)
 
 <!-- benchmark-tabular:end -->
 
@@ -119,9 +119,9 @@ DuckDB's geospatial tools to the same simple, chainable API.
 
 <!-- benchmark-spatial:start -->
 
-![Horizontal bars comparing mean duration for the spatial workload; lower is better](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.13/assets/benchmark-spatial-duration.png)
+![Horizontal bars comparing mean duration for the spatial workload; lower is better](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.14/assets/benchmark-spatial-duration.png)
 
-![Horizontal bars comparing mean peak memory for the spatial workload; lower is better](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.13/assets/benchmark-spatial-memory.png)
+![Horizontal bars comparing mean peak memory for the spatial workload; lower is better](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.14/assets/benchmark-spatial-memory.png)
 
 <!-- benchmark-spatial:end -->
 
@@ -319,7 +319,7 @@ await table.writeChart(
 await sdb.close();
 ```
 
-![Beeswarm chart showing the size of wildfires in Canada in 2023.](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.13/assets/beeswarm.png)
+![Beeswarm chart showing the size of wildfires in Canada in 2023.](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.14/assets/beeswarm.png)
 
 #### Maps
 
@@ -389,7 +389,7 @@ await provinces.writeMap(
 await sdb.close();
 ```
 
-![Map showing the wildfires in Canada in 2023.](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.13/assets/map.png)
+![Map showing the wildfires in Canada in 2023.](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.14/assets/map.png)
 
 ### Public data sources
 
@@ -679,7 +679,7 @@ await recipes.writeChart(
 await sdb.close();
 ```
 
-![UMAP scatterplot of 335 recipe descriptions, colored by manually named HDBSCAN clusters, with unclustered recipes in gray.](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.13/assets/recipes-umap.png)
+![UMAP scatterplot of 335 recipe descriptions, colored by manually named HDBSCAN clusters, with unclustered recipes in gray.](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.14/assets/recipes-umap.png)
 
 #### Semantic search
 
@@ -977,7 +977,7 @@ await sdb.close();
 Clustering and UMAP reveal five groups of wines. Our reference wine is
 highlighted, with its closest matches appearing nearby.
 
-![UMAP scatterplot of wines colored by HDBSCAN group, with opacity highlighting similarity scores above 0.95, with Louis Jadot Bourgogne Pinot Noir highlighted.](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.13/assets/wines-umap.png)
+![UMAP scatterplot of wines colored by HDBSCAN group, with opacity highlighting similarity scores above 0.95, with Louis Jadot Bourgogne Pinot Noir highlighted.](https://raw.githubusercontent.com/nshiab/simple-data-analysis/v6.0.14/assets/wines-umap.png)
 
 #### Network analysis
 
@@ -1450,7 +1450,7 @@ SimpleDB ran for 399 ms / 246 ms saved by using the cache / 4 ms spent writing t
 
 ### SimpleTable
 
-Defined in: [src/class/SimpleTable.ts:69](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L69)
+Defined in: [src/class/SimpleTable.ts:69](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L69)
 
 Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
 Extends the core [`SimpleTable`](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/docs/classes/SimpleTable.md) class
@@ -1558,7 +1558,7 @@ A boolean indicating whether to include data types when logging a table.
 
 > **aiEmbeddings**(`column`, `newColumn`, `options?`): `this`
 
-Defined in: [src/class/SimpleTable.ts:420](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L420)
+Defined in: [src/class/SimpleTable.ts:420](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L420)
 
 Generates embeddings for a specified text column and stores the results in a new column.
 
@@ -1736,7 +1736,7 @@ await table
 
 > **aiQuery**(`prompt`, `options?`): `this`
 
-Defined in: [src/class/SimpleTable.ts:1223](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L1223)
+Defined in: [src/class/SimpleTable.ts:1223](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L1223)
 
 Generates and executes a SQL query based on a prompt.
 Additional instructions, such as column types, are automatically added to your prompt. Set `verbose` to `true` to see the full prompt.
@@ -1845,7 +1845,7 @@ const averageSalaryByDepartment = await table
 
 > **aiRAG**(`query`, `idColumn`, `textColumn`, `nbResults`, `options?`): `Promise`\<`string`\>
 
-Defined in: [src/class/SimpleTable.ts:954](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L954)
+Defined in: [src/class/SimpleTable.ts:954](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L954)
 
 Performs Retrieval-Augmented Generation (RAG) by combining semantic vector search and BM25 full-text search to retrieve the most relevant context, then passing it to an LLM for answering queries. This hybrid approach uses both `aiVectorSimilarity` (embeddings-based) and `bm25` (keyword-based) methods in parallel, fusing their results using Reciprocal Rank Fusion (RRF) before using [journalism-ai](https://nshiab.github.io/journalism-ai/) to generate an answer.
 
@@ -2108,7 +2108,7 @@ const answer = await table.aiRAG(
 
 > **aiRowByRow**(`column`, `newColumn`, `prompt`, `options?`): `this`
 
-Defined in: [src/class/SimpleTable.ts:220](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L220)
+Defined in: [src/class/SimpleTable.ts:220](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L220)
 
 Applies a prompt to the value of each row in a specified column, storing the AI's response in one or more new columns. Requests are processed by a worker pool with configurable batching and concurrency.
 
@@ -2352,7 +2352,7 @@ await sdb
 
 > **aiVectorSimilarity**(`text`, `column`, `nbResults`, `options?`): `this`
 
-Defined in: [src/class/SimpleTable.ts:574](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L574)
+Defined in: [src/class/SimpleTable.ts:574](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L574)
 
 Creates an embedding from a specified text and returns the most similar text content based on their embeddings.
 This method is useful for semantic search and text similarity tasks, computing cosine distance and sorting results by similarity.
@@ -2505,7 +2505,7 @@ await table
 
 > **hybridSearch**(`query`, `idColumn`, `textColumn`, `nbResults`, `options?`): `this`
 
-Defined in: [src/class/SimpleTable.ts:735](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L735)
+Defined in: [src/class/SimpleTable.ts:735](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L735)
 
 Performs hybrid text search combining vector similarity and BM25 text search using Reciprocal Rank Fusion (RRF).
 
@@ -4861,7 +4861,7 @@ await table.renameColumns({ "product_id": "productId" }, { strict: false }).log(
 
 > **logBarChart**(`labels`, `values`, `options?`): `Promise`\<[`SimpleTable`](#simpletable)\>
 
-Defined in: [src/class/SimpleTable.ts:2067](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L2067)
+Defined in: [src/class/SimpleTable.ts:2067](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L2067)
 
 Generates and logs a bar chart to the console.
 
@@ -4949,7 +4949,7 @@ await table.log();
 
 > **logDotChart**(`x`, `y`, `options?`): `Promise`\<[`SimpleTable`](#simpletable)\>
 
-Defined in: [src/class/SimpleTable.ts:2021](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L2021)
+Defined in: [src/class/SimpleTable.ts:2021](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L2021)
 
 Generates and logs a dot chart to the console. The data should be sorted by the x-axis values for accurate representation.
 
@@ -5068,7 +5068,7 @@ await table.log();
 
 > **logHistogram**(`values`, `options?`): `Promise`\<[`SimpleTable`](#simpletable)\>
 
-Defined in: [src/class/SimpleTable.ts:2115](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L2115)
+Defined in: [src/class/SimpleTable.ts:2115](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L2115)
 
 Generates and logs a histogram of a numeric column to the console.
 
@@ -5137,7 +5137,7 @@ await table.log();
 
 > **logLineChart**(`x`, `y`, `options?`): `Promise`\<[`SimpleTable`](#simpletable)\>
 
-Defined in: [src/class/SimpleTable.ts:1943](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L1943)
+Defined in: [src/class/SimpleTable.ts:1943](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L1943)
 
 Generates and logs a line chart to the console. The data should be sorted by the x-axis values for accurate representation.
 
@@ -5256,7 +5256,7 @@ await table.log();
 
 > **writeChart**(`chart`, `path`, `options?`): `Promise`\<[`SimpleTable`](#simpletable)\>
 
-Defined in: [src/class/SimpleTable.ts:1814](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L1814)
+Defined in: [src/class/SimpleTable.ts:1814](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L1814)
 
 Creates an [Observable Plot](https://github.com/observablehq/plot) chart as an image file (.png or .svg) from the table data.
 To create maps, use the `writeMap` method.
@@ -5326,7 +5326,7 @@ await table.log();
 
 > **writeMap**(`map`, `path`, `options?`): `Promise`\<[`SimpleTable`](#simpletable)\>
 
-Defined in: [src/class/SimpleTable.ts:1864](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L1864)
+Defined in: [src/class/SimpleTable.ts:1864](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L1864)
 
 Creates an [Observable Plot](https://github.com/observablehq/plot) map as an image file (.png or .svg) from the table's geospatial data.
 To create charts from non-geospatial data, use the `writeChart` method.
@@ -5413,7 +5413,7 @@ await table.log();
 
 > **toBucket**(`destination`, `options?`): `Promise`\<`string`\>
 
-Defined in: [src/class/SimpleTable.ts:1361](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L1361)
+Defined in: [src/class/SimpleTable.ts:1361](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L1361)
 
 Writes the table to a file and uploads it to a Google Cloud Storage bucket.
 Supported destinations are `.csv`, `.csv.gz`, `.json`, `.json.gz`,
@@ -5502,7 +5502,7 @@ await sdb
 
 > **toDatawrapper**(`chartId`, `options?`): `Promise`\<[`SimpleTable`](#simpletable)\>
 
-Defined in: [src/class/SimpleTable.ts:1639](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L1639)
+Defined in: [src/class/SimpleTable.ts:1639](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L1639)
 
 Writes the table data as CSV to a Datawrapper chart or table.
 
@@ -5586,7 +5586,7 @@ await table.log();
 
 > **toGeoDatawrapper**(`chartId`, `options?`): `Promise`\<[`SimpleTable`](#simpletable)\>
 
-Defined in: [src/class/SimpleTable.ts:1727](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L1727)
+Defined in: [src/class/SimpleTable.ts:1727](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L1727)
 
 Writes the table's geospatial data as GeoJSON to a Datawrapper map.
 
@@ -5676,7 +5676,7 @@ await table.log();
 
 > **toSheet**(`sheetUrl`, `options?`): `Promise`\<[`SimpleTable`](#simpletable)\>
 
-Defined in: [src/class/SimpleTable.ts:1519](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L1519)
+Defined in: [src/class/SimpleTable.ts:1519](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L1519)
 
 Writes the table data to a Google Sheet.
 This method uses the `pushToSheet` function from the [journalism-google library](https://github.com/nshiab/journalism-google/tree/v2.0.0/docs). Refer to its documentation for more details.
@@ -12266,7 +12266,7 @@ If Yahoo rejects the request or returns no data.
 
 > **loadBucket**(`source`, `options?`): `this`
 
-Defined in: [src/class/SimpleTable.ts:1418](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L1418)
+Defined in: [src/class/SimpleTable.ts:1418](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L1418)
 
 Downloads a file from Google Cloud Storage and loads it into the table.
 Supported sources are `.csv`, `.csv.gz`, `.json`, `.json.gz`, `.parquet`,
@@ -12338,7 +12338,7 @@ await sdb
 
 > **loadDatawrapper**(`chartId`, `options?`): `this`
 
-Defined in: [src/class/SimpleTable.ts:1675](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L1675)
+Defined in: [src/class/SimpleTable.ts:1675](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L1675)
 
 Loads data from a Datawrapper chart or table into the table.
 
@@ -12384,7 +12384,7 @@ const chartData = await sdb
 
 > **loadGeoDatawrapper**(`chartId`, `options?`): `this`
 
-Defined in: [src/class/SimpleTable.ts:1766](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L1766)
+Defined in: [src/class/SimpleTable.ts:1766](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L1766)
 
 Loads geospatial data from a Datawrapper map into the table.
 
@@ -12432,7 +12432,7 @@ const mapData = await sdb
 
 > **loadSheet**(`sheetUrl`, `options?`): `this`
 
-Defined in: [src/class/SimpleTable.ts:1584](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L1584)
+Defined in: [src/class/SimpleTable.ts:1584](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L1584)
 
 Loads data from a Google Sheet into the table.
 This method uses the `getSheetData` function from the [journalism-google library](https://github.com/nshiab/journalism-google/blob/v2.0.0/docs/functions/getSheetData.md). Refer to its documentation for more details.
@@ -16868,7 +16868,7 @@ await table
 
 ### SimpleDB
 
-Defined in: [src/class/SimpleDB.ts:46](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleDB.ts#L46)
+Defined in: [src/class/SimpleDB.ts:46](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleDB.ts#L46)
 
 Manages a DuckDB database instance, providing a simplified interface for database operations.
 Extends the core [`SimpleDB`](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/docs/classes/SimpleDB.md) class
@@ -16920,7 +16920,7 @@ const sdb = new SimpleDB({
 
 > **new SimpleDB**(`options?`): [`SimpleDB`](#simpledb)
 
-Defined in: [src/class/SimpleDB.ts:88](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleDB.ts#L88)
+Defined in: [src/class/SimpleDB.ts:88](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleDB.ts#L88)
 
 Creates a new SimpleDB instance.
 

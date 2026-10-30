@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.13**](../../index.md)
+[**Simple Data Analysis v6.0.14**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **loadSheet**(`sheetUrl`, `options?`): `this`
 
-Defined in: [src/class/SimpleTable.ts:1584](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L1584)
+Defined in: [src/class/SimpleTable.ts:1584](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L1584)
 
 Loads data from a Google Sheet into the table.
 This method uses the `getSheetData` function from the [journalism-google library](https://github.com/nshiab/journalism-google/blob/v2.0.0/docs/functions/getSheetData.md). Refer to its documentation for more details.
