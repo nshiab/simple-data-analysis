@@ -8,7 +8,7 @@
 
 > **addNoise**(`columns`, `max`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5618](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L5618)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5618](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L5618)
 
 Adds independently generated uniform random noise to numeric values in one or more columns.
 Each changed value receives an offset between `-max` and `max`. Selected integer and decimal columns become `DOUBLE` columns so fractional noise is retained. This method adds random jitter; it does not provide anonymization or differential privacy guarantees.

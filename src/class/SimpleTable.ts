@@ -23,14 +23,14 @@ import toGeoDatawrapper from "../methods/toGeoDatawrapper.ts";
 
 /**
  * Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
- * Extends the core [`SimpleTable`](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/docs/classes/SimpleTable.md) class
+ * Extends the core [`SimpleTable`](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/docs/classes/SimpleTable.md) class
  * from [`simple-data-analysis-core`](https://github.com/nshiab/simple-data-analysis-core) to include
  * additional AI, Google Sheets, and charting methods.
  * Integration dependencies load only when their operations execute, and are reused
  * by subsequent calls. Core-only pipelines do not load these dependencies.
  *
  * All core methods are available on this class.
- * See the [core SimpleTable reference](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/docs/classes/SimpleTable.md)
+ * See the [core SimpleTable reference](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/docs/classes/SimpleTable.md)
  * for inherited methods such as `loadData()`, `filter()`, and `log()`.
  *
  * @example

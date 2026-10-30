@@ -8,7 +8,7 @@
 
 > **rowToVector**(`columns`, `newColumn`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5317](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L5317)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5317](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L5317)
 
 Combines numeric scalar columns into a fixed-size vector. The input
 column order determines the vector dimension order, and null values remain

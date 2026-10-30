@@ -8,7 +8,7 @@
 
 > **getTables**(): readonly [`SimpleTable`](../SimpleTable.md)[]
 
-Defined in: [simple-data-analysis-core/src/class/SimpleDB.ts:765](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleDB.ts#L765)
+Defined in: [simple-data-analysis-core/src/class/SimpleDB.ts:765](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleDB.ts#L765)
 
 Returns an array of all SimpleTable instances in the database.
 

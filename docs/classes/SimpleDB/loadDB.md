@@ -8,7 +8,7 @@
 
 > **loadDB**(`file`): `Promise`\<[`SimpleDB`](../SimpleDB.md)\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleDB.ts:925](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleDB.ts#L925)
+Defined in: [simple-data-analysis-core/src/class/SimpleDB.ts:925](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleDB.ts#L925)
 
 Imports a copy of a `.db` or `.duckdb` (DuckDB) or `.sqlite` (SQLite)
 file into the current database. The source is opened read-only and detached

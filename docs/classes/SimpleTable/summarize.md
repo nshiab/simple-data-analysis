@@ -8,7 +8,7 @@
 
 > **summarize**(`options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6117](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L6117)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6117](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L6117)
 
 Creates a summary table from selected columns, optionally grouped by other columns.
 This method allows you to aggregate data, calculate statistics (e.g., count, mean, sum), and group results by categorical columns.

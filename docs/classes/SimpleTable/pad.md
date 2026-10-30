@@ -8,7 +8,7 @@
 
 > **pad**(`columns`, `length`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5044](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L5044)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5044](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L5044)
 
 Pads the strings in the specified columns to a target length.
 

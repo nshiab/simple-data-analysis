@@ -8,7 +8,7 @@
 
 > **getHash**(): `Promise`\<`string`\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7058](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L7058)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7061](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L7061)
 
 Returns a deterministic hash of the table's ordered schema and contents.
 Pending operations are executed before the hash is calculated. Computing

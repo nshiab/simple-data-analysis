@@ -9,14 +9,14 @@
 Defined in: [src/class/SimpleTable.ts:69](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleTable.ts#L69)
 
 Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
-Extends the core [`SimpleTable`](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/docs/classes/SimpleTable.md) class
+Extends the core [`SimpleTable`](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/docs/classes/SimpleTable.md) class
 from [`simple-data-analysis-core`](https://github.com/nshiab/simple-data-analysis-core) to include
 additional AI, Google Sheets, and charting methods.
 Integration dependencies load only when their operations execute, and are reused
 by subsequent calls. Core-only pipelines do not load these dependencies.
 
 All core methods are available on this class.
-See the [core SimpleTable reference](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/docs/classes/SimpleTable.md)
+See the [core SimpleTable reference](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/docs/classes/SimpleTable.md)
 for inherited methods such as `loadData()`, `filter()`, and `log()`.
 
 ## Examples
@@ -60,7 +60,7 @@ await sdb.close();
 
 > **new SimpleTable**(`name`, `simpleDB`, `options?`): `SimpleTable`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:294](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L294)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:294](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L294)
 
 Creates an instance of SimpleTable.
 
@@ -293,7 +293,7 @@ A boolean indicating whether to include data types when logging a table.
 
 > **charsToLog**: `number` \| `undefined`
 
-Defined in: [simple-data-analysis-core/src/class/Simple.ts:32](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/Simple.ts#L32)
+Defined in: [simple-data-analysis-core/src/class/Simple.ts:32](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/Simple.ts#L32)
 
 The maximum number of characters to display for text and stringified nested cells, including the truncation marker. This does not control column width. Set to Infinity to show the entire text.
 
@@ -318,7 +318,7 @@ await sdb.newTable().loadArray([{ text: "x".repeat(200) }]).log();
 
 > **connection**: `DuckDBConnection`
 
-Defined in: [simple-data-analysis-core/src/class/Simple.ts:40](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/Simple.ts#L40)
+Defined in: [simple-data-analysis-core/src/class/Simple.ts:40](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/Simple.ts#L40)
 
 A connection to a DuckDB database.
 
@@ -332,7 +332,7 @@ A connection to a DuckDB database.
 
 > **db**: `DuckDBInstance`
 
-Defined in: [simple-data-analysis-core/src/class/Simple.ts:36](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/Simple.ts#L36)
+Defined in: [simple-data-analysis-core/src/class/Simple.ts:36](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/Simple.ts#L36)
 
 A DuckDB database instance.
 
@@ -346,7 +346,7 @@ A DuckDB database instance.
 
 > **defaultTableName**: `boolean`
 
-Defined in: [simple-data-analysis-core/src/class/Simple.ts:46](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/Simple.ts#L46)
+Defined in: [simple-data-analysis-core/src/class/Simple.ts:46](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/Simple.ts#L46)
 
 A flag indicating if the table name was assigned by default.
 
@@ -364,7 +364,7 @@ A flag indicating if the table name was assigned by default.
 
 > **rowsToLog**: `number`
 
-Defined in: [simple-data-analysis-core/src/class/Simple.ts:14](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/Simple.ts#L14)
+Defined in: [simple-data-analysis-core/src/class/Simple.ts:14](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/Simple.ts#L14)
 
 The number of rows to display when logging a table.
 
@@ -382,7 +382,7 @@ The number of rows to display when logging a table.
 
 > **runQuery**: (`query`, `connection`, `returnData`, `options`) => `Promise`\<`object`[] \| `null`\>
 
-Defined in: [simple-data-analysis-core/src/class/Simple.ts:73](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/Simple.ts#L73)
+Defined in: [simple-data-analysis-core/src/class/Simple.ts:73](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/Simple.ts#L73)
 
 A function for running SQL queries. Subclasses can wrap this seam to observe
 execution while forwarding every argument. To run custom SQL, use
@@ -474,7 +474,7 @@ table.runQuery = (query, connection, returnData, options) => {
 
 > **typesToLog**: `boolean`
 
-Defined in: [simple-data-analysis-core/src/class/Simple.ts:20](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/Simple.ts#L20)
+Defined in: [simple-data-analysis-core/src/class/Simple.ts:20](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/Simple.ts#L20)
 
 A flag indicating whether to include data types when logging a table.
 
@@ -492,7 +492,7 @@ A flag indicating whether to include data types when logging a table.
 
 > **indexes**: (\{ `column`: `string`; `kind`: `"vss"`; `name`: `string`; `options`: \{ `efConstruction?`: `number`; `efSearch?`: `number`; `M?`: `number`; \}; \} \| \{ `idColumn`: `string`; `kind`: `"fts"`; `name`: `string`; `options`: \{ `ignore?`: `string`; `lower?`: `boolean`; `stemmer?`: `string`; `stopwords?`: `string`; `stripAccents?`: `boolean`; \}; `textColumn`: `string`; \})[]
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:243](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L243)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:243](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L243)
 
 The definitions of the indexes belonging to the table, if any. Do not
 mutate this array directly.

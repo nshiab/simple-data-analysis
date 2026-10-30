@@ -8,7 +8,7 @@
 
 > **randomPoint**(`newColumn`, `tries`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8455](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L8455)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8458](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L8458)
 
 Generates a random point within the geometries of a specified column.
 

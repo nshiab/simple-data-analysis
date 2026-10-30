@@ -8,7 +8,7 @@
 
 > **loadGeoData**(`file`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:815](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L815)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:815](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L815)
 
 Loads geospatial data from an external file or URL into the table.
 With the default `SimpleDB.expressionSyntax: "js"`, conditions support JavaScript-style operators (`&&`, `||`, `===`, `!==`). Set `expressionSyntax: "sql"` for unchanged SQL.

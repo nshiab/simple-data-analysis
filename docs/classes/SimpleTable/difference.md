@@ -8,7 +8,7 @@
 
 > **difference**(`column1`, `column2`, `newColumn`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8272](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L8272)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8275](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L8275)
 
 Computes the geometric difference between two geometries, returning the portion of the first geometry that does not intersect the second.
 

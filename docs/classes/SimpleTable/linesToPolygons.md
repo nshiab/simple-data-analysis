@@ -8,7 +8,7 @@
 
 > **linesToPolygons**(`column?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8632](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L8632)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8635](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L8635)
 
 Transforms closed linestring geometries into polygon geometries.
 

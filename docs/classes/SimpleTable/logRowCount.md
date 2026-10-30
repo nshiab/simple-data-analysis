@@ -8,7 +8,7 @@
 
 > **logRowCount**(): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9204](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L9204)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9208](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L9208)
 
 Logs the total number of rows in the table to the console.
 

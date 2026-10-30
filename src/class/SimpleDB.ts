@@ -3,12 +3,12 @@ import SimpleTable from "./SimpleTable.ts";
 
 /**
  * Manages a DuckDB database instance, providing a simplified interface for database operations.
- * Extends the core [`SimpleDB`](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/docs/classes/SimpleDB.md) class
+ * Extends the core [`SimpleDB`](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/docs/classes/SimpleDB.md) class
  * from [`simple-data-analysis-core`](https://github.com/nshiab/simple-data-analysis-core) to use
  * our extended SimpleTable class which includes additional AI, Google Sheets, and charting methods.
  *
  * All core methods are available on this class.
- * See the [core SimpleDB reference](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/docs/classes/SimpleDB.md)
+ * See the [core SimpleDB reference](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/docs/classes/SimpleDB.md)
  * for inherited methods such as `newTable()` and `close()`.
  *
  * @example

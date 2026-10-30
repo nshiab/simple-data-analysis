@@ -8,7 +8,7 @@
 
 > **replaceNulls**(`columns`, `value`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5198](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L5198)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5198](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L5198)
 
 Replaces `NULL` values in the specified columns with a given value.
 Use `["all"]` to target a column literally named `all`.

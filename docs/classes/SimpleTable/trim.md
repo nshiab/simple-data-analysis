@@ -8,7 +8,7 @@
 
 > **trim**(`columns`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:2016](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L2016)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:2016](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L2016)
 
 Trims specified characters from the beginning, end, or both sides of string values in the given columns.
 Pass `"all"` to trim every string (VARCHAR) column, leaving other types unchanged.

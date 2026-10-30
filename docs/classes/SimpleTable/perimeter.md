@@ -8,7 +8,7 @@
 
 > **perimeter**(`newColumn`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8115](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.14/src/class/SimpleTable.ts#L8115)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8118](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L8118)
 
 Computes the perimeter of polygon geometries in meters (`"m"`) or optionally kilometers (`"km"`).
 The input geometry is assumed to be in EPSG:4326 (WGS84).
