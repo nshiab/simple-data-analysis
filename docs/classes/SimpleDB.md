@@ -58,7 +58,7 @@ const sdb = new SimpleDB({
 
 > **new SimpleDB**(`options?`): `SimpleDB`
 
-Defined in: [src/class/SimpleDB.ts:81](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleDB.ts#L81)
+Defined in: [src/class/SimpleDB.ts:88](https://github.com/nshiab/simple-data-analysis/blob/v6.0.13/src/class/SimpleDB.ts#L88)
 
 Creates a new SimpleDB instance.
 
@@ -91,6 +91,12 @@ A flag indicating whether to use DuckDB's external file cache.
 `boolean`
 
 A flag indicating whether to log DuckDB query plans for supported statements.
+
+###### expressionSyntax?
+
+`"js"` \| `"sql"`
+
+`"js"` (default) translates JavaScript operators; `"sql"` leaves SQL unchanged.
 
 ###### file?
 
@@ -156,12 +162,18 @@ A flag indicating whether to include data types when logging a table.
 
 `SimpleDB`
 
-#### Example
+#### Examples
 
 ```ts
 const sdb = new SimpleDB({ file: "./archive.duckdb", readOnly: true });
 const table = await sdb.getTable("employees");
 await table.log();
+await sdb.close();
+```
+
+```ts
+// Keep SQL expressions unchanged.
+const sdb = new SimpleDB({ expressionSyntax: "sql" });
 await sdb.close();
 ```
 

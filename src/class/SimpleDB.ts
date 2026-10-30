@@ -61,6 +61,12 @@ export default class SimpleDB extends SimpleDBCore<SimpleTable> {
    * await table.log();
    * await sdb.close();
    * ```
+   * @example
+   * ```ts
+   * // Keep SQL expressions unchanged.
+   * const sdb = new SimpleDB({ expressionSyntax: "sql" });
+   * await sdb.close();
+   * ```
    * @param options - Configuration options for the SimpleDB instance.
    * @param options.file - The path to a persistent DuckDB file, opened or created on first use. If not provided, an in-memory database is used.
    * @param options.overwrite - Whether to replace an existing DuckDB file on first use instead of opening it. Defaults to false.
@@ -70,6 +76,7 @@ export default class SimpleDB extends SimpleDBCore<SimpleTable> {
    * @param options.charsToLog - The maximum number of characters to display for text-based cells.
    * @param options.typesToLog - A flag indicating whether to include data types when logging a table.
    * @param options.cacheVerbose - A flag indicating whether to log verbose cache-related messages.
+   * @param options.expressionSyntax - `"js"` (default) translates JavaScript operators; `"sql"` leaves SQL unchanged.
    * @param options.logSQL - A flag indicating whether to log SQL immediately before execution.
    * @param options.explainSQL - A flag indicating whether to log DuckDB query plans for supported statements.
    * @param options.duckDbCache - A flag indicating whether to use DuckDB's external file cache.
@@ -88,6 +95,7 @@ export default class SimpleDB extends SimpleDBCore<SimpleTable> {
       charsToLog?: number;
       typesToLog?: boolean;
       cacheVerbose?: boolean;
+      expressionSyntax?: "js" | "sql";
       logSQL?: boolean;
       explainSQL?: boolean;
       duckDbCache?: boolean | null;

@@ -6,6 +6,29 @@ import { readFile } from "node:fs/promises";
 import { assertInstanceOf, assertRejects } from "../../helpers/assertions.ts";
 import { SimpleDB, SimpleTable } from "../../../src/index.ts";
 
+function checkExpressionSyntaxTypes(): void {
+  new SimpleDB({ expressionSyntax: "js" });
+  new SimpleDB({ expressionSyntax: "sql" });
+  // @ts-expect-error Only JavaScript and SQL expression syntax are supported.
+  new SimpleDB({ expressionSyntax: "invalid" });
+}
+void checkExpressionSyntaxTypes;
+
+test("the constructor forwards SQL expression syntax to core", async () => {
+  const sdb = new SimpleDB({ expressionSyntax: "sql" });
+  try {
+    const rows = await sdb
+      .newTable("names")
+      .loadArray([{ first: "Jane", last: "Doe" }])
+      .addColumn("name", "string", "first || last")
+      .getData();
+    expect(sdb.expressionSyntax).toEqual("sql");
+    expect(rows).toEqual([{ first: "Jane", last: "Doe", name: "JaneDoe" }]);
+  } finally {
+    await sdb.close();
+  }
+});
+
 test("persistent startup restores extended SDA tables", async () => {
   const directory = mkdtempSync(tmpdir() + "/" + "sda-test-");
   const file = `${directory}/analysis.duckdb`;
