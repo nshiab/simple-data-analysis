@@ -8,7 +8,7 @@
 
 > **logTypes**(): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9129](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L9129)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9144](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleTable.ts#L9144)
 
 Logs the types of all columns in the table to the console.
 

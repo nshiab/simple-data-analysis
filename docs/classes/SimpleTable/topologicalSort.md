@@ -8,7 +8,7 @@
 
 > **topologicalSort**(`sourceColumn`, `targetColumn`, `options?`): `SimpleTable`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:3264](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L3264)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:3265](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleTable.ts#L3265)
 
 Orders nodes so each prerequisite comes before the nodes that depend on
 it. Each input row means the source node must come before the target

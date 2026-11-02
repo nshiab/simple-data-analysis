@@ -8,7 +8,7 @@
 
 > **logProjections**(): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9099](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L9099)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9114](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleTable.ts#L9114)
 
 Logs the projections of the geospatial data (if any) to the console.
 

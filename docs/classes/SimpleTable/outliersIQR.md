@@ -8,7 +8,7 @@
 
 > **outliersIQR**(`column`, `newColumn`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6497](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L6497)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6498](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleTable.ts#L6498)
 
 Identifies outliers in a specified column using the Interquartile Range (IQR) method.
 

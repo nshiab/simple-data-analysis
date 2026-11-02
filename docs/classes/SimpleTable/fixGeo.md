@@ -8,7 +8,7 @@
 
 > **fixGeo**(`column?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7818](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L7818)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7833](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleTable.ts#L7833)
 
 Attempts to make invalid geometries valid without removing any vertices.
 

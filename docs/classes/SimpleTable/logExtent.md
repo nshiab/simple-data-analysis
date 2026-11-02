@@ -8,7 +8,7 @@
 
 > **logExtent**(`column`): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9261](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L9261)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9334](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleTable.ts#L9334)
 
 Logs the extent (minimum and maximum values) of a numeric column to the console.
 

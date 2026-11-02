@@ -8,7 +8,7 @@
 
 > **addGeoValidity**(`newColumn`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7769](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.18/src/class/SimpleTable.ts#L7769)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7784](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleTable.ts#L7784)
 
 Adds a column with boolean values indicating the validity of geometries.
 
