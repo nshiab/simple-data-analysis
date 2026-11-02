@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.14**](../../index.md)
+[**Simple Data Analysis v6.0.15**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **aiEmbeddings**(`column`, `newColumn`, `options?`): `this`
 
-Defined in: [src/class/SimpleTable.ts:420](https://github.com/nshiab/simple-data-analysis/blob/v6.0.14/src/class/SimpleTable.ts#L420)
+Defined in: [src/class/SimpleTable.ts:420](https://github.com/nshiab/simple-data-analysis/blob/v6.0.15/src/class/SimpleTable.ts#L420)
 
 Generates embeddings for a specified text column and stores the results in a new column.
 
