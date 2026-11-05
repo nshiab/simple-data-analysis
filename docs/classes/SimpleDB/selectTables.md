@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.15**](../../index.md)
+[**Simple Data Analysis v6.0.16**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **selectTables**(`tables`): `Promise`\<[`SimpleDB`](../SimpleDB.md)\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleDB.ts:705](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleDB.ts#L705)
+Defined in: [simple-data-analysis-core/src/class/SimpleDB.ts:705](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleDB.ts#L705)
 
 Selects one or more tables to keep in the database, removing all others.
 

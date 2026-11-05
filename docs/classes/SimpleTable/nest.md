@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.15**](../../index.md)
+[**Simple Data Analysis v6.0.16**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **nest**(`column`, `separator`, `by`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5538](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleTable.ts#L5538)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5538](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleTable.ts#L5538)
 
 Nests (collapses) rows by aggregating a column's values into a single string per group, separated by a delimiter.
 

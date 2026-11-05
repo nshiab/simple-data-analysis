@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.15**](../../index.md)
+[**Simple Data Analysis v6.0.16**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **zScore**(`column`, `newColumn`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6537](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleTable.ts#L6537)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6545](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleTable.ts#L6545)
 
 Computes the Z-score for values in a specified column.
 

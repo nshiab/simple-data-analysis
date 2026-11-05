@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.15**](../../index.md)
+[**Simple Data Analysis v6.0.16**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **selectColumns**(`columns`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:1785](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleTable.ts#L1785)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:1785](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleTable.ts#L1785)
 
 Selects specific columns in the table, removing all others.
 

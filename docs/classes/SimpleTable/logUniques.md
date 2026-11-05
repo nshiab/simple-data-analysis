@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.15**](../../index.md)
+[**Simple Data Analysis v6.0.16**](../../index.md)
 
 ***
 
@@ -10,7 +10,7 @@
 
 > **logUniques**(`column`, `options?`): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9173](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleTable.ts#L9173)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9181](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleTable.ts#L9181)
 
 Logs a column's sorted unique values as an array without modifying the table.
 If your terminal's runtime truncates the array, use `stringify` to see every value.
@@ -61,7 +61,7 @@ await table.logUniques("name", { stringify: true });
 
 > **logUniques**(`column`, `options?`): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9173](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleTable.ts#L9173)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9181](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleTable.ts#L9181)
 
 Logs unique combinations as a table without modifying the source table.
 Combinations are sorted in ascending order by the columns in the order provided.

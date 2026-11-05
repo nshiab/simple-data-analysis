@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.15**](../../index.md)
+[**Simple Data Analysis v6.0.16**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **getDescription**(): `Promise`\<`object`[]\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6829](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleTable.ts#L6829)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6837](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleTable.ts#L6837)
 
 Returns descriptive statistical information about the columns, including details like data types, number of null values, and distinct values.
 

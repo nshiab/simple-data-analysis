@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.15**](../../index.md)
+[**Simple Data Analysis v6.0.16**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **cache**(`compute`, `options?`): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8951](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleTable.ts#L8951)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8959](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleTable.ts#L8959)
 
 Caches the results of computations in `./.sda-cache`.
 You should add `./.sda-cache` to your `.gitignore` file.

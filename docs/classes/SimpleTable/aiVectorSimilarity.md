@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.15**](../../index.md)
+[**Simple Data Analysis v6.0.16**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **aiVectorSimilarity**(`text`, `column`, `nbResults`, `options?`): `this`
 
-Defined in: [src/class/SimpleTable.ts:574](https://github.com/nshiab/simple-data-analysis/blob/v6.0.15/src/class/SimpleTable.ts#L574)
+Defined in: [src/class/SimpleTable.ts:574](https://github.com/nshiab/simple-data-analysis/blob/v6.0.16/src/class/SimpleTable.ts#L574)
 
 Creates an embedding from a specified text and returns the most similar text content based on their embeddings.
 This method is useful for semantic search and text similarity tasks, computing cosine distance and sorting results by similarity.

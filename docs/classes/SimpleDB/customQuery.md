@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.15**](../../index.md)
+[**Simple Data Analysis v6.0.16**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **customQuery**(`query`, `options?`): `Promise`\<`object`[] \| `null`\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleDB.ts:864](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleDB.ts#L864)
+Defined in: [simple-data-analysis-core/src/class/SimpleDB.ts:864](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleDB.ts#L864)
 
 Executes a custom SQL query directly against the DuckDB instance.
 With the default `SimpleDB.expressionSyntax: "js"`, queries support JavaScript-style operators (`&&`, `||`, `===`, `!==`). Set `expressionSyntax: "sql"` for unchanged SQL.

@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.15**](../../index.md)
+[**Simple Data Analysis v6.0.16**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **getExtent**(`column`): `Promise`\<\[`unknown`, `unknown`\]\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7134](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleTable.ts#L7134)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7142](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleTable.ts#L7142)
 
 Returns the extent (minimum and maximum values) of a specific column as an array.
 Temporal values use the same JavaScript representations as `getData()`.

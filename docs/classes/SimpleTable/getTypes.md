@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.15**](../../index.md)
+[**Simple Data Analysis v6.0.16**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **getTypes**(): `Promise`\<\{\[`key`: `string`\]: `string`; \}\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7042](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleTable.ts#L7042)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7050](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleTable.ts#L7050)
 
 Returns the data types of all columns in the table.
 

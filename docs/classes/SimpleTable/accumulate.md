@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.15**](../../index.md)
+[**Simple Data Analysis v6.0.16**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **accumulate**(`column`, `newColumn`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6305](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.19/src/class/SimpleTable.ts#L6305)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6312](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleTable.ts#L6312)
 
 Computes the cumulative sum of values in a column. For this method to work properly, ensure your data is sorted first.
 
@@ -36,6 +36,12 @@ An optional object with configuration options:
 
 The column name or an array of column names to partition by. Accumulation is performed independently within each group.
 
+#### decimals?
+
+`number`
+
+The number of decimal places to round each cumulative sum to. Defaults to `undefined` (no rounding).
+
 ## Returns
 
 `this`
@@ -59,6 +65,11 @@ await table.accumulate("orders", "cumulativeOrders", { by: "customer_id" }).log(
 ```ts
 // Compute the cumulative sum of 'revenue' by 'region' and 'product_category'
 await table.accumulate("revenue", "cumulativeRevenue", { by: ["region", "product_category"] }).log();
+```
+
+```ts
+// Round cumulative sales to 2 decimal places
+await table.accumulate("sales", "cumulativeSales", { decimals: 2 }).log();
 ```
 
 ## Inherited from
