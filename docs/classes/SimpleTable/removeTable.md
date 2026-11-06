@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.16**](../../index.md)
+[**Simple Data Analysis v6.0.17**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **removeTable**(): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:2422](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleTable.ts#L2422)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:2423](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L2423)
 
 Removes the table from the database. After this operation, invoking methods on this SimpleTable instance will result in an error.
 

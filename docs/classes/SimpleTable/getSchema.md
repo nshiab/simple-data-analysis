@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.16**](../../index.md)
+[**Simple Data Analysis v6.0.17**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **getSchema**(): `Promise`\<`object`[]\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6817](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleTable.ts#L6817)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6891](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L6891)
 
 Returns the schema of the table, including column names and their data types.
 

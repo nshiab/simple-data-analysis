@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.16**](../../index.md)
+[**Simple Data Analysis v6.0.17**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **longer**(`columns`, `namesTo`, `valuesTo`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:2252](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleTable.ts#L2252)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:2253](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L2253)
 
 Restructures this table by stacking (unpivoting) columns. This is useful for tidying up data from a wide format to a long format.
 

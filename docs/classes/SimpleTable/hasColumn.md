@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.16**](../../index.md)
+[**Simple Data Analysis v6.0.17**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **hasColumn**(`column`): `Promise`\<`boolean`\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:1820](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleTable.ts#L1820)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:1821](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L1821)
 
 Checks if a column with the specified name exists in the table.
 

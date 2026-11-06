@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.16**](../../index.md)
+[**Simple Data Analysis v6.0.17**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **getMax**(`column`): `Promise`\<`unknown`\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7124](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleTable.ts#L7124)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7198](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L7198)
 
 Returns the maximum value from a specific column.
 Temporal values use the same JavaScript representations as `getData()`.

@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.16**](../../index.md)
+[**Simple Data Analysis v6.0.17**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **hybridSearch**(`query`, `idColumn`, `textColumn`, `nbResults`, `options?`): `this`
 
-Defined in: [src/class/SimpleTable.ts:735](https://github.com/nshiab/simple-data-analysis/blob/v6.0.16/src/class/SimpleTable.ts#L735)
+Defined in: [src/class/SimpleTable.ts:735](https://github.com/nshiab/simple-data-analysis/blob/v6.0.17/src/class/SimpleTable.ts#L735)
 
 Performs hybrid text search combining vector similarity and BM25 text search using Reciprocal Rank Fusion (RRF).
 

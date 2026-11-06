@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.16**](../../index.md)
+[**Simple Data Analysis v6.0.17**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **rowRanks**(`columns`, `options`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5901](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleTable.ts#L5901)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5902](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L5902)
 
 Selects a ranked numeric value within each row and adds its source column
 name, its value, or both as new columns.

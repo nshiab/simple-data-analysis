@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.16**](../../index.md)
+[**Simple Data Analysis v6.0.17**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **splitExtract**(`column`, `separator`, `index`, `newColumn`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5078](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.20/src/class/SimpleTable.ts#L5078)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5079](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L5079)
 
 Splits strings in a specified column by a separator and extracts a substring at a given index, storing the result in a new or existing column.
 If the index is out of bounds, an empty string will be returned for that row.
