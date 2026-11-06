@@ -92,6 +92,9 @@ The version hooks run all checks, regenerate documentation, and atomically push
 the version commit and tag. The tag workflow publishes npm provenance, creates
 the GitHub release, and deploys documentation to GitHub Pages.
 
+To update GitHub Pages between releases, run the **Publish documentation**
+workflow from `main` in GitHub Actions. It builds and deploys the site only.
+
 When committing your work, keep in mind that your messages will be public if
 your code gets merged into the main branch.
 

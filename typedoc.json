@@ -48,7 +48,8 @@
       "name": "html",
       "path": "site",
       "options": {
-        "llmsTxt": false
+        "llmsTxt": false,
+        "visibilityFilters": {}
       }
     }
   ],
