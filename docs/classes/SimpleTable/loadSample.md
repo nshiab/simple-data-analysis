@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.17**](../../index.md)
+[**Simple Data Analysis v6.0.18**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **loadSample**(`sample`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:1497](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L1497)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:1529](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.22/src/class/SimpleTable.ts#L1529)
 
 Fetches sample data from the simple-data-analysis-core GitHub repository.
 

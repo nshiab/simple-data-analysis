@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.17**](../../index.md)
+[**Simple Data Analysis v6.0.18**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **cloneColumnWithOffset**(`column`, `newColumn`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:1647](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L1647)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:1679](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.22/src/class/SimpleTable.ts#L1679)
 
 Clones a column in the table and offsets its values by a specified number of rows.
 This is useful for time-series analysis or comparing values across different time points.

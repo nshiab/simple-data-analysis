@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.17**](../../index.md)
+[**Simple Data Analysis v6.0.18**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **repeatRows**(`column`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5505](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L5505)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5629](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.22/src/class/SimpleTable.ts#L5629)
 
 Repeats rows based on the values in a column.
 

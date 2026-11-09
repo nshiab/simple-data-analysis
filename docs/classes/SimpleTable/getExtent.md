@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.17**](../../index.md)
+[**Simple Data Analysis v6.0.18**](../../index.md)
 
 ***
 
@@ -6,9 +6,9 @@
 
 # Method: getExtent()
 
-> **getExtent**(`column`): `Promise`\<\[`unknown`, `unknown`\]\>
+> **getExtent**(`column`, `options?`): `Promise`\<\[`unknown`, `unknown`\]\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7216](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L7216)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7372](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.22/src/class/SimpleTable.ts#L7372)
 
 Returns the extent (minimum and maximum values) of a specific column as an array.
 Temporal values use the same JavaScript representations as `getData()`.
@@ -21,6 +21,14 @@ Temporal values use the same JavaScript representations as `getData()`.
 
 The name of the column from which to retrieve the extent.
 
+### options?
+
+#### decimals?
+
+`number`
+
+Nonnegative decimal places for the numeric bounds. Defaults to no rounding.
+
 ## Returns
 
 `Promise`\<\[`unknown`, `unknown`\]\>
@@ -30,9 +38,7 @@ A promise that resolves to an array `[min, max]` containing the minimum and maxi
 ## Example
 
 ```ts
-// Get the extent of the 'temperature' column
-const tempExtent = await table.getExtent("temperature");
-console.log(tempExtent); // e.g., [15.2, 30.1]
+console.log(await table.getExtent("price", { decimals: 2 }));
 ```
 
 ## Inherited from

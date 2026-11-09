@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.17**](../../index.md)
+[**Simple Data Analysis v6.0.18**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **linearRegressions**(`options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6547](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L6547)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6706](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.22/src/class/SimpleTable.ts#L6706)
 
 Performs linear regression analysis. The results include the slope, the y-intercept, and the R-squared value.
 If no `x` and `y` columns are specified, the method computes linear regression analysis for all numeric column permutations.

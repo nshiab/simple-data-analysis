@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.17**](../../index.md)
+[**Simple Data Analysis v6.0.18**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **lastChars**(`column`, `count`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5163](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L5163)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5287](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.22/src/class/SimpleTable.ts#L5287)
 
 Extracts a specific number of characters from the end (right side) of string values in the specified column.
 

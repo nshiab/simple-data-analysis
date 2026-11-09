@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.17**](../../index.md)
+[**Simple Data Analysis v6.0.18**](../../index.md)
 
 ***
 
@@ -6,9 +6,9 @@
 
 # Method: getSum()
 
-> **getSum**(`column`): `Promise`\<`number`\>
+> **getSum**(`column`, `options?`): `Promise`\<`number`\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7295](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L7295)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7463](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.22/src/class/SimpleTable.ts#L7463)
 
 Returns the sum of values from a specific numeric column.
 
@@ -20,18 +20,34 @@ Returns the sum of values from a specific numeric column.
 
 The name of the numeric column from which to retrieve the sum.
 
+### options?
+
+An optional object with configuration options:
+
+#### decimals?
+
+`number`
+
+A nonnegative integer giving the number of decimal places to round the sum to. Defaults to no rounding.
+
 ## Returns
 
 `Promise`\<`number`\>
 
 A promise that resolves to the sum of values in the specified column.
 
-## Example
+## Examples
 
 ```ts
 // Get the sum of the 'quantity' column
 const totalQuantity = await table.getSum("quantity");
 console.log(totalQuantity); // e.g., 1250
+```
+
+```ts
+// Round the total to two decimal places.
+const totalSales = await table.getSum("sales", { decimals: 2 });
+console.log(totalSales);
 ```
 
 ## Inherited from

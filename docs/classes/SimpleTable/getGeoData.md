@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.17**](../../index.md)
+[**Simple Data Analysis v6.0.18**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **getGeoData**(`options?`): `Promise`\<\{ `features`: `unknown`[]; `type`: `string`; \}\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8794](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L8794)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8965](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.22/src/class/SimpleTable.ts#L8965)
 
 Returns the table's geospatial data as a GeoJSON FeatureCollection.
 Each row becomes a Feature: the selected geometry column becomes its geometry,

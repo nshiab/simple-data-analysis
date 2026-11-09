@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.17**](../../index.md)
+[**Simple Data Analysis v6.0.18**](../../index.md)
 
 ***
 
@@ -8,10 +8,13 @@
 
 > **summarize**(`options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6192](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L6192)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6342](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.22/src/class/SimpleTable.ts#L6342)
 
 Creates a summary table from selected columns, optionally grouped by other columns.
-This method allows you to aggregate data, calculate statistics (e.g., count, mean, sum), and group results by categorical columns.
+This method allows you to aggregate data, calculate statistics (e.g., count,
+mean, sum), and group results by categorical columns.
+With `keepRows: true`, every original row is retained and the statistics
+are added as new columns.
 
 ## Parameters
 
@@ -43,6 +46,12 @@ If `true`, timestamps, dates, and times will be converted to milliseconds before
 
 The number of decimal places to round the summarized columns. Defaults to `undefined` (no rounding).
 
+#### keepRows?
+
+`boolean`
+
+If `true`, keeps every original row and adds the statistics as columns. Supports at most one summarized column. Defaults to `false`.
+
 #### outputTable?
 
 `string` \| `boolean`
@@ -59,7 +68,7 @@ The statistics to compute. Can be a single statistic (e.g., `"mean"`), an array 
 
 `this`
 
-A table instance containing the summarized data (either the current table or a new table), so methods can be chained. When summarizing more than one column, a `column` column identifies which input column each row summarizes.
+A table instance containing the summarized data, or the original rows plus statistics when `keepRows` is `true`, so methods can be chained. When summarizing more than one column, a `column` column identifies which input column each row summarizes.
 
 ## Examples
 
@@ -124,6 +133,26 @@ await table.summarize({ columns: ["price", "cost"], decimals: 2 }).log();
 ```ts
 // Summarize 'timestamp_column' by converting to milliseconds first
 await table.summarize({ columns: "timestamp_column", datesToMs: true, stats: "mean" }).log();
+```
+
+```ts
+// Add department statistics to every original row
+await table.summarize({
+  columns: "salary",
+  by: "department",
+  stats: { departmentMean: "mean", departmentTotal: "sum" },
+  keepRows: true,
+}).log();
+```
+
+```ts
+// Store the original rows with their group counts in a new table
+const enriched = await table.summarize({
+  by: "department",
+  stats: { departmentCount: "count" },
+  keepRows: true,
+  outputTable: true,
+}).log();
 ```
 
 ## Inherited from

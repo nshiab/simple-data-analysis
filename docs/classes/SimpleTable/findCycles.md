@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.17**](../../index.md)
+[**Simple Data Analysis v6.0.18**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **findCycles**(`sourceColumn`, `targetColumn`, `edgeId`, `startNodes`, `options?`): `SimpleTable`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:4524](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L4524)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:4647](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.22/src/class/SimpleTable.ts#L4647)
 
 Finds all cycles starting and ending at each node in `startNodes`.
 Pass one node ID or an array of node IDs. A cycle cannot visit the same
@@ -108,6 +108,12 @@ One starting node ID or an array of IDs. Finds cycles that start and end at each
 ### options?
 
 An optional object with direction, time, cost, and result configuration.
+
+#### decimals?
+
+`number`
+
+Nonnegative decimal places for cumulative weights. Defaults to no rounding.
 
 #### direction?
 
@@ -381,6 +387,10 @@ await flights
 | --- | ---: | ---: | ---: | ---: | ---: | --- | --- | --- | --- | --- | ---: |
 | A | 0 | 1 | 40 | 40 | 3600000 | F1 | A | B | 2025-01-01 09:00:00 | 2025-01-01 10:00:00 | 40 |
 | A | 0 | 2 | 60 | 100 | 14400000 | F2 | B | A | 2025-01-01 12:00:00 | 2025-01-01 13:00:00 | 60 |
+
+```ts
+await table.findCycles("from", "to", "id", "A", { weight: "cost", decimals: 2 }).log();
+```
 
 ## Inherited from
 

@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.17**](../../index.md)
+[**Simple Data Analysis v6.0.18**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **addSummaryRows**(`columns`, `labelColumn`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6288](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L6288)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6446](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.22/src/class/SimpleTable.ts#L6446)
 
 Adds one or more summary rows to the table. Each row is calculated from
 the original rows before any summary rows are added. This is useful for
@@ -36,6 +36,12 @@ The existing string column in which stat row labels will be written.
 ### options?
 
 An optional object with configuration options:
+
+#### decimals?
+
+`number`
+
+A nonnegative integer giving the number of decimal places to round to. Rounding applies only to summary rows and skips counts. Defaults to no rounding.
 
 #### position?
 
@@ -78,6 +84,11 @@ await table.addSummaryRows("all", "region", {
     { stat: "mean", label: "Average" },
   ],
 }).log();
+```
+
+```ts
+// Round the total and average in the summary rows to two decimal places.
+await table.addSummaryRows("sales", "region", { stats: ["sum", "mean"], decimals: 2 }).log();
 ```
 
 ## Inherited from

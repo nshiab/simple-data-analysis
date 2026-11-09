@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.17**](../../index.md)
+[**Simple Data Analysis v6.0.18**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **loadYahooFinanceData**(`symbol`, `startDate`, `endDate`, `interval`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:751](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L751)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:783](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.22/src/class/SimpleTable.ts#L783)
 
 Downloads historical market data from Yahoo Finance and loads it into this
 table as `datetime`, `open`, `high`, `low`, `close`, `adjustedClose`, and

@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.17**](../../index.md)
+[**Simple Data Analysis v6.0.18**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **stream**(`options?`): `AsyncGenerator`\<\{\[`key`: `string`\]: `unknown`; \}, `void`, `undefined`\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7758](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L7758)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7926](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.22/src/class/SimpleTable.ts#L7926)
 
 Streams the table rows one by one as an async iterator, without
 materializing the whole table in memory. Values are converted to

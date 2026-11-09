@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.17**](../../index.md)
+[**Simple Data Analysis v6.0.18**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **hasTable**(`table`): `Promise`\<`boolean`\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleDB.ts:791](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleDB.ts#L791)
+Defined in: [simple-data-analysis-core/src/class/SimpleDB.ts:791](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.22/src/class/SimpleDB.ts#L791)
 
 Checks if a table exists in the database.
 

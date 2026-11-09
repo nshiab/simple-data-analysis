@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.17**](../../index.md)
+[**Simple Data Analysis v6.0.18**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **rolling**(`column`, `newColumn`, `stat`, `preceding`, `following`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6435](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.21/src/class/SimpleTable.ts#L6435)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6594](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.22/src/class/SimpleTable.ts#L6594)
 
 Computes rolling aggregations (e.g., rolling average, min, max) over a specified column.
 For rows without enough preceding or following rows to form a complete window, `NULL` will be returned.
