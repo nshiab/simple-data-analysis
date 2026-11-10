@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.18**](../../index.md)
+[**Simple Data Analysis v6.0.19**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **sort**(`order?`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:1790](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.22/src/class/SimpleTable.ts#L1790)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:1790](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.23/src/class/SimpleTable.ts#L1790)
 
 Sorts the rows of the table based on specified column(s) and order(s).
 If no columns are specified, all columns are sorted from left to right in ascending order.

@@ -1,8 +1,12 @@
-**Simple Data Analysis v6.0.18**
+**Simple Data Analysis v6.0.19**
 
 ***
 
 # Simple data analysis (SDA)
+
+> [!NOTE]
+> **[Read the API documentation](https://nshiab.github.io/simple-data-analysis/)**
+> for SDA and its inherited Core methods.
 
 SDA is a fast and easy-to-use TypeScript library for tabular, geospatial,
 vector, and AI-assisted data analysis. It runs on Node.js and
@@ -58,8 +62,7 @@ of the core functionality plus the extended features.
 AI, Google, and charting dependencies load only when those operations run. If
 you only use core methods, you don't pay their startup cost.
 
-The [documentation](https://nshiab.github.io/simple-data-analysis/) includes
-all inherited Core methods. For AI assistants, use [`llm.md`](https://github.com/nshiab/simple-data-analysis/blob/main/llm.md) or
+For AI assistants, use [`llm.md`](https://github.com/nshiab/simple-data-analysis/blob/main/llm.md) or
 [`llms.txt`](https://github.com/nshiab/simple-data-analysis/blob/main/llms.txt).
 
 ## Installation
