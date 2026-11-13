@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.20**](../../index.md)
+[**Simple Data Analysis v6.0.21**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **getProjection**(`column`): `Promise`\<`string`\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9366](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.23/src/class/SimpleTable.ts#L9366)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9420](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L9420)
 
 Retrieves the projection of a specified geospatial column.
 

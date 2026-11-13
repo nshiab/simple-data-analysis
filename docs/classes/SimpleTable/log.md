@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.20**](../../index.md)
+[**Simple Data Analysis v6.0.21**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **log**(`options?`): `Promise`\<[`SimpleTable`](../SimpleTable.md)\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9291](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.23/src/class/SimpleTable.ts#L9291)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9345](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L9345)
 
 Logs up to a specified number of rows from the table to the console. By default, the first 10 rows are logged.
 You can optionally log the column types and filter the data based on conditions.

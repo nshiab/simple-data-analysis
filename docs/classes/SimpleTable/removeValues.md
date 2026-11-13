@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.20**](../../index.md)
+[**Simple Data Analysis v6.0.21**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **removeValues**(`columnsAndValues`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:2226](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.23/src/class/SimpleTable.ts#L2226)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:2280](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L2280)
 
 Removes rows from this table that have specific values in specified columns.
 By default, a row is removed if it matches at least one specified column.

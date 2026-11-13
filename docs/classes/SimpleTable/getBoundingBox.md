@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.20**](../../index.md)
+[**Simple Data Analysis v6.0.21**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **getBoundingBox**(`column?`, `options?`): `Promise`\<\[`number`, `number`, `number`, `number`\]\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8950](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.23/src/class/SimpleTable.ts#L8950)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:9004](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L9004)
 
 Returns the bounding box of geometries in `[minLon, minLat, maxLon, maxLat]` order.
 By default, the method will try to find the column with the geometries. The input geometry is assumed to be in EPSG:4326 (WGS84).

@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.20**](../../index.md)
+[**Simple Data Analysis v6.0.21**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **unnest**(`column`, `separator`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5622](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.23/src/class/SimpleTable.ts#L5622)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5676](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L5676)
 
 Unnests (expands) rows by splitting a column's string values into multiple rows based on a separator.
 

@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.20**](../../index.md)
+[**Simple Data Analysis v6.0.21**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **findCycles**(`sourceColumn`, `targetColumn`, `edgeId`, `startNodes`, `options?`): `SimpleTable`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:4671](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.23/src/class/SimpleTable.ts#L4671)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:4725](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L4725)
 
 Finds all cycles starting and ending at each node in `startNodes`.
 Pass one node ID or an array of node IDs. A cycle cannot visit the same

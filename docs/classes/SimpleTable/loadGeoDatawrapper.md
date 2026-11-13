@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.20**](../../index.md)
+[**Simple Data Analysis v6.0.21**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **loadGeoDatawrapper**(`chartId`, `options?`): `this`
 
-Defined in: [src/class/SimpleTable.ts:1766](https://github.com/nshiab/simple-data-analysis/blob/v6.0.20/src/class/SimpleTable.ts#L1766)
+Defined in: [src/class/SimpleTable.ts:1766](https://github.com/nshiab/simple-data-analysis/blob/v6.0.21/src/class/SimpleTable.ts#L1766)
 
 Loads geospatial data from a Datawrapper map into the table.
 

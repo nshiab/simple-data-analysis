@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.20**](../../index.md)
+[**Simple Data Analysis v6.0.21**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **buffer**(`newColumn`, `distance`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8441](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.23/src/class/SimpleTable.ts#L8441)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8495](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L8495)
 
 Computes a buffer (a polygon representing a specified distance around a geometry) for geometries in a specified column.
 The distance is in the Spatial Reference System (SRS) unit of the input geometries.

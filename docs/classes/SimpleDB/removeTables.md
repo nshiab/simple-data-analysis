@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.20**](../../index.md)
+[**Simple Data Analysis v6.0.21**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **removeTables**(`tables`): `Promise`\<[`SimpleDB`](../SimpleDB.md)\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleDB.ts:673](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.23/src/class/SimpleDB.ts#L673)
+Defined in: [simple-data-analysis-core/src/class/SimpleDB.ts:673](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleDB.ts#L673)
 
 Removes one or more tables from the database.
 

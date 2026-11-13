@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.20**](../../index.md)
+[**Simple Data Analysis v6.0.21**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **getMin**(`column`, `options?`): `Promise`\<`unknown`\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7362](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.23/src/class/SimpleTable.ts#L7362)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7416](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L7416)
 
 Returns the minimum value from a specific column.
 Temporal values use the same JavaScript representations as `getData()`.

@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.20**](../../index.md)
+[**Simple Data Analysis v6.0.21**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **hdbscan**(`columns`, `newColumn`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:1279](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.23/src/class/SimpleTable.ts#L1279)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:1333](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L1333)
 
 Groups rows with similar numeric features using HDBSCAN, without requiring
 a predefined number of clusters. Adds a VARCHAR column containing

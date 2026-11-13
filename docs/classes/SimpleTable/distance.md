@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.20**](../../index.md)
+[**Simple Data Analysis v6.0.21**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **distance**(`column1`, `column2`, `newColumn`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8798](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.23/src/class/SimpleTable.ts#L8798)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8852](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L8852)
 
 Computes the distance between geometries in two specified columns.
 By default, the distance is calculated in the Spatial Reference System (SRS) unit of the input geometries.

@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.20**](../../index.md)
+[**Simple Data Analysis v6.0.21**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **keepValuesStat**(`column`, `stat`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:2182](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.23/src/class/SimpleTable.ts#L2182)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:2236](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L2236)
 
 Keeps the full rows whose value in a column matches its minimum or maximum.
 All tied rows are kept. Null values are ignored, so a group with only null

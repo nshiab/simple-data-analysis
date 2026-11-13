@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.20**](../../index.md)
+[**Simple Data Analysis v6.0.21**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **fuzzyJoin**(`rightTable`, `leftColumn`, `rightColumn`, `threshold`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:4922](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.23/src/class/SimpleTable.ts#L4922)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:4976](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L4976)
 
 Performs a fuzzy left join between this table (considered the left table) and another table
 (the right table) based on string similarity between two text columns. Uses the
