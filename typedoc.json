@@ -8,6 +8,10 @@
   },
   "requiredToBeDocumented": ["Function", "Class", "Method", "Accessor"],
   "treatValidationWarningsAsErrors": true,
+  "externalPattern": [
+    "**/node_modules/!(@nshiab)/**",
+    "**/node_modules/@nshiab/!(simple-data-analysis-core)/**"
+  ],
   "excludePrivate": true,
   "excludeProtected": true,
   "plugin": [
