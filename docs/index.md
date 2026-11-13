@@ -1,4 +1,4 @@
-**Simple Data Analysis v6.0.19**
+**Simple Data Analysis v6.0.20**
 
 ***
 

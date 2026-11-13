@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.19**](../index.md)
+[**Simple Data Analysis v6.0.20**](../index.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: SimpleTable
 
-Defined in: [src/class/SimpleTable.ts:69](https://github.com/nshiab/simple-data-analysis/blob/v6.0.19/src/class/SimpleTable.ts#L69)
+Defined in: [src/class/SimpleTable.ts:69](https://github.com/nshiab/simple-data-analysis/blob/v6.0.20/src/class/SimpleTable.ts#L69)
 
 Represents a table within a SimpleDB database, capable of handling tabular, geospatial, and vector data.
 Extends the core [`SimpleTable`](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.23/docs/classes/SimpleTable.md) class
