@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.21**](../../index.md)
+[**Simple Data Analysis v6.0.22**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **similarityMahalanobis**(`columns`, `referencePoint`, `newColumn`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5639](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L5639)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5699](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.25/src/class/SimpleTable.ts#L5699)
 
 Measures numeric profile similarity using each row's Mahalanobis distance
 from a supplied reference point and stores it in a new DOUBLE column.

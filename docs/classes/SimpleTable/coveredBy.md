@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.21**](../../index.md)
+[**Simple Data Analysis v6.0.22**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **coveredBy**(`column`, `containerColumn`, `newColumn`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8679](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L8679)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:8864](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.25/src/class/SimpleTable.ts#L8864)
 
 Returns `TRUE` if every point of a geometry in `column` is covered by a geometry in `containerColumn`, including their boundaries, and `FALSE` otherwise.
 

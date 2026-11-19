@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.21**](../../index.md)
+[**Simple Data Analysis v6.0.22**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **pad**(`columns`, `length`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5248](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L5248)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5308](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.25/src/class/SimpleTable.ts#L5308)
 
 Pads the strings in the specified columns to a target length.
 

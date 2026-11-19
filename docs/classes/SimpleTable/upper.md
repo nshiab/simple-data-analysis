@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.21**](../../index.md)
+[**Simple Data Analysis v6.0.22**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **upper**(`columns`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5159](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L5159)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5219](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.25/src/class/SimpleTable.ts#L5219)
 
 Converts string values in the specified columns to uppercase.
 

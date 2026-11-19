@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.21**](../../index.md)
+[**Simple Data Analysis v6.0.22**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **bins**(`column`, `interval`, `startColumn`, `endColumn`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5988](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L5988)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6173](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.25/src/class/SimpleTable.ts#L6173)
 
 Adds numeric start and end columns for bins of the specified interval size.
 Each bin includes its start and excludes its end: `start <= value < end`.

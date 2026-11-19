@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.21**](../../index.md)
+[**Simple Data Analysis v6.0.22**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **getSum**(`column`, `options?`): `Promise`\<`number`\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7541](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L7541)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7726](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.25/src/class/SimpleTable.ts#L7726)
 
 Returns the sum of values from a specific numeric column.
 

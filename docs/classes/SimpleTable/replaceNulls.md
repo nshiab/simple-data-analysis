@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.21**](../../index.md)
+[**Simple Data Analysis v6.0.22**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **replaceNulls**(`columns`, `value`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5402](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L5402)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5462](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.25/src/class/SimpleTable.ts#L5462)
 
 Replaces `NULL` values in the specified columns with a given value.
 Use `["all"]` to target a column literally named `all`.

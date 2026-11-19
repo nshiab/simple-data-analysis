@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.21**](../../index.md)
+[**Simple Data Analysis v6.0.22**](../../index.md)
 
 ***
 
@@ -6,13 +6,15 @@
 
 # Method: nest()
 
-> **nest**(`column`, `separator`, `by`): `this`
+> **nest**(`column`, `by`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5741](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L5741)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5926](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.25/src/class/SimpleTable.ts#L5926)
 
-Nests (collapses) rows by aggregating a column's values into a single string per group, separated by a delimiter.
+Collects a column's values into one DuckDB list per group.
 
-This is the inverse operation of `unnest()`. Multiple rows are combined into fewer rows by grouping on specified category columns and concatenating the target column values with a separator.
+Each output row contains the grouping columns and a list in the original
+value column. The list keeps the input order, duplicate values, and nulls.
+Use [unnest()](unnest.md) to expand the list into rows again.
 
 ## Parameters
 
@@ -20,19 +22,13 @@ This is the inverse operation of `unnest()`. Multiple rows are combined into few
 
 `string`
 
-The name of the column whose values will be aggregated and concatenated.
-
-### separator
-
-`string`
-
-The delimiter string used to join the column values.
+The column containing the values to collect into lists.
 
 ### by
 
 `string` \| `string`[]
 
-The column name or an array of column names to group by.
+One or more grouping column names, distinct from the value column.
 
 ## Returns
 
@@ -43,20 +39,26 @@ The table, so methods can be chained.
 ## Examples
 
 ```ts
-// Nest 'neighborhoods' column separated by " / " for each city
-// Before: [{ city: "Montreal", neighborhoods: "Old Montreal" },
-//         { city: "Montreal", neighborhoods: "Chinatown" },
-//         { city: "Montreal", neighborhoods: "Griffintown" }]
-// After:  [{ city: "Montreal", neighborhoods: "Old Montreal / Chinatown / Griffintown" }]
-await table.nest("neighborhoods", " / ", "city").log();
+// Team A gets scores [12, 18]. Team B gets [15].
+await table
+  .loadArray([
+    { team: "A", score: 12 },
+    { team: "B", score: 15 },
+    { team: "A", score: 18 },
+  ])
+  .nest("score", "team")
+  .log();
 ```
 
 ```ts
-// Nest with multiple category columns
-// Before: [{ country: "Canada", city: "Montreal", tags: "red" },
-//         { country: "Canada", city: "Montreal", tags: "blue" }]
-// After:  [{ country: "Canada", city: "Montreal", tags: "red,blue" }]
-await table.nest("tags", ",", ["country", "city"]).log();
+// Collect tags for each country and city.
+await table
+  .loadArray([
+    { country: "Canada", city: "Montréal", tag: "red" },
+    { country: "Canada", city: "Montréal", tag: "blue" },
+  ])
+  .nest("tag", ["country", "city"])
+  .log();
 ```
 
 ## Inherited from

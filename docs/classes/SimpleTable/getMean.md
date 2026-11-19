@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.21**](../../index.md)
+[**Simple Data Analysis v6.0.22**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **getMean**(`column`, `options?`): `Promise`\<`number`\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7479](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L7479)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7664](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.25/src/class/SimpleTable.ts#L7664)
 
 Returns the mean (average) value from a specific numeric column.
 

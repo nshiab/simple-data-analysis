@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.21**](../../index.md)
+[**Simple Data Analysis v6.0.22**](../../index.md)
 
 ***
 
@@ -8,10 +8,35 @@
 
 > **addColumn**(`newColumn`, `type`, `definition`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:2663](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L2663)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:2723](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.25/src/class/SimpleTable.ts#L2723)
 
-Adds a new column to the table based on a specified data type (JavaScript or SQL types) and a SQL definition.
-With the default `SimpleDB.expressionSyntax: "js"`, expressions support JavaScript-style operators (`&&`, `||`, `===`, `!==`). Set `expressionSyntax: "sql"` for unchanged SQL.
+Adds a column by evaluating `definition` for each row and casting the result to `type`.
+
+Pass `definition` as a JavaScript string containing a SQL expression.
+
+- To add a string, wrap the value in SQL single quotes, as in
+  `"'pending'"`. Double any apostrophe inside the value, as in `"'O''Brien'"`.
+- To add a number, put the number directly inside the JavaScript string,
+  as in `"12.5"`.
+- To add a boolean, use `"TRUE"` or `"FALSE"`.
+- To add a value calculated from other columns, refer to those columns by
+  name, as in `"price * quantity"`.
+- To add a value from a `STRUCT` column, join the field names with dots,
+  as in `"customer.address.city"`.
+- To add a value from a `JSON` column, use `json_extract_string()` for text,
+  as in `"json_extract_string(customer, '$.address.city')"`. Use
+  `json_extract()` with `"JSON"` as the new column type to put a nested
+  array or object in its own column.
+
+With the default `SimpleDB.expressionSyntax: "js"`, expressions support
+JavaScript-style operators (`&&`, `||`, `===`, `!==`). Set
+`expressionSyntax: "sql"` to pass the expression directly to DuckDB.
+
+To get one row per array element or JSON object property, see
+[unnest()](unnest.md).
+
+Use `await table.getTypes()` to retrieve the column types or
+`await table.log({ types: true })` to display them alongside the data.
 
 ## Parameters
 
@@ -31,7 +56,7 @@ The data type for the new column. Can be a JavaScript type (e.g., `"number"`, `"
 
 `string`
 
-A SQL expression defining how the values for the new column should be computed (e.g., `"column1 + column2"`, `"ST_Centroid(geom_column)"`).
+The SQL expression to evaluate for each row, supplied as a JavaScript string.
 
 ## Returns
 
@@ -40,6 +65,16 @@ A SQL expression defining how the values for the new column should be computed (
 The table, so methods can be chained.
 
 ## Examples
+
+```ts
+// Add the same text, number, and boolean to every row.
+await table
+  .loadArray([{ id: 1 }, { id: 2 }])
+  .addColumn("name", "string", "'O''Brien'")
+  .addColumn("price", "number", "12.5")
+  .addColumn("active", "boolean", "TRUE")
+  .log();
+```
 
 ```ts
 // Add a new column 'total' as a float, calculated from 'column1' and 'column2'
@@ -52,11 +87,33 @@ await table.addColumn("centroid", "geometry('EPSG:4326')", `ST_Centroid("country
 ```
 
 ```ts
-// Read a number from a JSON object into a new column using dot notation.
-await table.loadArray([{ details: { count: 3 } }], {
-  columnTypes: { details: "JSON" },
-})
-  .addColumn("count", "integer", "details.count")
+// orders.json contains [{"customer":{"address":{"city":"Montréal"}}}].
+// The new city column contains Montréal.
+await table
+  .loadData("orders.json")
+  .addColumn("city", "string", "customer.address.city")
+  .log();
+```
+
+```ts
+// Read the city name from a JSON column into a text column.
+// The new city column contains Montréal.
+await table
+  .loadArray([{ customer: { address: { city: "Montréal" } } }], {
+    columnTypes: { customer: "JSON" },
+  })
+  .addColumn("city", "string", "json_extract_string(customer, '$.address.city')")
+  .log();
+```
+
+```ts
+// Read the tags array from a JSON column into a new JSON column.
+// The new tags column contains ["member","newsletter"].
+await table
+  .loadArray([{ customer: { tags: ["member", "newsletter"] } }], {
+    columnTypes: { customer: "JSON" },
+  })
+  .addColumn("tags", "JSON", "json_extract(customer, '$.tags')")
   .log();
 ```
 

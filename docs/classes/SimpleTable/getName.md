@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.21**](../../index.md)
+[**Simple Data Analysis v6.0.22**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **getName**(): `string`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7168](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.24/src/class/SimpleTable.ts#L7168)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7353](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.25/src/class/SimpleTable.ts#L7353)
 
 Returns the name of the table.
 
