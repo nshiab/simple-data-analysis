@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.22**](../../index.md)
+[**Simple Data Analysis v6.0.23**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **quantiles**(`column`, `count`, `newColumn`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6133](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.25/src/class/SimpleTable.ts#L6133)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:6133](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.26/src/class/SimpleTable.ts#L6133)
 
 Assigns quantiles to rows in a new column based on specified column values.
 

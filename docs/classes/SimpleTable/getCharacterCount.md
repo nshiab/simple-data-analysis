@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.22**](../../index.md)
+[**Simple Data Analysis v6.0.23**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **getCharacterCount**(`column`): `Promise`\<`number`\>
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7487](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.25/src/class/SimpleTable.ts#L7487)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:7487](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.26/src/class/SimpleTable.ts#L7487)
 
 Returns the total number of characters in a column storing strings.
 Counts are based on Unicode code points, not grapheme clusters. A user-perceived character composed of multiple code points, such as some emoji or decomposed accented letters, counts as multiple characters.

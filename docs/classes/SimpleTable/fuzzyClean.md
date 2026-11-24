@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.22**](../../index.md)
+[**Simple Data Analysis v6.0.23**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **fuzzyClean**(`column`, `newColumn`, `threshold`, `options?`): `this`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5111](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.25/src/class/SimpleTable.ts#L5111)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:5111](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.26/src/class/SimpleTable.ts#L5111)
 
 Normalizes string values in a column by detecting fuzzy duplicates and replacing them with a single canonical value.
 

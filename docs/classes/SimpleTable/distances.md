@@ -1,4 +1,4 @@
-[**Simple Data Analysis v6.0.22**](../../index.md)
+[**Simple Data Analysis v6.0.23**](../../index.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **distances**(`sourceColumn`, `targetColumn`, `startNodes`, `options?`): `SimpleTable`
 
-Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:3819](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.25/src/class/SimpleTable.ts#L3819)
+Defined in: [simple-data-analysis-core/src/class/SimpleTable.ts:3819](https://github.com/nshiab/simple-data-analysis-core/blob/v2.1.26/src/class/SimpleTable.ts#L3819)
 
 Finds the shortest routes from each starting node to every reachable
 node. Without options, shortest means the fewest connections. Use `weight`
