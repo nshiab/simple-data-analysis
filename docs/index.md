@@ -1,4 +1,4 @@
-**Simple Data Analysis v6.0.23**
+**Simple Data Analysis v6.0.24**
 
 ***
 
@@ -79,7 +79,31 @@ documentation for AI agents, you can use
 [@nshiab/setup-data-project](https://github.com/nshiab/setup-data-project).
 
 ```bash
-npx @nshiab/setup-data-project
+# Set up a project with Simple Data Analysis
+npx @nshiab/setup-data-project --sda
+```
+
+You can also install the `setup-data-project` skill to let your coding agent
+set up a TypeScript project with Simple Data Analysis. Paste this into your
+coding agent to install the skill globally.
+
+```text
+Install the setup-data-project skill globally from this GitHub folder.
+https://github.com/nshiab/setup-data-project/tree/main/skills/setup-data-project
+```
+
+If you prefer to install the skill from the terminal, run this with Node.js
+22.20 or later and select your coding agent when prompted.
+
+```sh
+npx skills add nshiab/setup-data-project --skill setup-data-project --global
+```
+
+Once the skill is installed, open the folder you want to work in. Drag and
+drop your data files into the chat, then invoke the skill with a request.
+
+```text
+/setup-data-project Help me analyze this data.
 ```
 
 ## Performance
